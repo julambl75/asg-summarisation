@@ -1,16 +1,17 @@
+import json
+import os
+
 from pycorenlp import StanfordCoreNLP
 import nltk
 from nltk.tree import *
 
-PUNCTUATION = ['.', ',', ';', ':', '!', '?', "'", "''", '"', '``', '-']
-POS_CATEGORIES = {'jj': 'adjective', 'nn': 'object', 'nns': 'object', 'nnp': 'object', 'nnps': 'object', \
-                  'prp': 'subject', 'rb': 'adverb', 'rp': 'particle', 'vb': 'verb', 'vbd': 'verb', \
-                  'vbg': 'verb', 'vbn': 'verb', 'vbp': 'verb', 'vbz': 'verb'}
-# TODO differentiate object/subject and add missing tags
-# TODO change how this is done
+DIR = os.path.dirname(os.path.realpath(__file__))
+PARSE_CONSTANTS_JSON = DIR + '/parse_constants.json'
 
-ROOT = 'ROOT'
-SENTENCE = 'S'
+with open(PARSE_CONSTANTS_JSON) as f:
+    constants = json.load(f)
+    PUNCTUATION = constants['punctuation']
+    POS_CATEGORIES = constants['pos_categories']
 
 
 class ParseCoreNLP:
@@ -34,6 +35,8 @@ class ParseCoreNLP:
             'annotators': 'tokenize,pos,lemma,depparse,parse',
             'outputFormat': 'json'
         })
+        self._map_words_to_lemmas(output)
+
         sentences = [Tree.fromstring(sentence) for sentence in [s['parse'] for s in output['sentences']]]
         self.tree = sentences[0]
 
@@ -72,16 +75,18 @@ class ParseCoreNLP:
 
     def _tree_to_asg(self, tree, asg_leaves=[]):
         if isinstance(tree[0], nltk.Tree):  # non-leaf node
-            [ParseCoreNLP._tree_to_asg(subtree, asg_leaves) for subtree in tree]
+            [self._tree_to_asg(subtree, asg_leaves) for subtree in tree]
         else:
             tag = tree.label().lower()
             word = tree[0].lower()
             predicates = ''
             if word in self.lemmas.keys() and tag in POS_CATEGORIES.keys():
-                category = POS_CATEGORIES[tag]
+                categories = POS_CATEGORIES[tag]
                 lemma = self.lemmas[word]
-                self.constants.add((category, lemma))
-                predicates = " {}({}). ".format(category, lemma)
+                predicates = ' '
+                for category in categories:
+                    self.constants.add((category, lemma))
+                    predicates += "{}({}). ".format(category, lemma)
             asg_leaves.append("{} -> \"{} \" {{{}}}".format(tag, word, predicates))
         return asg_leaves
 
@@ -89,7 +94,7 @@ class ParseCoreNLP:
         return ["#constant({},{}).".format(category, lemma) for category, lemma in sorted(self.constants)]
 
     def _format_results(self):
-        context_specific_asg = self._tree_to_asg()
+        context_specific_asg = self._tree_to_asg(self.tree)
         ilasp_constants = self._lemmas_to_constants()
 
         if self.print_results:

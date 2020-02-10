@@ -1,0 +1,31 @@
+{
+  "punctuation": [
+    ".",
+    ",",
+    ";",
+    ":",
+    "!",
+    "?",
+    "'",
+    "''",
+    "\"",
+    "``",
+    "-"
+  ],
+  "pos_categories": {
+    "jj": ["adjective"],
+    "nn": ["object","subject"],
+    "nns": ["object","subject"],
+    "nnp": ["object","subject"],
+    "nnps": ["object","subject"],
+    "prp": ["subject"],
+    "rb": ["adverb"],
+    "rp": ["particle"],
+    "vb": ["verb"],
+    "vbd": ["verb"],
+    "vbg": ["verb"],
+    "vbn": ["verb"],
+    "vbp": ["verb"],
+    "vbz": ["verb"]
+  }
+}

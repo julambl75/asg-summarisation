@@ -43,7 +43,7 @@ class TextToSummary:
 
     def _text_to_tokens(self):
         # Format text for ASG
-        text = self.text.lower().split('.')  # TODO allow other types of punctuation
+        text = self.text.lower().split('.')  # TODO allow other types of punctuation (ex: !)
         tokens = [list(filter(lambda s: len(s) > 0, re.split(REMOVE_SPACES_REGEX, sentence))) for sentence in text]
         tokens = list(filter(lambda s: len(s) > 0, tokens))
         self.tokens = [sentence + ['.'] for sentence in tokens]  # TODO remove readability punctuation in examples
@@ -58,7 +58,7 @@ class TextToSummary:
     @staticmethod
     def _append_to_asg(rules):
         tmp = open(INPUT_ASG_TMP, 'a')
-        [tmp.write(example + '\n') for example in rules]
+        [tmp.write(example + '\n') for example in rules + ['']]
         tmp.close()
 
     @staticmethod

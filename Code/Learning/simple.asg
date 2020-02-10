@@ -112,7 +112,7 @@ np -> dt jj nn {
   singular(X) :- subject(X)@3.
   gram_pers(third).
 
-  % If required the noun adjective must share the same property
+  % If required the noun and adjective must share the same property
   :- property(X,Y)@2, property(n_adj_match,X)@2, not property(can_have,X)@3.
 
   property(X,Y) :- property(X,Y)@2.
@@ -123,7 +123,7 @@ np -> jj nns {
   plural(X) :- subject(X)@2.
   gram_pers(third).
 
-  % If required the noun adjective must share the same property
+  % If required the noun and adjective must share the same property
   :- property(X,Y)@1, property(n_adj_match,X)@1, not property(can_have,X)@2.
 
   property(X,Y) :- property(X,Y)@1.
