@@ -1,0 +1,189 @@
+% Up to 2 sentences in summary
+start -> s_group { :- count(X)@1, X > 2. }
+
+s_group -> { count(0). }
+
+s_group -> s ". " s_group {
+  count(X+1) :- count(X)@3.
+  property(X,Y) :- property(X,Y)@1.
+
+  % Do not talk about same subject/verb/object in consecutive sentences
+  :- property(subject,X), property(subject,X)@3.
+  :- property(verb,X), property(verb,X)@3.
+  :- property(object,X), property(object,X)@3, not property(object,no_obj).
+
+  % Do not mention present then past
+  :- property(tense,present), property(tense,past)@3.
+
+  % Do not mention forward then backward movement
+  movement(X,D,T) :- movement(X,D,T)@1.
+  :- movement(X,forward,T)@1, movement(X,backward,T)@3.
+}
+
+s -> np vp {
+  % The subject and tense must agree
+  :- property(gram_pers,third)@1, not property(gram_pers,third)@2, not property(tense,past).
+  :- not property(gram_pers,third)@1, property(gram_pers,third)@2, not property(tense,past).
+
+  % The sentence must have a valid subject
+  subject :- property(subject,X)@1.
+  :- not subject.
+
+  % The noun and verb must agree
+  :- property(singular,X)@1, property(plural,Y)@2.
+  :- property(singular,X)@2, property(plural,Y)@1.
+
+  % Learn actions taking place in text with correct tense
+  :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), not action(X,Y,Z,T).
+  :- property(subject,X), property(verb,Y), property(preposition,A)@2, property(tense,T), not action(X,Y,A,T).
+  :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), property(adjective,A), not action(X,Y,Z,T,A).
+
+  % Compress movement forwards then backwards into no movement
+  :- property(subject,X), property(direction,forward)@2, property(tense,T), not movement(X,forward,T).
+  :- property(subject,X), property(direction,backward)@2, property(tense,T), not movement(X,backward,T).
+  :- movement(X,forward,T), movement(X,backward,T), not action(X,stay,no_obj,T).
+
+  property(X,Y) :- property(X,Y)@1.
+  property(X,Y) :- property(X,Y)@2.
+}
+
+vp -> vbz np rp {
+  tense(present).
+  gram_pers(third).
+
+  % If required the verb and object must share the same property
+  :- property(vb_obj_match,X)@1, not property(vb_obj_match,X)@2.
+
+  % The verb group must have a valid object and/or preposition
+  object :- property(object,X)@2.
+  preposition :- property(preposition,X)@3.
+  :- not object, not preposition.
+
+  % A pronoun cannot be an object
+  pronoun :- property(pronoun,X)@2.
+  :- pronoun.
+
+  property(X,Y) :- property(X,Y)@1.
+  property(X,Y) :- property(X,Y)@2.
+  property(X,Y) :- property(X,Y)@3.
+}
+
+vp -> vbp np rp {
+  tense(present).
+
+  % If required the verb and object must share the same property
+  :- property(vb_obj_match,X)@1, not property(vb_obj_match,X)@2.
+
+  % The verb group must have a valid object and/or preposition
+  object :- property(object,X)@2.
+  preposition :- property(preposition,X)@3.
+  :- not object, not preposition.
+
+  % A pronoun cannot be an object
+  pronoun :- property(pronoun,X)@2.
+  :- pronoun.
+
+  property(X,Y) :- property(X,Y)@1.
+  property(X,Y) :- property(X,Y)@2.
+  property(X,Y) :- property(X,Y)@3.
+}
+
+vp -> vbd np rp {
+  tense(past).
+
+  % If required the verb and object must share the same property
+  :- property(vb_obj_match,X)@1, not property(vb_obj_match,X)@2.
+
+  % The verb group must have a valid object and/or preposition
+  object :- property(object,X)@2.
+  preposition :- property(preposition,X)@3.
+  :- not object, not preposition.
+
+  % A pronoun cannot be an object
+  pronoun :- property(pronoun,X)@2.
+  :- pronoun.
+
+  property(X,Y) :- property(X,Y)@1.
+  property(X,Y) :- property(X,Y)@2.
+  property(X,Y) :- property(X,Y)@3.
+}
+
+np -> dt jj nn {
+  singular(X) :- subject(X)@3.
+  gram_pers(third).
+
+  % If required the noun adjective must share the same property
+  :- property(X,Y)@2, property(n_adj_match,X)@2, not property(can_have,X)@3.
+
+  property(X,Y) :- property(X,Y)@2.
+  property(X,Y) :- property(X,Y)@3.
+}
+
+np -> jj nns {
+  plural(X) :- subject(X)@2.
+  gram_pers(third).
+
+  % If required the noun adjective must share the same property
+  :- property(X,Y)@1, property(n_adj_match,X)@1, not property(can_have,X)@2.
+
+  property(X,Y) :- property(X,Y)@1.
+  property(X,Y) :- property(X,Y)@2.
+}
+
+np -> nnp {
+  singular(X) :- subject(X)@1.
+  gram_pers(third).
+
+  property(X,Y) :- property(X,Y)@1.
+}
+
+np -> prp {
+  property(X,Y) :- property(X,Y)@1.
+}
+
+% General leaf nodes
+np -> {}
+prp -> { vb_obj_match(no_obj). object(no_obj). }
+jj -> { }
+rp -> {}
+vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
+
+#background {
+  property(subject,X) :- subject(X).
+  property(verb,X) :- verb(X).
+  property(object,X) :- object(X).
+  
+  property(singular,X) :- singular(X).
+  property(plural,X) :- plural(X).
+
+  property(adjective,X) :- color(X).
+  property(adjective,X) :- state(X).
+  property(direction,X) :- direction(X).
+
+  property(preposition,X) :- preposition(X).
+  property(pronoun,X) :- pronoun(X).
+
+  property(can_have,X) :- can_have(X).
+  property(n_adj_match,color) :- color(X).
+
+  property(vb_obj_match,X) :- vb_obj_match(X).
+
+  property(continuous,X) :- continuous(X).
+
+  property(gram_pers,X) :- gram_pers(X).
+  property(tense,X) :- tense(X).
+}
+
+% General constants
+#constant(object,no_obj).
+#constant(tense,present).
+#constant(tense,past).
+#constant(direction,forward).
+#constant(direction,backward).
+#constant(direction,none).
+
+% Learn actions for summary
+#modeh(action(const(subject),const(verb),const(object),const(tense))):[4]. % subject-verb-object
+#modeh(action(const(subject),const(verb),const(preposition),const(tense))):[4]. % subject-verb-preposition
+#modeh(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4]. % subject-verb-adjective-object
+
