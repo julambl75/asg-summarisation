@@ -71,7 +71,7 @@ class ParseCoreNLP:
                 i += 1
 
     def _tree_to_asg(self):
-        return sorted(set(self._tree_to_asg(self.tree)))
+        return set(self._tree_to_asg(self.tree))
 
     def _tree_to_asg(self, tree, asg_leaves=[]):
         if isinstance(tree[0], nltk.Tree):  # non-leaf node
@@ -86,16 +86,23 @@ class ParseCoreNLP:
                 predicates = ' '
                 for category in categories:
                     self.constants.add((category, lemma))
+                    ###
+                    # TODO remove big hack
+                    if lemma == 'it':
+                        predicates += ' singular(it). '
+                    elif lemma == 'they':
+                        predicates += ' plural(they). '
+                    ###
                     predicates += "{}({}). ".format(category, lemma)
             asg_leaves.append("{} -> \"{} \" {{{}}}".format(tag, word, predicates))
         return asg_leaves
 
     def _lemmas_to_constants(self):
-        return ["#constant({},{}).".format(category, lemma) for category, lemma in sorted(self.constants)]
+        return ["#constant({},{}).".format(category, lemma) for category, lemma in self.constants]
 
     def _format_results(self):
-        context_specific_asg = self._tree_to_asg(self.tree)
-        ilasp_constants = self._lemmas_to_constants()
+        context_specific_asg = sorted(self._tree_to_asg(self.tree))
+        ilasp_constants = sorted(self._lemmas_to_constants())
 
         if self.print_results:
             self.tree.pretty_print()
