@@ -1,10 +1,6 @@
 from pycorenlp import StanfordCoreNLP
 import nltk
 from nltk.tree import *
-import sys
-
-SHOW_TREE = True
-HIDE_TREE_ARG = '--no_tree'
 
 PUNCTUATION = ['.', ',', ';', ':', '!', '?', "'", "''", '"', '``', '-']
 POS_CATEGORIES = {'jj': 'adjective', 'nn': 'object', 'nns': 'object', 'nnp': 'object', 'nnps': 'object', \
@@ -16,93 +12,88 @@ POS_CATEGORIES = {'jj': 'adjective', 'nn': 'object', 'nns': 'object', 'nnp': 'ob
 ROOT = 'ROOT'
 SENTENCE = 'S'
 
-asg_leaves = []  # ASG code for leaf nodes of tree
-lemmas = {}  # Mapping of word -> lemma for ASG rules
-constants = set()  # Pairs of (category, lemma) to create ILASP constants
 
-# Load English tokenizer, tagger, parser, NER and word vectors
-nlp = StanfordCoreNLP('http://localhost:9000')
+class ParseCoreNLP:
+    def __init__(self, text, print_results=True):
+        self.text = text
+        self.lemmas = {}  # Mapping of word -> lemma for ASG rules
+        self.constants = set()  # Pairs of (category, lemma) to create ILASP constants
 
-# Process whole documents
-if len(sys.argv) > 1:
-    try:
-        text = open(sys.argv[1]).read()
-    except IOError:
-        text = sys.argv[1]
-    if len(sys.argv) > 2 and sys.argv[2].strip() == HIDE_TREE_ARG:
-        SHOW_TREE = False
-else:
-    text = "Please pass a filename or string as an argument."
+        # Load English tokenizer, tagger, parser, NER and word vectors
+        self.nlp = StanfordCoreNLP('http://localhost:9000')
+        self.print_results = print_results
 
-output = nlp.annotate(text, properties={
-    'annotators': 'tokenize,pos,lemma,depparse,parse',
-    'outputFormat': 'json'
-})
+    # Returns a pair ([context_specific_asg], [ilasp_constants])
+    def parse_text(self):
+        self._text_to_tree()
+        self._remove_punctuation_nodes(self.tree)
+        return self._format_results()
 
-# Create mapping from words to lemmas
-for sentence in output['sentences']:
-    for token in sentence['tokens']:
-        word = token['originalText'].lower()
-        lemma = token['lemma'].lower()
-        if word in lemmas.keys():
-            assert lemmas[word] == lemma, "Multiple lemmas {} and {} for word {}".format(lemmas[word], lemma, word)
+    def _text_to_tree(self):
+        output = self.nlp.annotate(self.text, properties={
+            'annotators': 'tokenize,pos,lemma,depparse,parse',
+            'outputFormat': 'json'
+        })
+        sentences = [Tree.fromstring(sentence) for sentence in [s['parse'] for s in output['sentences']]]
+        self.tree = sentences[0]
+
+        # Combine trees
+        itersentences = iter(sentences)
+        next(itersentences)
+        [self.tree.insert(len(self.tree[0]), sentence[0]) for sentence in itersentences]
+
+    def _map_words_to_lemmas(self, core_nlp_json):
+        for sentence in core_nlp_json['sentences']:
+            for token in sentence['tokens']:
+                word = token['originalText'].lower()
+                lemma = token['lemma'].lower()
+                if word in self.lemmas.keys():
+                    assert self.lemmas[word] == lemma, "Multiple lemmas {} and {} for word {}".format(self.lemmas[word], lemma, word)
+                else:
+                    self.lemmas[word] = lemma
+
+    # TODO improve efficiency
+    def _remove_punctuation_nodes(self, tree):
+        i = 0
+        tree_size = len(tree)
+        while i < tree_size:
+            node = tree[i]
+            if not isinstance(node, nltk.Tree):
+                return
+            if node.label() in PUNCTUATION:
+                del tree[i]
+                tree_size -= 1
+            else:
+                ParseCoreNLP._remove_punctuation_nodes(self, node)
+                i += 1
+
+    def _tree_to_asg(self):
+        return sorted(set(self._tree_to_asg(self.tree)))
+
+    def _tree_to_asg(self, tree, asg_leaves=[]):
+        if isinstance(tree[0], nltk.Tree):  # non-leaf node
+            [ParseCoreNLP._tree_to_asg(subtree, asg_leaves) for subtree in tree]
         else:
-            lemmas[word] = lemma
+            tag = tree.label().lower()
+            word = tree[0].lower()
+            predicates = ''
+            if word in self.lemmas.keys() and tag in POS_CATEGORIES.keys():
+                category = POS_CATEGORIES[tag]
+                lemma = self.lemmas[word]
+                self.constants.add((category, lemma))
+                predicates = " {}({}). ".format(category, lemma)
+            asg_leaves.append("{} -> \"{} \" {{{}}}".format(tag, word, predicates))
+        return asg_leaves
 
+    def _lemmas_to_constants(self):
+        return ["#constant({},{}).".format(category, lemma) for category, lemma in sorted(self.constants)]
 
-# Remove all punctuation nodes
-# TODO improve efficiency
-def remove_punctuation(tree):
-    i = 0
-    tree_size = len(tree)
-    while i < tree_size:
-        node = tree[i]
-        if not isinstance(node, nltk.Tree):
-            return
-        if node.label() in PUNCTUATION:
-            del tree[i]
-            tree_size -= 1
-        else:
-            remove_punctuation(node)
-            i += 1
+    def _format_results(self):
+        context_specific_asg = self._tree_to_asg()
+        ilasp_constants = self._lemmas_to_constants()
 
-
-# Convert tree to ASG syntax
-def tree_to_asg(tree, asg_leaves=asg_leaves):
-    if isinstance(tree[0], nltk.Tree):  # non-leaf node
-        if tree.label() != ROOT:
-            child_labels = ' '.join([subtree.label() for subtree in tree if subtree.label() != SENTENCE])
-        [tree_to_asg(subtree, asg_leaves) for subtree in tree]
-    else:
-        tag = tree.label().lower()
-        word = tree[0].lower()
-        predicates = ''
-        if word in lemmas.keys() and tag in POS_CATEGORIES.keys():
-            category = POS_CATEGORIES[tag]
-            lemma = lemmas[word]
-            constants.add((category, lemma))
-            predicates = " {}({}). ".format(category, lemma)
-        asg_leaves.append("{} -> \"{} \" {{{}}}".format(tag, word, predicates))
-    return asg_leaves
-
-
-# Extract parse trees
-sentences = [Tree.fromstring(sentence) for sentence in [s['parse'] for s in output['sentences']]]
-# tree = relabel_punc(sentences[0])
-tree = sentences[0]
-
-# Combine trees
-itersentences = iter(sentences)
-next(itersentences)
-[tree.insert(len(tree[0]), sentence[0]) for sentence in itersentences]
-remove_punctuation(tree)
-
-# Print full tree (optional), leaf node ASG and ILASP constants
-if SHOW_TREE:
-    tree.pretty_print()
-context_specific_asg = sorted(set(tree_to_asg(tree)))
-[print(predicate) for predicate in context_specific_asg]
-print('')
-[print("#constant({},{}).".format(category,lemma)) for category, lemma in sorted(constants)]
-
-sys.exit(0)  # Success
+        if self.print_results:
+            self.tree.pretty_print()
+            print(context_specific_asg)
+            print(ilasp_constants)
+        return context_specific_asg, ilasp_constants

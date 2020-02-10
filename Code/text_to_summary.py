@@ -1,10 +1,10 @@
-import sys
 import re
 import os
 import shutil
 
+from parse_core_nlp import ParseCoreNLP
+
 DIR = os.path.dirname(os.path.realpath(__file__))
-PARSE_WORDS_SCRIPT = DIR + '/parse_core_nlp.py'
 INPUT_ASG = DIR + '/Learning/general.asg'
 INPUT_ASG_TMP = DIR + '/Learning/general_tmp.asg'
 OUTPUT_ASG = DIR + '/Learning/general_learned.asg'
@@ -12,43 +12,56 @@ OUTPUT_ASG = DIR + '/Learning/general_learned.asg'
 assert INPUT_ASG != INPUT_ASG_TMP
 assert INPUT_ASG != OUTPUT_ASG
 
-PARSE_WORDS_CMD = "python3 {} {} --no_tree".format(PARSE_WORDS_SCRIPT)
-
 DEPTH = 10
 LEARN_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(INPUT_ASG_TMP, DEPTH, OUTPUT_ASG)
 GEN_SUMMARIES_CMD = "asg '{}' --mode=run --depth={}".format(OUTPUT_ASG, DEPTH, OUTPUT_ASG)
 
 REMOVE_SPACES_REGEX = '[^a-zA-Z0-9]+'
 
-# Process whole documents
-if len(sys.argv) > 1:
-    try:
-        text = open(sys.argv[1]).read()
-    except IOError:
-        text = sys.argv[1]
-else:
-    print("Please pass a story in string form as an argument.")
-    sys.exit()
 
-# TODO Generate text-specific ASG leaf nodes and ILASP constants
+class TextToSummary:
+    def __init__(self, text):
+        self.text = text
+        self.language_parser = ParseCoreNLP(text, False)
 
-# Format text for ASG
-text = text.lower().split('.') # TODO allow other types of punctuation
-tokens = [list(filter(lambda s: len(s) > 0, re.split(REMOVE_SPACES_REGEX, sentence))) for sentence in text]
-tokens = list(filter(lambda s: len(s) > 0, tokens))
-tokens = [sentence + ['.'] for sentence in tokens] # TODO remove readability punctuation in examples
+    def gen_summary(self):
+        # Get positive examples for learning task
+        self._text_to_tokens()
+        self._gen_pos_examples()
 
-# Generate positive examples
-pos_examples = ['+ [' + ', '.join(["\"{} \"".format(token) for token in sentence]) + ']' for sentence in tokens]
+        # Get context-specific ASG and ILASP constants
+        context_specific_asg, ilasp_constants = self.language_parser.parse_text()
 
-# Copy ASG file to avoid overriding
-shutil.copyfile(INPUT_ASG, INPUT_ASG_TMP)
+        # Complete ASG with context-specific information
+        self._copy_asg_script()
+        self._append_to_asg(context_specific_asg)
+        self._append_to_asg(ilasp_constants)
+        self._append_to_asg(self.pos_examples)
 
-# Append positive example (story) to temporary ASG file
-tmp = open(INPUT_ASG_TMP, 'a')
-[tmp.write(example + '\n') for example in pos_examples]
-tmp.close()
+        # Run ASG and show summary
+        self._run_asg()
 
-# Generate summaries
-os.system(LEARN_CMD)
-os.system(GEN_SUMMARIES_CMD)
+    def _text_to_tokens(self):
+        # Format text for ASG
+        text = self.text.lower().split('.')  # TODO allow other types of punctuation
+        tokens = [list(filter(lambda s: len(s) > 0, re.split(REMOVE_SPACES_REGEX, sentence))) for sentence in text]
+        tokens = list(filter(lambda s: len(s) > 0, tokens))
+        self.tokens = [sentence + ['.'] for sentence in tokens]  # TODO remove readability punctuation in examples
+
+    def _gen_pos_examples(self):
+        self.pos_examples = ['+ [' + ', '.join(["\"{} \"".format(token) for token in sentence]) + ']' for sentence in self.tokens]
+
+    @staticmethod
+    def _copy_asg_script():
+        shutil.copyfile(INPUT_ASG, INPUT_ASG_TMP)  # Avoids overriding original ASG file
+
+    @staticmethod
+    def _append_to_asg(rules):
+        tmp = open(INPUT_ASG_TMP, 'a')
+        [tmp.write(example + '\n') for example in rules]
+        tmp.close()
+
+    @staticmethod
+    def _run_asg():
+        os.system(LEARN_CMD)
+        os.system(GEN_SUMMARIES_CMD)
