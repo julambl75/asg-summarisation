@@ -22,13 +22,13 @@ REMOVE_SPACES_REGEX = '[^a-zA-Z0-9]+'
 
 # Process whole documents
 if len(sys.argv) > 1:
-  try:
-    text = open(sys.argv[1]).read()
-  except IOError:
-    text = sys.argv[1]
+    try:
+        text = open(sys.argv[1]).read()
+    except IOError:
+        text = sys.argv[1]
 else:
-  print("Please pass a story in string form as an argument.")
-  sys.exit()
+    print("Please pass a story in string form as an argument.")
+    sys.exit()
 
 # TODO Generate text-specific ASG leaf nodes and ILASP constants
 
