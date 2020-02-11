@@ -47,7 +47,7 @@ s -> np vp {
   property(X,Y) :- property(X,Y)@2.
 }
 
-vp -> vbz np rp {
+vp -> vbz np rb {
   tense(present).
   gram_pers(third).
 
@@ -68,7 +68,7 @@ vp -> vbz np rp {
   property(X,Y) :- property(X,Y)@3.
 }
 
-vp -> vbp np rp {
+vp -> vbp np rb {
   tense(present).
 
   % If required the verb and object must share the same property
@@ -88,7 +88,7 @@ vp -> vbp np rp {
   property(X,Y) :- property(X,Y)@3.
 }
 
-vp -> vbd np rp {
+vp -> vbd np rb {
   tense(past).
 
   % If required the verb and object must share the same property
@@ -145,13 +145,15 @@ np -> prp {
 np -> {}
 prp -> { vb_obj_match(no_obj). object(no_obj). }
 jj -> { }
-rp -> {}
+rb -> {}
 vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 
 #background {
   property(subject,X) :- subject(X).
   property(verb,X) :- verb(X).
   property(object,X) :- object(X).
+  property(adjective,X) :- adjective(X).
+  property(preposition,X) :- preposition(X).
   
   property(singular,X) :- singular(X).
   property(plural,X) :- plural(X).
@@ -162,9 +164,6 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 
   property(preposition,X) :- preposition(X).
   property(pronoun,X) :- pronoun(X).
-
-  property(can_have,X) :- can_have(X).
-  property(n_adj_match,color) :- color(X).
 
   property(vb_obj_match,X) :- vb_obj_match(X).
 

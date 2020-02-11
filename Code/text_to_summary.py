@@ -22,23 +22,23 @@ REMOVE_SPACES_REGEX = '[^a-zA-Z0-9]+'
 class TextToSummary:
     def __init__(self, text):
         self.text = text
-        self.language_parser = ParseCoreNLP(text, False)
+        self.language_parser = ParseCoreNLP(text, True)
 
     def gen_summary(self):
-        # Get positive examples for learning task
+        print('Generating positive examples to learn narrative...')
         self._text_to_tokens()
         self._gen_pos_examples()
 
-        # Get context-specific ASG and ILASP constants
+        print('Parsing text to create context-specific ASG and ILASP constants...')
         context_specific_asg, ilasp_constants = self.language_parser.parse_text()
 
-        # Complete ASG with context-specific information
+        print('Completing basic ASG with context-specific information...')
         self._copy_asg_script()
         self._append_to_asg(context_specific_asg)
         self._append_to_asg(ilasp_constants)
         self._append_to_asg(self.pos_examples)
 
-        # Run ASG and show summary
+        print('Running ASG...')
         self._run_asg()
 
     def _text_to_tokens(self):
