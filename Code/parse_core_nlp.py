@@ -5,6 +5,8 @@ from pycorenlp import StanfordCoreNLP
 import nltk
 from nltk.tree import *
 
+from parse_concept_net import ParseConceptNet
+
 DIR = os.path.dirname(os.path.realpath(__file__))
 PARSE_CONSTANTS_JSON = DIR + '/parse_constants.json'
 
@@ -17,12 +19,14 @@ with open(PARSE_CONSTANTS_JSON) as f:
 class ParseCoreNLP:
     def __init__(self, text, print_results=True):
         self.text = text
+        self.print_results = print_results
+
         self.lemmas = {}  # Mapping of word -> lemma for ASG rules
         self.constants = set()  # Pairs of (category, lemma) to create ILASP constants
 
         # Load English tokenizer, tagger, parser, NER and word vectors
         self.nlp = StanfordCoreNLP('http://localhost:9000')
-        self.print_results = print_results
+        self.pcn = ParseConceptNet(False)
 
     # Returns a pair ([context_specific_asg], [ilasp_constants])
     def parse_text(self):
@@ -70,9 +74,6 @@ class ParseCoreNLP:
                 ParseCoreNLP._remove_punctuation_nodes(self, node)
                 i += 1
 
-    def _tree_to_asg(self):
-        return set(self._tree_to_asg(self.tree))
-
     def _tree_to_asg(self, tree, asg_leaves=[]):
         if isinstance(tree[0], nltk.Tree):  # non-leaf node
             [self._tree_to_asg(subtree, asg_leaves) for subtree in tree]
@@ -84,15 +85,27 @@ class ParseCoreNLP:
                 categories = POS_CATEGORIES[tag]
                 lemma = self.lemmas[word]
                 predicates = ' '
+                ###
+                # TODO remove big hack
+                if lemma == 'it':
+                    predicates += ' singular(it). '
+                elif lemma == 'they':
+                    predicates += ' plural(they). '
+                elif lemma == 'back':
+                    predicates += ' preposition(back). '
+                    self.constants.add(('preposition', lemma))
+                elif lemma == 'out':
+                    predicates += ' preposition(out). '
+                    self.constants.add(('preposition', lemma))
+                elif lemma == 'was':
+                    predicates += ' singular(was). '
+                elif lemma == 'were':
+                    predicates += ' plural(were). '
+                elif tag == 'vbg':
+                    predicates += ' vb_obj_match(no_obj). '
+                ###
                 for category in categories:
                     self.constants.add((category, lemma))
-                    ###
-                    # TODO remove big hack
-                    if lemma == 'it':
-                        predicates += ' singular(it). '
-                    elif lemma == 'they':
-                        predicates += ' plural(they). '
-                    ###
                     predicates += "{}({}). ".format(category, lemma)
             asg_leaves.append("{} -> \"{} \" {{{}}}".format(tag, word, predicates))
         return asg_leaves
@@ -101,7 +114,7 @@ class ParseCoreNLP:
         return ["#constant({},{}).".format(category, lemma) for category, lemma in self.constants]
 
     def _format_results(self):
-        context_specific_asg = sorted(self._tree_to_asg(self.tree))
+        context_specific_asg = sorted(set(self._tree_to_asg(self.tree)))
         ilasp_constants = sorted(self._lemmas_to_constants())
 
         if self.print_results:
