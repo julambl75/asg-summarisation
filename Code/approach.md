@@ -12,7 +12,7 @@ From this we can then create a very basic inital CFG. The general structure is a
 - The root of our grammar is called `start` and contains a single `s_group` (sentence group).
 - An `s_group` is recursively defined: it can either be empty, or contain a sentence `s` followed by another `s_group`.
 - Each sentence is composed of a noun part `np` followed by a verb part `vp`.
-- A `vp` in turn has a verb (different name depending on tense) as well as an `np`, and possibly a verb in continuous form `vbg` and/or and adverb `rp`.
+- A `vp` in turn has a verb (different name depending on tense) as well as an `np`, and possibly a verb in continuous form `vbg` and/or and adverb `rb`.
 - Each `np` may have a determinant `dt` (if singular), can have an adjective `jj`, an adverb, and always a noun or pronoun.
 - Leaf nodes are thus nouns/pronouns, verbs, adjectives, adverbs and determinants.
 
@@ -91,6 +91,6 @@ In order to teach our program how to understand a narrative, we have started out
 
 # Summary Generation
 
-In order to generate a summary, we have a script called `simple_text_to_summary.py`, which takes a text as input. From this, it splits it into sentences, which get divided into words. For each sentence, a list of its constituent words is appended as a positive example to our ASG program. We do not create a single positive example for the entire text, otherwise our program would not be able to learn from it, due to the restriction on the number of sentences in a summary (thus we can use the same script without changing any rules).
+In order to generate a summary, we have a script called `main.py`, which takes a text as input. From this, it splits it into sentences, which get divided into words. For each sentence, a list of its constituent words is appended as a positive example to our ASG program. We do not create a single positive example for the entire text, otherwise our program would not be able to learn from it, due to the restriction on the number of sentences in a summary (thus we can use the same script without changing any rules). In order to be able to learn about the actions that take place in the story, we use the parse tree to create ILASP constants for each word; these then also get appended to the ASG program.
 
 At this stage we run `asg` in learning mode, to generate a new program that contains the `action` predicates learned from the text. Then, we run this new program in run mode, which finally lists all the possible summaries.

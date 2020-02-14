@@ -35,7 +35,7 @@ s -> np vp {
 
   % Learn actions taking place in text with correct tense
   :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), not action(X,Y,Z,T).
-  :- property(subject,X), property(verb,Y), property(preposition,A)@2, property(tense,T), not action(X,Y,A,T).
+  :- property(subject,X), property(verb,Y), property(adverb,A)@2, property(tense,T), not action(X,Y,A,T).
   :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), property(adjective,A), not action(X,Y,Z,T,A).
 
   % Compress movement forwards then backwards into no movement
@@ -54,10 +54,10 @@ vp -> vbz np rb {
   % If required the verb and object must share the same property
   :- property(vb_obj_match,X)@1, not property(vb_obj_match,X)@2.
 
-  % The verb group must have a valid object and/or preposition
+  % The verb group must have a valid object and/or adverb
   object :- property(object,X)@2.
-  preposition :- property(preposition,X)@3.
-  :- not object, not preposition.
+  adverb :- property(adverb,X)@3.
+  :- not object, not adverb.
 
   % A pronoun cannot be an object
   pronoun :- property(pronoun,X)@2.
@@ -74,10 +74,10 @@ vp -> vbp np rb {
   % If required the verb and object must share the same property
   :- property(vb_obj_match,X)@1, not property(vb_obj_match,X)@2.
 
-  % The verb group must have a valid object and/or preposition
+  % The verb group must have a valid object and/or adverb
   object :- property(object,X)@2.
-  preposition :- property(preposition,X)@3.
-  :- not object, not preposition.
+  adverb :- property(adverb,X)@3.
+  :- not object, not adverb.
 
   % A pronoun cannot be an object
   pronoun :- property(pronoun,X)@2.
@@ -94,10 +94,10 @@ vp -> vbd np rb {
   % If required the verb and object must share the same property
   :- property(vb_obj_match,X)@1, not property(vb_obj_match,X)@2.
 
-  % The verb group must have a valid object and/or preposition
+  % The verb group must have a valid object and/or adverb
   object :- property(object,X)@2.
-  preposition :- property(preposition,X)@3.
-  :- not object, not preposition.
+  adverb :- property(adverb,X)@3.
+  :- not object, not adverb.
 
   % A pronoun cannot be an object
   pronoun :- property(pronoun,X)@2.
@@ -153,7 +153,8 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
   property(verb,X) :- verb(X).
   property(object,X) :- object(X).
   property(adjective,X) :- adjective(X).
-  property(preposition,X) :- preposition(X).
+  property(adverb,X) :- adverb(X).
+  property(pronoun,X) :- pronoun(X).
   
   property(singular,X) :- singular(X).
   property(plural,X) :- plural(X).
@@ -162,8 +163,6 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
   property(adjective,X) :- state(X).
   property(direction,X) :- direction(X).
 
-  property(preposition,X) :- preposition(X).
-  property(pronoun,X) :- pronoun(X).
 
   property(vb_obj_match,X) :- vb_obj_match(X).
 
@@ -183,6 +182,6 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 
 % Learn actions for summary
 #modeh(action(const(subject),const(verb),const(object),const(tense))):[4]. % subject-verb-object
-#modeh(action(const(subject),const(verb),const(preposition),const(tense))):[4]. % subject-verb-preposition
+#modeh(action(const(subject),const(verb),const(adverb),const(tense))):[4]. % subject-verb-adverb
 #modeh(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4]. % subject-verb-adjective-object
 

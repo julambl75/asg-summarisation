@@ -5,9 +5,9 @@ We need to simplify and formalize (i.e., figure out minimal set of hard-coded ru
 
 ## Think about metric for summary (symbolic papers, blue and red)
 
-  We can use a text relationship map with sentences/clauses (see interim report). This can be constructed by having an index assigned to each one in the ASG semantic learning predicates, using a Python script to construct the graph, then adding rules in the ASG program to restrict the summary to the most connected nodes.
+We can use a text relationship map with sentences/clauses (see interim report). This can be constructed by having an index assigned to each one in the ASG semantic learning predicates, using a Python script to construct the graph, then adding rules in the ASG program to restrict the summary to the most connected nodes.
   
-  In addition we can use weak constraints to rule out certain summaries
+In addition we can use weak constraints to rule out certain summaries
 
 ## Create positive/negative example to learn (stay :- ...)
 

@@ -5,6 +5,7 @@ from pycorenlp import StanfordCoreNLP
 import nltk
 from nltk.tree import *
 
+from helpers import Helpers
 from parse_concept_net import ParseConceptNet
 
 DIR = os.path.dirname(os.path.realpath(__file__))
@@ -27,6 +28,7 @@ class ParseCoreNLP:
         # Load English tokenizer, tagger, parser, NER and word vectors
         self.nlp = StanfordCoreNLP('http://localhost:9000')
         self.pcn = ParseConceptNet(False)
+        self.helpers = Helpers()
 
     # Returns a pair ([context_specific_asg], [ilasp_constants])
     def parse_text(self):
@@ -84,26 +86,8 @@ class ParseCoreNLP:
             if word in self.lemmas.keys() and tag in POS_CATEGORIES.keys():
                 categories = POS_CATEGORIES[tag]
                 lemma = self.lemmas[word]
-                predicates = ' '
-                ###
-                # TODO remove big hack
-                if lemma == 'it':
-                    predicates += ' singular(it). '
-                elif lemma == 'they':
-                    predicates += ' plural(they). '
-                elif lemma == 'back':
-                    predicates += ' preposition(back). '
-                    self.constants.add(('preposition', lemma))
-                elif lemma == 'out':
-                    predicates += ' preposition(out). '
-                    self.constants.add(('preposition', lemma))
-                elif lemma == 'was':
-                    predicates += ' singular(was). '
-                elif lemma == 'were':
-                    predicates += ' plural(were). '
-                elif tag == 'vbg':
-                    predicates += ' vb_obj_match(no_obj). '
-                ###
+                predicates = self.helpers.get_base_predicates(tag, lemma)
+
                 for category in categories:
                     self.constants.add((category, lemma))
                     predicates += "{}({}). ".format(category, lemma)
