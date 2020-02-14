@@ -6,22 +6,23 @@ from parse_core_nlp import ParseCoreNLP
 
 DIR = os.path.dirname(os.path.realpath(__file__))
 INPUT_ASG = DIR + '/Learning/general.asg'
-INPUT_ASG_TMP = DIR + '/Learning/general_tmp.asg'
-OUTPUT_ASG = DIR + '/Learning/general_learned.asg'
+INPUT_ASG_AUGMENTED = DIR + '/Learning/general_augmented.asg'
+LEARNED_ACTIONS_ASG = DIR + '/Learning/general_learned_actions.asg'
+OUTPUT_ASG = DIR + '/Learning/general_output.asg'
 
-assert INPUT_ASG != INPUT_ASG_TMP
-assert INPUT_ASG != OUTPUT_ASG
+assert INPUT_ASG != INPUT_ASG_AUGMENTED and INPUT_ASG != LEARNED_ACTIONS_ASG and INPUT_ASG != OUTPUT_ASG
 
 DEPTH = 10
-LEARN_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(INPUT_ASG_TMP, DEPTH, OUTPUT_ASG)
-GEN_SUMMARIES_CMD = "asg '{}' --mode=run --depth={}".format(OUTPUT_ASG, DEPTH, OUTPUT_ASG)
+LEARN_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(INPUT_ASG_AUGMENTED, DEPTH, LEARNED_ACTIONS_ASG)
+GEN_SUMMARIES_CMD = "asg '{}' --mode=run --depth={}".format(LEARNED_ACTIONS_ASG, DEPTH, OUTPUT_ASG)
 
 REMOVE_SPACES_REGEX = '[^a-zA-Z0-9]+'
 
 
 class TextToSummary:
-    def __init__(self, text):
+    def __init__(self, text, summaries):
         self.text = text
+        self.summaries = summaries
         self.language_parser = ParseCoreNLP(text, True)
 
     def gen_summary(self):
@@ -41,6 +42,9 @@ class TextToSummary:
         print('Running ASG...')
         self._run_asg()
 
+        # TODO
+        print('Learning summaries...')
+
     def _text_to_tokens(self):
         # Format text for ASG
         text = self.text.lower().split('.')  # TODO allow other types of punctuation (ex: !)
@@ -53,11 +57,11 @@ class TextToSummary:
 
     @staticmethod
     def _copy_asg_script():
-        shutil.copyfile(INPUT_ASG, INPUT_ASG_TMP)  # Avoids overriding original ASG file
+        shutil.copyfile(INPUT_ASG, INPUT_ASG_AUGMENTED)  # Avoids overriding original ASG file
 
     @staticmethod
     def _append_to_asg(rules):
-        tmp = open(INPUT_ASG_TMP, 'a')
+        tmp = open(INPUT_ASG_AUGMENTED, 'a')
         [tmp.write(example + '\n') for example in rules + ['']]
         tmp.close()
 
