@@ -13,8 +13,10 @@ OUTPUT_ASG = DIR + '/Learning/general_output.asg'
 assert INPUT_ASG != INPUT_ASG_AUGMENTED and INPUT_ASG != LEARNED_ACTIONS_ASG and INPUT_ASG != OUTPUT_ASG
 
 DEPTH = 10
-LEARN_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(INPUT_ASG_AUGMENTED, DEPTH, LEARNED_ACTIONS_ASG)
-GEN_SUMMARIES_CMD = "asg '{}' --mode=run --depth={}".format(LEARNED_ACTIONS_ASG, DEPTH, OUTPUT_ASG)
+LEARN_ACTIONS_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(INPUT_ASG_AUGMENTED, DEPTH, LEARNED_ACTIONS_ASG)
+LEARN_SUMMARIES_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(LEARNED_ACTIONS_ASG, DEPTH, OUTPUT_ASG)
+GEN_SUMMARIES_CMD = "asg '{}' --mode=run --depth={}".format(OUTPUT_ASG, DEPTH)
+# TODO call new commands
 
 REMOVE_SPACES_REGEX = '[^a-zA-Z0-9]+'
 
@@ -67,5 +69,5 @@ class TextToSummary:
 
     @staticmethod
     def _run_asg():
-        os.system(LEARN_CMD)
+        os.system(LEARN_ACTIONS_CMD)
         os.system(GEN_SUMMARIES_CMD)
