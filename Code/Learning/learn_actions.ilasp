@@ -1,0 +1,3 @@
+#modeh(action(const(subject),const(verb),const(object),const(tense))):[4]. % subject-verb-object
+#modeh(action(const(subject),const(verb),const(adverb),const(tense))):[4]. % subject-verb-adverb
+#modeh(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4]. % subject-verb-adjective-object

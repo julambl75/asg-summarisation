@@ -18,7 +18,7 @@ with open(PARSE_CONSTANTS_JSON) as f:
 
 
 class ParseCoreNLP:
-    def __init__(self, text, print_results=True):
+    def __init__(self, text, print_results=False):
         self.text = text
         self.print_results = print_results
 

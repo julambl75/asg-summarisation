@@ -34,9 +34,9 @@ s -> np vp {
   :- property(singular,X)@2, property(plural,Y)@1.
 
   % Learn actions taking place in text with correct tense
-  :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), not action(X,Y,Z,T).
-  :- property(subject,X), property(verb,Y), property(adverb,A)@2, property(tense,T), not action(X,Y,A,T).
-  :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), property(adjective,A), not action(X,Y,Z,T,A).
+  :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), not action(X,Y,Z,T), not summary(X,Y,Z,T).
+  :- property(subject,X), property(verb,Y), property(adverb,A)@2, property(tense,T), not action(X,Y,A,T), not summary(X,Y,A,T).
+  :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), property(adjective,A), not action(X,Y,Z,T,A), not summary(X,Y,Z,T,A).
 
   % Compress movement forwards then backwards into no movement
   :- property(subject,X), property(direction,forward)@2, property(tense,T), not movement(X,forward,T).
@@ -115,6 +115,7 @@ np -> dt jj nn {
   % If required the noun and adjective must share the same property
   :- property(X,Y)@2, property(n_adj_match,X)@2, not property(can_have,X)@3.
 
+  property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
   property(X,Y) :- property(X,Y)@3.
 }
@@ -137,15 +138,34 @@ np -> nnp {
   property(X,Y) :- property(X,Y)@1.
 }
 
+np -> nnps {
+  plural(X) :- subject(X)@1.
+  gram_pers(third).
+
+  property(X,Y) :- property(X,Y)@1.
+}
+
 np -> prp {
   property(X,Y) :- property(X,Y)@1.
 }
 
+np -> pp {
+  property(X,Y) :- property(X,Y)@1.
+}
+
+pp -> in np {
+  property(X,Y) :- property(X,Y)@1.
+  property(X,Y) :- property(X,Y)@2.
+}
+
 % General leaf nodes
 np -> {}
+np -> {}
 prp -> { vb_obj_match(no_obj). object(no_obj). }
-jj -> { }
+jj -> {}
+dt -> {}
 rb -> {}
+in -> {}
 vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 
 #background {
@@ -179,9 +199,3 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 #constant(direction,forward).
 #constant(direction,backward).
 #constant(direction,none).
-
-% Learn actions for summary
-#modeh(action(const(subject),const(verb),const(object),const(tense))):[4]. % subject-verb-object
-#modeh(action(const(subject),const(verb),const(adverb),const(tense))):[4]. % subject-verb-adverb
-#modeh(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4]. % subject-verb-adjective-object
-

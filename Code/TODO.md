@@ -12,3 +12,8 @@ We should use ILASP to add compaction as general rule (as second ILASP to get ge
 We can use a text relationship map with sentences/clauses (see interim report). This can be constructed by having an index assigned to each one in the ASG semantic learning predicates, using a Python script to construct the graph, then adding rules in the ASG program to restrict the summary to the most connected nodes.
   
 In addition we can use weak constraints to rule out certain summaries.
+
+---
+For Mary example:
+- good: was raining, stayed
+- bad: entered, double-movement (out+back)
