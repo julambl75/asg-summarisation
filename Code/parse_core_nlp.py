@@ -6,7 +6,6 @@ import nltk
 from nltk.tree import *
 
 from helpers import Helpers
-from parse_concept_net import ParseConceptNet
 
 DIR = os.path.dirname(os.path.realpath(__file__))
 PARSE_CONSTANTS_JSON = DIR + '/parse_constants.json'
@@ -27,7 +26,6 @@ class ParseCoreNLP:
 
         # Load English tokenizer, tagger, parser, NER and word vectors
         self.nlp = StanfordCoreNLP('http://localhost:9000')
-        self.pcn = ParseConceptNet(False)
         self.helpers = Helpers()
 
     # Returns a pair ([context_specific_asg], [ilasp_constants])

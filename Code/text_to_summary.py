@@ -21,10 +21,8 @@ DEPTH = 10
 LEARN_ACTIONS_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(INPUT_ASG_AUGMENTED, DEPTH, LEARNED_ACTIONS_ASG)
 LEARN_SUMMARIES_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(LEARNED_ACTIONS_ASG, DEPTH, OUTPUT_ASG)
 GEN_SUMMARIES_CMD = "asg '{}' --mode=run --depth={}".format(OUTPUT_ASG, DEPTH)
-# TODO call new commands
 
 REMOVE_SPACES_REGEX = '[^a-zA-Z0-9]+'
-REMOVE_SPACES_REGEX_KEEP_PUNC = '[^a-zA-Z0-9\.]+'
 
 
 class TextToSummary:
@@ -65,10 +63,13 @@ class TextToSummary:
         context_specific_asg, ilasp_constants = self.summaries_parser.parse_text()
 
         print('Completing basic ASG with context-specific information...')
+        self._update_constraints(LEARNED_ACTIONS_ASG, 'not action', 'not summary')
         self._append_to_asg(LEARNED_ACTIONS_ASG, (context_specific_asg, self.ilasp_learn_summaries, ilasp_constants, examples))
 
         print('Learning summaries...')
         self._run_learn_summaries()
+
+        print('Listing learned summaries...')
         self._run_print_summaries()
 
     @staticmethod
@@ -99,13 +100,20 @@ class TextToSummary:
         shutil.copyfile(INPUT_ASG, INPUT_ASG_AUGMENTED)  # Avoids overriding original ASG file
 
     @staticmethod
-    def _append_to_asg(file, rule_sets):
-        tmp = open(file, 'a')
-        for rule_set in rule_sets:
-            for rule in rule_set:
-                tmp.write(rule + '\n')
-            tmp.write('\n')
-        tmp.close()
+    def _append_to_asg(filename, rule_sets):
+        with open(filename, 'a') as file:
+            for rule_set in rule_sets:
+                for rule in rule_set:
+                    file.write(rule + '\n')
+                file.write('\n')
+
+    @staticmethod
+    def _update_constraints(filename, original_constraint, new_constraint):
+        with open(filename, 'r') as file:
+            filedata = file.read()
+            filedata = filedata.replace(original_constraint, new_constraint)
+        with open(filename, 'w') as file:
+            file.write(filedata)
 
     @staticmethod
     def _run_learn_actions():
