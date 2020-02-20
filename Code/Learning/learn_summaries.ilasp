@@ -1,12 +1,20 @@
-#modeh(summary(const(subject),const(verb),const(object),const(tense))):[3,4].
-#modeh(summary(const(subject),const(verb),const(adverb),const(tense))):[3,4].
-#modeh(summary(const(subject),const(verb),const(object),const(tense),const(adjective))):[3,4].
+#modeh(summary(const(subject),const(verb),const(object),const(tense))):[4].
+#modeh(summary(const(subject),const(verb),const(adverb),const(tense))):[4].
+#modeh(summary(const(subject),const(verb),const(object),const(tense),const(adjective))):[4].
 
-#modeba(action(const(subject),const(verb),const(object),const(tense))):[3,4].
-#modeba(action(const(subject),const(verb),const(adverb),const(tense))):[3,4].
-#modeba(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[3,4].
+#modeba(action(const(subject),const(verb),const(object),const(tense))):[4].
+#modeba(action(const(subject),const(verb),const(adverb),const(tense))):[4].
+#modeba(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4].
 
-#modeba(property(subject,const(subject))):[3,4].
-#modeba(property(tense,const(tense))):[3,4].
-#modeba(property(verb,const(verb))):[3,4].
-#modeba(movement(const(subject),const(verb),const(direction),const(tense))):[3,4].
+#modeba(property(subject,const(subject))):[4].
+#modeba(property(tense,const(tense))):[4].
+#modeba(property(verb,const(verb))):[4].
+#modeba(movement(const(subject),const(verb),const(direction),const(tense))):[4].
+
+% General constants
+#constant(object,no_obj).
+#constant(tense,present).
+#constant(tense,past).
+#constant(direction,forward).
+#constant(direction,backward).
+#constant(direction,none).

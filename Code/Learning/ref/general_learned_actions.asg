@@ -1,0 +1,241 @@
+
+start -> s_group {
+   :- X_user > 2, count(X_user)@1.
+}
+s_group -> {
+  count(0).
+}
+s_group -> s ". " s_group {
+  count(X_user + 1) :- count(X_user)@3.
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+}
+s -> np vp {
+   :- not property(tense, past), not property(gram_pers, third)@2, property(gram_pers, third)@1.
+   :- not property(tense, past), property(gram_pers, third)@2, not property(gram_pers, third)@1.
+  subject :- property(subject, X_user)@1.
+   :- not subject.
+   :- property(plural, Y_user)@2, property(singular, X_user)@1.
+   :- property(plural, Y_user)@1, property(singular, X_user)@2.
+   :- not summary(X_user, Y_user, Z_user, T_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user).
+   :- not summary(X_user, Y_user, A_user, T_user), property(tense, T_user), property(adverb, A_user)@2, property(verb, Y_user), property(subject, X_user).
+   :- not summary(X_user, Y_user, Z_user, T_user, A_user), property(adjective, A_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user).
+  movement(X_user, Y_user, Z_user, T_user) :- property(tense, T_user), property(direction, Z_user)@2, property(verb, Y_user), property(subject, X_user).
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+  property(X_user, Y_user) :- property(X_user, Y_user)@2.
+  action(it, rain, no_obj, past).
+  action(it, rain, hard, past).
+  action(mary, go, back, past).
+  action(mary, go, out, past).
+  action(she, enter, quickly, past).
+
+  %summary(mary,stay,home,past).
+}
+vp -> vbz np rb {
+  tense(present).
+  gram_pers(third).
+   :- not property(vb_obj_match, X_user)@2, property(vb_obj_match, X_user)@1.
+  object :- property(object, X_user)@2.
+  adverb :- property(adverb, X_user)@3.
+   :- not adverb, not object.
+  pronoun :- property(pronoun, X_user)@2.
+   :- pronoun.
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+  property(X_user, Y_user) :- property(X_user, Y_user)@2.
+  property(X_user, Y_user) :- property(X_user, Y_user)@3.
+}
+vp -> vbp np rb {
+  tense(present).
+   :- not property(vb_obj_match, X_user)@2, property(vb_obj_match, X_user)@1.
+  object :- property(object, X_user)@2.
+  adverb :- property(adverb, X_user)@3.
+   :- not adverb, not object.
+  pronoun :- property(pronoun, X_user)@2.
+   :- pronoun.
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+  property(X_user, Y_user) :- property(X_user, Y_user)@2.
+  property(X_user, Y_user) :- property(X_user, Y_user)@3.
+}
+vp -> vbd np rb {
+  tense(past).
+   :- not property(vb_obj_match, X_user)@2, property(vb_obj_match, X_user)@1.
+  object :- property(object, X_user)@2.
+  adverb :- property(adverb, X_user)@3.
+   :- not adverb, not object.
+  pronoun :- property(pronoun, X_user)@2.
+   :- pronoun.
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+  property(X_user, Y_user) :- property(X_user, Y_user)@2.
+  property(X_user, Y_user) :- property(X_user, Y_user)@3.
+}
+np -> dt jj nn {
+  singular(X_user) :- subject(X_user)@3.
+  gram_pers(third).
+   :- not property(can_have, X_user)@3, property(n_adj_match, X_user)@2, property(X_user, Y_user)@2.
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+  property(X_user, Y_user) :- property(X_user, Y_user)@2.
+  property(X_user, Y_user) :- property(X_user, Y_user)@3.
+}
+np -> jj nns {
+  plural(X_user) :- subject(X_user)@2.
+  gram_pers(third).
+   :- not property(can_have, X_user)@2, property(n_adj_match, X_user)@1, property(X_user, Y_user)@1.
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+  property(X_user, Y_user) :- property(X_user, Y_user)@2.
+}
+np -> nnp {
+  singular(X_user) :- subject(X_user)@1.
+  gram_pers(third).
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+}
+np -> nnps {
+  plural(X_user) :- subject(X_user)@1.
+  gram_pers(third).
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+}
+np -> prp {
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+}
+np -> pp {
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+}
+pp -> in np {
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+  property(X_user, Y_user) :- property(X_user, Y_user)@2.
+}
+np -> {}
+np -> {}
+prp -> {
+  vb_obj_match(no_obj).
+  object(no_obj).
+}
+jj -> {}
+dt -> {}
+rb -> {}
+in -> {}
+vbd -> "was " vbg {
+  singular(be).
+  property(X_user, Y_user) :- property(X_user, Y_user)@2.
+}
+nnp -> "mary " {
+  object(mary).
+  subject(mary).
+}
+prp -> "it " {
+  singular(it).
+  subject(it).
+  pronoun(it).
+}
+prp -> "she " {
+  singular(she).
+  subject(she).
+  pronoun(she).
+}
+rb -> "back " {
+  adverb(back).
+}
+rb -> "hard " {
+  adverb(hard).
+}
+rb -> "out " {
+  adverb(out).
+}
+rb -> "quickly " {
+  adverb(quickly).
+}
+vbd -> "entered " {
+  verb(enter).
+}
+vbd -> "was " {
+  verb(be).
+}
+vbd -> "went " {
+  verb(go).
+}
+vbg -> "raining " {
+  vb_obj_match(no_obj).
+  verb(rain).
+}
+
+#lexer -> {
+}
+
+#background {
+  property(subject, X_user) :- subject(X_user).
+  property(verb, X_user) :- verb(X_user).
+  property(object, X_user) :- object(X_user).
+  property(adjective, X_user) :- adjective(X_user).
+  property(adverb, X_user) :- adverb(X_user).
+  property(pronoun, X_user) :- pronoun(X_user).
+  property(singular, X_user) :- singular(X_user).
+  property(plural, X_user) :- plural(X_user).
+  property(adjective, X_user) :- color(X_user).
+  property(adjective, X_user) :- state(X_user).
+  property(direction, X_user) :- direction(X_user).
+  property(vb_obj_match, X_user) :- vb_obj_match(X_user).
+  property(continuous, X_user) :- continuous(X_user).
+  property(gram_pers, X_user) :- gram_pers(X_user).
+  property(tense, X_user) :- tense(X_user).
+
+
+  subject(mary).
+  verb(stay).
+  object(home).
+}
+in -> "at " {}
+nn -> "home " { object(home). }
+nnp -> "mary " { object(mary). subject(mary). }
+prp -> "it " { singular(it). subject(it). pronoun(it). }
+prp -> "she " { singular(she). subject(she). pronoun(she). }
+rb -> "back " { adverb(back). }
+rb -> "hard " { adverb(hard). }
+rb -> "out " { adverb(out). }
+rb -> "quickly " { adverb(quickly). }
+vbd -> "entered " { verb(enter). }
+vbd -> "stayed " { verb(stay). }
+vbd -> "was " { verb(be). }
+vbd -> "went " { verb(go). }
+vbg -> "raining " { vb_obj_match(no_obj). verb(rain). }
+
+#modeh(summary(var(subject),var(verb),var(object),const(tense))):[4].
+%#modeh(summary(var(subject),var(verb),var(adverb),const(tense))):[4].
+%#modeh(summary(var(subject),var(verb),var(object),const(tense),var(adjective))):[4].
+
+#modebb(subject(var(subject))):[4].
+#modebb(verb(var(verb))):[4].
+#modebb(object(var(object))):[4].
+
+%#modeba(action(var(subject),var(verb),var(object),var(tense))):[4].
+%#modeba(action(var(subject),var(verb),var(adverb),var(tense))):[4].
+%#modeba(action(var(subject),var(verb),var(object),var(tense),var(adjective))):[4].
+
+%#modeba(property(subject,var(subject))):[4].
+%#modeba(property(tense,var(tense))):[4].
+%#modeba(property(verb,var(verb))):[4].
+%#modeba(movement(var(subject),var(verb),var(direction),var(tense))):[4].
+#bias(":- not body(node_rule(_, _)).").
+#maxv(4).
+
+
+%#constant(adverb,hard).
+#constant(object,home).
+#constant(object,mary).
+%#constant(pronoun,it).
+%#constant(subject,it).
+#constant(subject,mary).
+%#constant(verb,be).
+%#constant(verb,rain).
+#constant(verb,stay).
+
+% General constants
+#constant(object,no_obj).
+#constant(tense,present).
+#constant(tense,past).
+#constant(direction,forward).
+#constant(direction,backward).
+#constant(direction,none).
+
+%+ ["it ", "was ", "raining ", ". ", "mary ", "stayed ", "home ", ". "]
+%+ ["it ", "was ", "raining ", "hard ", ". ", "mary ", "stayed ", "at ", "home ", ". "]
+%+ ["it ", "was ", "raining ", ". ", "mary ", "stayed ", "at ", "home ", ". "]
++ ["mary ", "stayed ", "home ", ". "]
+%+ ["it ", "was ", "raining ", "home ", ". "]

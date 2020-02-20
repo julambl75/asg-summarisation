@@ -197,3 +197,39 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 #constant(direction,backward).
 #constant(direction,none).
 
+nnp -> "mary " { object(mary). subject(mary). }
+prp -> "it " { singular(it). subject(it). pronoun(it). }
+prp -> "she " { singular(she). subject(she). pronoun(she). }
+rb -> "back " { adverb(back). }
+rb -> "hard " { adverb(hard). }
+rb -> "out " { adverb(out). }
+rb -> "quickly " { adverb(quickly). }
+vbd -> "entered " { verb(enter). }
+vbd -> "was " { verb(be). }
+vbd -> "went " { verb(go). }
+vbg -> "raining " { vb_obj_match(no_obj). verb(rain). }
+
+#modeh(action(const(subject),const(verb),const(object),const(tense))):[4]. % subject-verb-object
+#modeh(action(const(subject),const(verb),const(adverb),const(tense))):[4]. % subject-verb-adverb
+#modeh(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4]. % subject-verb-adjective-object
+
+#constant(adverb,back).
+#constant(adverb,hard).
+#constant(adverb,out).
+#constant(adverb,quickly).
+#constant(object,mary).
+#constant(pronoun,it).
+#constant(pronoun,she).
+#constant(subject,it).
+#constant(subject,mary).
+#constant(subject,she).
+#constant(verb,be).
+#constant(verb,enter).
+#constant(verb,go).
+#constant(verb,rain).
+
++ ["mary ", "went ", "out ", ". "]
++ ["it ", "was ", "raining ", "hard ", ". "]
++ ["mary ", "went ", "back ", ". "]
++ ["she ", "entered ", "quickly ", ". "]
+

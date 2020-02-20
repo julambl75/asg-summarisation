@@ -17,3 +17,12 @@ In addition we can use weak constraints to rule out certain summaries.
 For Mary example:
 - good: was raining, stayed
 - bad: entered, double-movement (out+back)
+
+asg general_learned_actions.asg --mode=learn --depth=10 --ILASP-ss-options="-ml=5 --max-rule-length=5"
+
+When becomes UNSAT, change learn to ss, check if rule in output and if not increase params or check mode declarations.
+
+Bugs (send to Mark):
+- #bias(":- not body(node_rule(_, _)).").
+- #maxv(4).
+- hypothesis space invalid without bias constraint
