@@ -14,8 +14,8 @@
   ],
   "pos_categories": {
     "jj": ["adjective"],
-    "nn": ["object"],
-    "nns": ["object"],
+    "nn": ["object","subject"],
+    "nns": ["object","subject"],
     "nnp": ["object","subject"],
     "nnps": ["object","subject"],
     "prp": ["subject","pronoun"],

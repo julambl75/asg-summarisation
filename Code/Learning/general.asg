@@ -37,6 +37,7 @@ s -> np vp {
   % Learn actions taking place in text with correct tense
   :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), not action(X,Y,Z,T).
   :- property(subject,X), property(verb,Y), property(adverb,A)@2, property(tense,T), not action(X,Y,A,T).
+  :- property(subject,X), property(verb,Y), property(adjective,A)@2, property(tense,T), not action(X,Y,A,T).
   :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), property(adjective,A), not action(X,Y,Z,T,A).
 
   % Compress movement forwards then backwards into no movement
@@ -53,10 +54,11 @@ vp -> vbz np rb {
   % If required the verb and object must share the same property
   :- property(vb_obj_match,X)@1, not property(vb_obj_match,X)@2.
 
-  % The verb group must have a valid object and/or adverb
+  % The verb group must have a valid object, adjective and/or adverb
   object :- property(object,X)@2.
+  adjective :- property(adjective,X)@2.
   adverb :- property(adverb,X)@3.
-  :- not object, not adverb.
+  :- not object, not adjective, not adverb.
 
   % A pronoun cannot be an object
   pronoun :- property(pronoun,X)@2.
@@ -73,10 +75,11 @@ vp -> vbp np rb {
   % If required the verb and object must share the same property
   :- property(vb_obj_match,X)@1, not property(vb_obj_match,X)@2.
 
-  % The verb group must have a valid object and/or adverb
+  % The verb group must have a valid object, adjective and/or adverb
   object :- property(object,X)@2.
+  adjective :- property(adjective,X)@2.
   adverb :- property(adverb,X)@3.
-  :- not object, not adverb.
+  :- not object, not adjective, not adverb.
 
   % A pronoun cannot be an object
   pronoun :- property(pronoun,X)@2.
@@ -93,10 +96,11 @@ vp -> vbd np rb {
   % If required the verb and object must share the same property
   :- property(vb_obj_match,X)@1, not property(vb_obj_match,X)@2.
 
-  % The verb group must have a valid object and/or adverb
+  % The verb group must have a valid object, adjective and/or adverb
   object :- property(object,X)@2.
+  adjective :- property(adjective,X)@2.
   adverb :- property(adverb,X)@3.
-  :- not object, not adverb.
+  :- not object, not adjective, not adverb.
 
   % A pronoun cannot be an object
   pronoun :- property(pronoun,X)@2.
@@ -141,6 +145,10 @@ np -> nnps {
   plural(X) :- subject(X)@1.
   gram_pers(third).
 
+  property(X,Y) :- property(X,Y)@1.
+}
+
+np -> jj {
   property(X,Y) :- property(X,Y)@1.
 }
 

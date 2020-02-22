@@ -28,6 +28,5 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    print(crash)
     text_to_summary = TextToSummary(*process_args(args))
     text_to_summary.gen_summary()

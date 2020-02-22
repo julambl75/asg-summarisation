@@ -22,7 +22,6 @@ asg general_learned_actions.asg --mode=learn --depth=10 --ILASP-ss-options="-ml=
 
 When becomes UNSAT, change learn to ss, check if rule in output and if not increase params or check mode declarations.
 
-Bugs (send to Mark):
-- #bias(":- not body(node_rule(_, _)).").
-- #maxv(4).
-- hypothesis space invalid without bias constraint
+TODO make ultra simple example:
+- story: the cat is black
+- examples: +[the cat us black] -[the cat is red]
