@@ -13,11 +13,3 @@
 #modeba(property(verb,const(verb))):[4].
 #modeba(property(adjective,const(adjective))):[4].
 #modeba(movement(const(subject),const(verb),const(direction),const(tense))):[4].
-
-% General constants
-#constant(object,no_obj).
-#constant(tense,present).
-#constant(tense,past).
-#constant(direction,forward).
-#constant(direction,backward).
-#constant(direction,none).

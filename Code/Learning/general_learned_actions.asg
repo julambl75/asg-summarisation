@@ -18,32 +18,25 @@ s -> np vp {
    :- property(plural, Y_user)@1, property(singular, X_user)@2.
    :- not summary(X_user, Y_user, Z_user, T_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user).
    :- not summary(X_user, Y_user, A_user, T_user), property(tense, T_user), property(adverb, A_user)@2, property(verb, Y_user), property(subject, X_user).
+   :- not summary(X_user, Y_user, A_user, T_user), property(tense, T_user), property(adjective, A_user)@2, property(verb, Y_user), property(subject, X_user).
    :- not summary(X_user, Y_user, Z_user, T_user, A_user), property(adjective, A_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user).
   movement(X_user, Y_user, Z_user, T_user) :- property(tense, T_user), property(direction, Z_user)@2, property(verb, Y_user), property(subject, X_user).
   property(X_user, Y_user) :- property(X_user, Y_user)@1.
   property(X_user, Y_user) :- property(X_user, Y_user)@2.
-  action(it, rain, no_obj, past).
-  action(it, rain, hard, past).
-  action(mary, go, back, past).
-  action(mary, go, out, past).
-  action(she, enter, quickly, past).
 
-  % COMMENT - trying to add as much as possible to allow it to learn, but it won't work
-  person(mary).
-  property(person,mary).
-  action(mary,stay,home,past).
-  action(alice,stay,home,past).
-
-  % COMMENT - this is what we should learn
-  %summary(V0_user, V1_user, V2_user, past) :- person(V0_user), action(V0_user, V1_user, V2_user, past).
+  % COMMENT - first line is what we have learned in the first ILASP step (which works fine)
+  %           second line is what we want to learn
+  action(cat, be, black, present).
+  summary(X,Y,Z,T) :- action(X,Y,Z,T).
 }
 vp -> vbz np rb {
   tense(present).
   gram_pers(third).
    :- not property(vb_obj_match, X_user)@2, property(vb_obj_match, X_user)@1.
   object :- property(object, X_user)@2.
+  adjective :- property(adjective, X_user)@2.
   adverb :- property(adverb, X_user)@3.
-   :- not adverb, not object.
+   :- not adverb, not adjective, not object.
   pronoun :- property(pronoun, X_user)@2.
    :- pronoun.
   property(X_user, Y_user) :- property(X_user, Y_user)@1.
@@ -54,8 +47,9 @@ vp -> vbp np rb {
   tense(present).
    :- not property(vb_obj_match, X_user)@2, property(vb_obj_match, X_user)@1.
   object :- property(object, X_user)@2.
+  adjective :- property(adjective, X_user)@2.
   adverb :- property(adverb, X_user)@3.
-   :- not adverb, not object.
+   :- not adverb, not adjective, not object.
   pronoun :- property(pronoun, X_user)@2.
    :- pronoun.
   property(X_user, Y_user) :- property(X_user, Y_user)@1.
@@ -66,8 +60,9 @@ vp -> vbd np rb {
   tense(past).
    :- not property(vb_obj_match, X_user)@2, property(vb_obj_match, X_user)@1.
   object :- property(object, X_user)@2.
+  adjective :- property(adjective, X_user)@2.
   adverb :- property(adverb, X_user)@3.
-   :- not adverb, not object.
+   :- not adverb, not adjective, not object.
   pronoun :- property(pronoun, X_user)@2.
    :- pronoun.
   property(X_user, Y_user) :- property(X_user, Y_user)@1.
@@ -99,6 +94,9 @@ np -> nnps {
   gram_pers(third).
   property(X_user, Y_user) :- property(X_user, Y_user)@1.
 }
+np -> jj {
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+}
 np -> prp {
   property(X_user, Y_user) :- property(X_user, Y_user)@1.
 }
@@ -123,48 +121,19 @@ vbd -> "was " vbg {
   singular(be).
   property(X_user, Y_user) :- property(X_user, Y_user)@2.
 }
-nnp -> "mary " {
-  object(mary).
-  subject(mary).
+dt -> "the " {}
+jj -> "black " {
+  adjective(black).
 }
-nnp -> "alice " {
-  object(alice).
-  subject(alice).
+jj -> "red " {
+  adjective(red).
 }
-prp -> "it " {
-  singular(it).
-  subject(it).
-  pronoun(it).
+nn -> "cat " {
+  object(cat).
+  subject(cat).
 }
-prp -> "she " {
-  singular(she).
-  subject(she).
-  pronoun(she).
-}
-rb -> "back " {
-  adverb(back).
-}
-rb -> "hard " {
-  adverb(hard).
-}
-rb -> "out " {
-  adverb(out).
-}
-rb -> "quickly " {
-  adverb(quickly).
-}
-vbd -> "entered " {
-  verb(enter).
-}
-vbd -> "was " {
+vbz -> "is " {
   verb(be).
-}
-vbd -> "went " {
-  verb(go).
-}
-vbg -> "raining " {
-  vb_obj_match(no_obj).
-  verb(rain).
 }
 
 #lexer -> {
@@ -187,68 +156,19 @@ vbg -> "raining " {
   property(gram_pers, X_user) :- gram_pers(X_user).
   property(tense, X_user) :- tense(X_user).
 
-  % COMMENT - added var_ prefix because these seemed to be messing with the information that gets propagated up the tree
-  %           (see above #background rules)
-  var_subject(mary).
-  var_subject(alice).
-  var_verb(stay).
-  var_object(home).
-  var_person(mary).
+  adjective(black).
+  adjective(red).
+  object(cat).
+  subject(cat).
+  verb(be).
+
+  action(cat, be, black, present).
 }
-in -> "at " {}
-nn -> "home " { object(home). }
-nnp -> "mary " { object(mary). subject(mary). }
-nnp -> "alice " { object(alice). subject(alice). }
-prp -> "it " { singular(it). subject(it). pronoun(it). }
-prp -> "she " { singular(she). subject(she). pronoun(she). }
-rb -> "back " { adverb(back). }
-rb -> "hard " { adverb(hard). }
-rb -> "out " { adverb(out). }
-rb -> "quickly " { adverb(quickly). }
-vbd -> "entered " { verb(enter). }
-vbd -> "stayed " { verb(stay). }
-vbd -> "was " { verb(be). }
-vbd -> "went " { verb(go). }
-vbg -> "raining " { vb_obj_match(no_obj). verb(rain). }
-
-% COMMENT - we want to learn a summary if...
-#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
-%#modeh(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
-%#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
-
-% COMMENT - ...it contains certain constituents, ...
-#modebb(subject(var(var_subject))):[4].
-#modebb(verb(var(var_verb))):[4].
-#modebb(object(var(var_object))):[4].
-
-% COMMENT - ...if the subject is a person (for example, not sure which ILASP rule is the right one though), ...
-#modebb(person(var(var_subject))):[4].
-#modebb(subject(var(var_person))):[4].
-#modebb(property(person,var(var_person))):[4].
-
-% COMMENT - ...and/or if we know that the action occurred
-#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
-%#modeba(action(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
-%#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
-
-% COMMENT - little hack
-#bias(":- not body(node_rule(_, _)).").
-#maxv(4).
-
-%#modeba(property(subject,var(subject))):[4].
-%#modeba(property(tense,var(tense))):[4].
-%#modeba(property(verb,var(verb))):[4].
-%#modeba(movement(var(subject),var(verb),var(direction),var(tense))):[4].
-
-%#constant(adverb,hard).
-%#constant(object,home).
-%#constant(object,mary).
-%#constant(pronoun,it).
-%#constant(subject,it).
-%#constant(subject,mary).
-%#constant(verb,be).
-%#constant(verb,rain).
-%#constant(verb,stay).
+dt -> "the " {}
+jj -> "black " { adjective(black). }
+jj -> "red " { adjective(red). }
+nn -> "cat " { object(cat). subject(cat). }
+vbz -> "is " { verb(be). }
 
 % General constants
 #constant(object,no_obj).
@@ -258,13 +178,24 @@ vbg -> "raining " { vb_obj_match(no_obj). verb(rain). }
 #constant(direction,backward).
 #constant(direction,none).
 
-%+ ["it ", "was ", "raining ", ". ", "mary ", "stayed ", "home ", ". "]
-%+ ["it ", "was ", "raining ", "hard ", ". ", "mary ", "stayed ", "at ", "home ", ". "]
-%+ ["it ", "was ", "raining ", ". ", "mary ", "stayed ", "at ", "home ", ". "]
-%+ ["it ", "was ", "raining ", "home ", ". "]
+%#modeh(summary(var(subject),var(verb),var(object),const(tense))):[4].
+%#modeh(summary(var(subject),var(verb),var(adverb),const(tense))):[4].
+#modeh(summary(var(subject),var(verb),var(adjective),const(tense))):[4].
+%#modeh(summary(var(subject),var(verb),var(object),const(tense),var(adjective))):[4].
 
-% COMMENT - Mary is a person but not Alice, so only the former should be
-+ ["mary ", "stayed ", "home ", ". "]
-- ["alice ", "stayed ", "home ", ". "]
+%#modebb(subject(var(subject))):[4].
+%#modebb(verb(var(verb))):[4].
+#modebb(adjective(var(adjective))):[4].
+%#modebb(object(var(object))):[4].
 
-% COMMENT - run it with: --mode=run --depth=10 --ILASP-ss-options="-ml=5 --max-rule-length=5"
+%#modeba(action(var(subject),var(verb),var(object),const(tense))):[4].
+%#modeba(action(var(subject),var(verb),var(adverb),const(tense))):[4].
+#modeba(action(var(subject),var(verb),var(adjective),const(tense))):[4].
+%#modeba(action(var(subject),var(verb),var(object),const(tense),var(adjective))):[4].
+
+#bias(":- not body(node_rule(_, _)).").
+#maxv(4).
+
++ ["the ", "cat ", "is ", "black ", ". "]
+%- ["the ", "cat ", "is ", "red ", ". "]
+
