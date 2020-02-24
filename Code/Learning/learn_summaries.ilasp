@@ -7,24 +7,28 @@
 #constant(direction,none).
 
 #modeh(summary(var(subject),var(verb),var(object),const(tense))):[4].
-#modeh(summary(var(subject),var(verb),var(adverb),const(tense))):[4].
-#modeh(summary(var(subject),var(verb),var(adjective),const(tense))):[4].
-#modeh(summary(var(subject),var(verb),var(object),const(tense),var(adjective))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
-#modeba(summary(var(subject),var(verb),var(object),const(tense))):[4].
-#modeba(summary(var(subject),var(verb),var(adverb),const(tense))):[4].
+#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+#modeba(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
 #modeba(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
-#modeba(summary(var(subject),var(verb),var(object),const(tense),var(adjective))):[4].
+#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
-#modebb(subject(var(subject))):[4].
-#modebb(verb(var(verb))):[4].
-#modebb(adjective(var(adjective))):[4].
-#modebb(object(var(object))):[4].
+#modebb(subject(var(var_subject))):[4].
+#modebb(verb(var(var_verb))):[4].
+#modebb(adjective(var(var_adjective))):[4].
+#modebb(object(var(var_object))):[4].
 
-#modeba(action(var(subject),var(verb),var(object),const(tense))):[4].
-#modeba(action(var(subject),var(verb),var(adverb),const(tense))):[4].
-#modeba(action(var(subject),var(verb),var(adjective),const(tense))):[4].
-#modeba(action(var(subject),var(verb),var(object),const(tense),var(adjective))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
+
+#bias(":- head(summary(_,_,_,past)), body(naf(summary(_,_,_,past))).").
+#bias(":- head(summary(_,_,_,present)), body(naf(summary(_,_,_,present))).").
 
 #bias(":- not body(node_rule(_, _)).").
 #maxv(4).
