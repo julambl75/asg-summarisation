@@ -168,10 +168,10 @@ vbz -> "is " { verb(be). }
 #constant(direction,backward).
 #constant(direction,none).
 
-%#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
-%#modeh(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
 #modeh(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
-%#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
 %#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
 %#modeba(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
@@ -183,10 +183,10 @@ vbz -> "is " { verb(be). }
 #modebb(adjective(var(var_adjective))):[4].
 #modebb(object(var(var_object))):[4].
 
-%#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
-%#modeba(action(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
 #modeba(action(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
-%#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
 #bias(":- not body(node_rule(_, _)).").
 #maxv(4).
