@@ -15,6 +15,9 @@ with open(PARSE_CONSTANTS_JSON) as f:
     PUNCTUATION = constants['punctuation']
     POS_CATEGORIES = constants['pos_categories']
 
+CONSTANTS_FORMAT = '#constant({},{}).'
+VARIABLES_FORMAT = '{}({}).'
+
 
 class ParseCoreNLP:
     def __init__(self, text, print_results=False):
@@ -28,11 +31,11 @@ class ParseCoreNLP:
         self.nlp = StanfordCoreNLP('http://localhost:9000')
         self.helpers = Helpers()
 
-    # Returns a pair ([context_specific_asg], [ilasp_constants])
-    def parse_text(self):
+    # Returns a pair ([context_specific_asg], [ilasp_constants]) or ([context_specific_asg], [ilasp_background_vars])
+    def parse_text(self, background_variables=False):
         self._text_to_tree()
         self._remove_punctuation_nodes(self.tree)
-        return self._format_results()
+        return self._format_results(background_variables)
 
     def _text_to_tree(self):
         output = self.nlp.annotate(self.text, properties={
@@ -92,15 +95,19 @@ class ParseCoreNLP:
             asg_leaves.append("{} -> \"{} \" {{{}}}".format(tag, word, predicates))
         return asg_leaves
 
-    def _lemmas_to_constants(self):
-        return ["#constant({},{}).".format(category, lemma) for category, lemma in self.constants]
+    # Takes as argument a string format with placeholders (category, lemma)
+    def _lemmas_to_format(self, lemma_format):
+        return [lemma_format.format(category, lemma) for category, lemma in self.constants]
 
-    def _format_results(self):
+    def _format_results(self, background_variables=False):
         context_specific_asg = sorted(set(self._tree_to_asg(self.tree)))
-        ilasp_constants = sorted(self._lemmas_to_constants())
+        if background_variables:
+            ilasp_part = sorted(self._lemmas_to_format(VARIABLES_FORMAT))
+        else:
+            ilasp_part = sorted(self._lemmas_to_format(CONSTANTS_FORMAT))
 
         if self.print_results:
             self.tree.pretty_print()
             print(context_specific_asg)
-            print(ilasp_constants)
-        return context_specific_asg, ilasp_constants
+            print(ilasp_part)
+        return context_specific_asg, ilasp_part

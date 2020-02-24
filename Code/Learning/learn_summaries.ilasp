@@ -1,15 +1,30 @@
-#modeh(summary(const(subject),const(verb),const(object),const(tense))):[4].
-#modeh(summary(const(subject),const(verb),const(adverb),const(tense))):[4].
-#modeh(summary(const(subject),const(verb),const(adjective),const(tense))):[4].
-#modeh(summary(const(subject),const(verb),const(object),const(tense),const(adjective))):[4].
+% General constants
+#constant(object,no_obj).
+#constant(tense,present).
+#constant(tense,past).
+#constant(direction,forward).
+#constant(direction,backward).
+#constant(direction,none).
 
-#modeba(action(const(subject),const(verb),const(object),const(tense))):[4].
-#modeba(action(const(subject),const(verb),const(adverb),const(tense))):[4].
-#modeba(action(const(subject),const(verb),const(adjective),const(tense))):[4]. % subject-verb-adjective
-#modeba(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4].
+#modeh(summary(var(subject),var(verb),var(object),const(tense))):[4].
+#modeh(summary(var(subject),var(verb),var(adverb),const(tense))):[4].
+#modeh(summary(var(subject),var(verb),var(adjective),const(tense))):[4].
+#modeh(summary(var(subject),var(verb),var(object),const(tense),var(adjective))):[4].
 
-#modeba(property(subject,const(subject))):[4].
-#modeba(property(tense,const(tense))):[4].
-#modeba(property(verb,const(verb))):[4].
-#modeba(property(adjective,const(adjective))):[4].
-#modeba(movement(const(subject),const(verb),const(direction),const(tense))):[4].
+#modeba(summary(var(subject),var(verb),var(object),const(tense))):[4].
+#modeba(summary(var(subject),var(verb),var(adverb),const(tense))):[4].
+#modeba(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
+#modeba(summary(var(subject),var(verb),var(object),const(tense),var(adjective))):[4].
+
+#modebb(subject(var(subject))):[4].
+#modebb(verb(var(verb))):[4].
+#modebb(adjective(var(adjective))):[4].
+#modebb(object(var(object))):[4].
+
+#modeba(action(var(subject),var(verb),var(object),const(tense))):[4].
+#modeba(action(var(subject),var(verb),var(adverb),const(tense))):[4].
+#modeba(action(var(subject),var(verb),var(adjective),const(tense))):[4].
+#modeba(action(var(subject),var(verb),var(object),const(tense),var(adjective))):[4].
+
+#bias(":- not body(node_rule(_, _)).").
+#maxv(4).

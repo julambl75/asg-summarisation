@@ -20,9 +20,10 @@ assert INPUT_ASG != INPUT_ASG_AUGMENTED and INPUT_ASG != LEARNED_ACTIONS_ASG and
 DEPTH = 10
 LEARN_ACTIONS_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(INPUT_ASG_AUGMENTED, DEPTH, LEARNED_ACTIONS_ASG)
 LEARN_SUMMARIES_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(LEARNED_ACTIONS_ASG, DEPTH, OUTPUT_ASG)
-GEN_SUMMARIES_CMD = "asg '{}' --mode=run --depth={}".format(OUTPUT_ASG, DEPTH)
+GEN_SUMMARIES_CMD = "asg '{}' --mode=run --depth={} --ILASP-ss-options='-ml=5 --max-rule-length=5'".format(OUTPUT_ASG, DEPTH)
 
 REMOVE_SPACES_REGEX = '[^a-zA-Z0-9]+'
+FIND_BACKGROUND_REGEX = '#background *{[^}]*}'
 
 
 class TextToSummary:
@@ -60,11 +61,12 @@ class TextToSummary:
         examples = self._gen_asg_examples(pos_tokens, neg_tokens)
 
         print('Parsing summaries to create context-specific ASG and ILASP constants...')
-        context_specific_asg, ilasp_constants = self.summaries_parser.parse_text()
+        context_specific_asg, ilasp_variables = self.summaries_parser.parse_text(True)
 
         print('Completing basic ASG with context-specific information...')
         self._update_constraints(LEARNED_ACTIONS_ASG, 'not action', 'not summary')
-        self._append_to_asg(LEARNED_ACTIONS_ASG, (context_specific_asg, self.ilasp_learn_summaries, ilasp_constants, examples))
+        self._append_to_asg(LEARNED_ACTIONS_ASG, (context_specific_asg, self.ilasp_learn_summaries, examples))
+        self._update_background(LEARNED_ACTIONS_ASG, ilasp_variables)
 
         print('Learning summaries...')
         self._run_learn_summaries()
@@ -111,7 +113,18 @@ class TextToSummary:
     def _update_constraints(filename, original_constraint, new_constraint):
         with open(filename, 'r') as file:
             filedata = file.read()
-            filedata = filedata.replace(original_constraint, new_constraint)
+        filedata = filedata.replace(original_constraint, new_constraint)
+        with open(filename, 'w') as file:
+            file.write(filedata)
+
+    @staticmethod
+    def _update_background(filename, variables):
+        background_extension = ''.join(["  {}\n".format(var) for var in variables])
+        with open(filename, 'r') as file:
+            filedata = file.read()
+        background = re.search(FIND_BACKGROUND_REGEX, filedata).group()
+        new_background = background[:-1] + background_extension + background[-1]
+        filedata = filedata.replace(background, new_background)
         with open(filename, 'w') as file:
             file.write(filedata)
 
