@@ -27,8 +27,5 @@
 #modeba(action(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
 #modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
-#bias(":- head(summary(_,_,_,past)), body(naf(summary(_,_,_,past))).").
-#bias(":- head(summary(_,_,_,present)), body(naf(summary(_,_,_,present))).").
-
 #bias(":- not body(node_rule(_, _)).").
 #maxv(4).

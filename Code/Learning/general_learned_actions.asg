@@ -24,7 +24,6 @@ s -> np vp {
   property(X_user, Y_user) :- property(X_user, Y_user)@1.
   property(X_user, Y_user) :- property(X_user, Y_user)@2.
   action(cat, be, black, present).
-  action(cat, be, red, present).
 }
 vp -> vbz np rb {
   tense(present).
@@ -149,16 +148,14 @@ vbz -> "is " {
   property(continuous, X_user) :- continuous(X_user).
   property(gram_pers, X_user) :- gram_pers(X_user).
   property(tense, X_user) :- tense(X_user).
-  var_adjective(black).
-  var_adjective(blue).
-  var_adjective(red).
-  var_object(cat).
-  var_subject(cat).
-  var_verb(be).
+  adjective(black).
+  adjective(red).
+  object(cat).
+  subject(cat).
+  verb(be).
 }
 dt -> "the " {}
 jj -> "black " { adjective(black). }
-jj -> "blue " { adjective(blue). }
 jj -> "red " { adjective(red). }
 nn -> "cat " { object(cat). subject(cat). }
 vbz -> "is " { verb(be). }
@@ -171,33 +168,30 @@ vbz -> "is " { verb(be). }
 #constant(direction,backward).
 #constant(direction,none).
 
-%#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
-%#modeh(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
+#modeh(summary(var(subject),var(verb),var(object),const(tense))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
 #modeh(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
-%#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
-%#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
-%#modeba(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
-%#modeba(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
-%#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
+#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+#modeba(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
+#modeba(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
+#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
 #modebb(subject(var(var_subject))):[4].
 #modebb(verb(var(var_verb))):[4].
 #modebb(adjective(var(var_adjective))):[4].
 #modebb(object(var(var_object))):[4].
 
-%#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
-%#modeba(action(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
 #modeba(action(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
-%#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
-%#bias(":- head(summary(_,_,_,past)), body(naf(summary(_,_,_,past))).").
-%#bias(":- head(summary(_,_,_,present)), body(naf(summary(_,_,_,present))).").
-
-#bias(":- not body(node_rule(_, _)).").
+#bias(":- not body(node_rule(_,_)).").
 #maxv(4).
 
 + ["the ", "cat ", "is ", "black ", ". "]
-+ ["the ", "cat ", "is ", "blue ", ". "]
 - ["the ", "cat ", "is ", "red ", ". "]
 
