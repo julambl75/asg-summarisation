@@ -25,6 +25,7 @@ s -> np vp {
   property(X_user_user, Y_user_user) :- property(X_user_user, Y_user_user)@2.
   action(cat, be, black, present).
   summary(V0_user, V1_user, V2_user, present) :- action(V0_user, V1_user, V2_user, present).
+  summary(V0_user, V1_user, red, present) :- property(adjective,red), action(V0_user, V1_user, V2_user, present).
 }
 vp -> vbz np rb {
   tense(present).

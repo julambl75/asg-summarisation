@@ -178,10 +178,10 @@ vbz -> "is " { verb(be). }
 %#modeba(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
 %#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
-#modebb(subject(var(var_subject))):[4].
-#modebb(verb(var(var_verb))):[4].
-#modebb(adjective(var(var_adjective))):[4].
-#modebb(object(var(var_object))):[4].
+#modebb(property(subject,var(var_subject))):[4].
+#modebb(property(verb,var(var_verb))):[4].
+#modebb(property(adjective,var(var_adjective))):[4].
+#modebb(property(object,var(var_object))):[4].
 
 #modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
 #modeba(action(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
@@ -189,8 +189,8 @@ vbz -> "is " { verb(be). }
 #modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
 #bias(":- not body(node_rule(_, _)).").
-#maxv(4).
+#maxv(5).
 
 + ["the ", "cat ", "is ", "black ", ". "]
-- ["the ", "cat ", "is ", "red ", ". "]
++ ["the ", "cat ", "is ", "red ", ". "]
 
