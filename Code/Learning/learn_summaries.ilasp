@@ -6,16 +6,15 @@
 #constant(direction,backward).
 #constant(direction,none).
 
-#modeh(summary(var(subject),var(verb),var(object),const(tense))):[4].
 #modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
 #modeh(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
 #modeh(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
 #modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
-#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
-#modeba(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
-#modeba(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
-#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
+%#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+%#modeba(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
+%#modeba(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
+%#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
 
 #modebb(subject(var(var_subject))):[4].
 #modebb(verb(var(var_verb))):[4].

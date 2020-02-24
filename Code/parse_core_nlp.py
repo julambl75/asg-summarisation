@@ -16,7 +16,7 @@ with open(PARSE_CONSTANTS_JSON) as f:
     POS_CATEGORIES = constants['pos_categories']
 
 CONSTANTS_FORMAT = '#constant({},{}).'
-VARIABLES_FORMAT = '{}({}).'
+VARIABLES_FORMAT = 'var_{}({}).'
 
 
 class ParseCoreNLP:
