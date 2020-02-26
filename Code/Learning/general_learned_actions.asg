@@ -192,5 +192,5 @@ vbz -> "is " { verb(be). }
 #maxv(5).
 
 + ["the ", "cat ", "is ", "black ", ". "]
-+ ["the ", "cat ", "is ", "red ", ". "]
+- ["the ", "cat ", "is ", "red ", ". "]
 

@@ -8,3 +8,5 @@ Report/*.log
 Report/*.out
 Report/*.synctex.gz
 Report/*.toc
+
+Code/*.ipynb_checkpoints
