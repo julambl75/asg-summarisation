@@ -19,8 +19,8 @@ assert INPUT_ASG != INPUT_ASG_AUGMENTED and INPUT_ASG != LEARNED_ACTIONS_ASG and
 
 DEPTH = 10
 LEARN_ACTIONS_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(INPUT_ASG_AUGMENTED, DEPTH, LEARNED_ACTIONS_ASG)
-LEARN_SUMMARIES_CMD = "asg '{}' --mode=learn --depth={} > '{}'".format(LEARNED_ACTIONS_ASG, DEPTH, OUTPUT_ASG)
-GEN_SUMMARIES_CMD = "asg '{}' --mode=run --depth={} --ILASP-ss-options='-nc'".format(OUTPUT_ASG, DEPTH)
+LEARN_SUMMARIES_CMD = "asg '{}' --mode=learn --depth={} --ILASP-ss-options='-nc' > '{}'".format(LEARNED_ACTIONS_ASG, DEPTH, OUTPUT_ASG)
+GEN_SUMMARIES_CMD = "asg '{}' --mode=run --depth={}".format(OUTPUT_ASG, DEPTH)
 # TODO remove -nc flag (no constraints) if we need constraints with summary as body predicate
 
 REMOVE_SPACES_REGEX = '[^a-zA-Z0-9]+'
