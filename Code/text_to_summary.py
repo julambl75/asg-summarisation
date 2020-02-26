@@ -70,9 +70,7 @@ class TextToSummary:
         self._update_background(LEARNED_ACTIONS_ASG, ilasp_variables)
 
         print('Learning summaries...')
-        self._remove_first_line(LEARNED_ACTIONS_ASG)  # TODO remove once ASG is fixed
         self._run_learn_summaries()
-        self._remove_first_line(OUTPUT_ASG)  # TODO remove once ASG is fixed
 
         print('Listing learned summaries...')
         self._run_print_summaries()
@@ -128,14 +126,6 @@ class TextToSummary:
         background = re.search(FIND_BACKGROUND_REGEX, filedata).group()
         new_background = background[:-1] + background_extension + background[-1]
         filedata = filedata.replace(background, new_background)
-        with open(filename, 'w') as file:
-            file.write(filedata)
-
-    @staticmethod
-    def _remove_first_line(filename):
-        with open(filename, 'r') as file:
-            filedata = file.read()
-        filedata = ''.join(filedata.splitlines(True)[1:])
         with open(filename, 'w') as file:
             file.write(filedata)
 

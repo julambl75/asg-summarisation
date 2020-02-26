@@ -1,5 +1,4 @@
 
-
 start -> s_group {
    :- count(X_user_user)@1, X_user_user > 2.
 }
