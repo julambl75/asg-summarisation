@@ -39,5 +39,6 @@ class ParseConceptNet:
                 print('Words are related with weight', weight)
             return weight
         else:
-            print('Words are not related')
+            if self.print_results:
+                print('Words are not related')
             return 0
