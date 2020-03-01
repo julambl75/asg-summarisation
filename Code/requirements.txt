@@ -1,3 +1,6 @@
+matplotlib
+networkx
+numpy
 requests
 nltk
 pycorenlp
