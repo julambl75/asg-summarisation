@@ -15,13 +15,14 @@ from parse_concept_net import ParseConceptNet
 
 warnings.filterwarnings("ignore")
 
+IGNORE_POS = []
 WEIGHT_SCALE = 10
-MIN_SYNONYM_SIMILARITY = 2
+MIN_SYNONYM_SIMILARITY = 3
 
 
 class Preprocessor:
     def __init__(self, story):
-        self.story = story.lower()
+        self.story = story.lower().strip()
 
         self.nlp = StanfordCoreNLP('http://localhost:9000')
         self.pcn = ParseConceptNet(False)
@@ -77,7 +78,7 @@ class Preprocessor:
                 for j, other_sentence in enumerate(tokenized):
                     if i != j:
                         for other_word, other_pos in other_sentence:
-                            if word != other_word and pos == other_pos:
+                            if word != other_word and pos == other_pos and not pos in IGNORE_POS:
                                 similarity = self.pcn.compare_words(word, other_word)
                                 if similarity > 0:
                                     vocabulary.add(word)
@@ -123,7 +124,7 @@ class Preprocessor:
 
         for word, links in similar_words.items():
             for other_word, similarity in links.items():
-                if similarity > MIN_SYNONYM_SIMILARITY:
+                if similarity >= MIN_SYNONYM_SIMILARITY:
                     if len(synonyms) == 0:
                         synonyms[word] = {word, other_word}
                     elif not word_in_synonyms(word) and not word_in_synonyms(other_word):
@@ -149,7 +150,9 @@ class Preprocessor:
     # From https://stackoverflow.com/questions/17730788/search-and-replace-with-whole-word-only-option
     @staticmethod
     def _homogenize_text(story, word_map):
-        replace = lambda m: word_map[m.group(0)] if m.groups else []
+        if len(word_map) == 0:
+            return story
+        replace = lambda m: word_map[m.group(0)]
         return re.sub('|'.join(r'\b%s\b' % re.escape(s) for s in word_map), replace, story)
 
 
