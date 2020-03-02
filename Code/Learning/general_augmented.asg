@@ -35,10 +35,11 @@ s -> np vp {
   :- property(singular,X)@2, property(plural,Y)@1.
 
   % Learn actions taking place in text with correct tense
-  :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), not action(X,Y,Z,T).
-  :- property(subject,X), property(verb,Y), property(adverb,A)@2, property(tense,T), not action(X,Y,A,T).
-  :- property(subject,X), property(verb,Y), property(adjective,A)@2, property(tense,T), not action(X,Y,A,T).
-  :- property(subject,X), property(verb,Y), property(object,Z)@2, property(tense,T), property(adjective,A), not action(X,Y,Z,T,A).
+  :- property(subject,X)@1, property(verb,Y), property(object,Z)@2, property(tense,T), not action(X,Y,Z,T).
+  :- property(subject,X)@1, property(verb,Y), property(object,Z1)@2, property(object,Z2)@2, property(tense,T), Z1 != Z2, not action(X,Y,Z1,Z2,T).
+  :- property(subject,X)@1, property(verb,Y), property(adverb,A)@2, property(tense,T), not action(X,Y,A,T).
+  :- property(subject,X)@1, property(verb,Y), property(adjective,A)@2, property(tense,T), not action(X,Y,A,T).
+  :- property(subject,X)@1, property(verb,Y), property(object,Z)@2, property(tense,T), property(adjective,A), not action(X,Y,Z,T,A).
 
   % Compress movement forwards then backwards into no movement
   movement(X,Y,Z,T) :- property(subject,X), property(verb,Y), property(direction,Z)@2, property(tense,T).
@@ -106,6 +107,12 @@ vp -> vbd np rb {
   pronoun :- property(pronoun,X)@2.
   :- pronoun.
 
+  property(X,Y) :- property(X,Y)@1.
+  property(X,Y) :- property(X,Y)@2.
+  property(X,Y) :- property(X,Y)@3.
+}
+
+np -> np cc np {
   property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
   property(X,Y) :- property(X,Y)@3.
@@ -205,20 +212,33 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 #constant(direction,backward).
 #constant(direction,none).
 
-dt -> "the " {}
-jj -> "black " { adjective(black). }
-nn -> "cat " { object(cat). subject(cat). }
-vbz -> "is " { verb(be). }
+cc -> "and " {}
+nn -> "culatello " { object(culatello). subject(culatello). }
+nnp -> "asg " { object(asg). subject(asg). }
+nnp -> "ilasp " { object(ilasp). subject(ilasp). }
+nnp -> "jonathan " { object(jonathan). subject(jonathan). }
+vbz -> "eats " { verb(eat). }
+vbz -> "likes " { verb(like). }
 
 #modeh(action(const(subject),const(verb),const(object),const(tense))):[4]. % subject-verb-object
+#modeh(action(const(subject),const(verb),const(object),const(object),const(tense))):[4]. % subject-verb-objects
 #modeh(action(const(subject),const(verb),const(adverb),const(tense))):[4]. % subject-verb-adverb
 #modeh(action(const(subject),const(verb),const(adjective),const(tense))):[4]. % subject-verb-adjective
 #modeh(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4]. % subject-verb-adjective-object
 
-#constant(adjective,black).
-#constant(object,cat).
-#constant(subject,cat).
-#constant(verb,be).
 
-+ ["the ", "cat ", "is ", "black ", ". "]
+#constant(object,asg).
+#constant(object,culatello).
+#constant(object,ilasp).
+#constant(object,jonathan).
+#constant(subject,asg).
+#constant(subject,culatello).
+#constant(subject,ilasp).
+#constant(subject,jonathan).
+#constant(verb,eat).
+#constant(verb,like).
+
++ ["jonathan ", "likes ", "asg ", "and ", "ilasp ", ". "]
++ ["jonathan ", "likes ", "ilasp ", ". "]
++ ["jonathan ", "eats ", "culatello ", ". "]
 

@@ -19,10 +19,10 @@ def process_args(args):
     if args.file:
         return open(args.file).read(), pos_summaries, neg_summaries
     if args.all_files:
-        dir = '{}/{}'.format(args.all_files, args.all_files)
-        text = open('{}.{}'.format(dir, FORMAT)).read()
-        pos_summaries = open('{}{}.{}'.format(dir, POS_SUMMARIES_EXT, FORMAT)).read()
-        neg_summaries = open('{}{}.{}'.format(dir, NEG_SUMMARIES_EXT, FORMAT)).read()
+        path = '{}/{}'.format(args.all_files, args.all_files)
+        text = open('{}.{}'.format(path, FORMAT)).read()
+        pos_summaries = open('{}{}.{}'.format(path, POS_SUMMARIES_EXT, FORMAT)).read()
+        neg_summaries = open('{}{}.{}'.format(path, NEG_SUMMARIES_EXT, FORMAT)).read()
         return text, pos_summaries, neg_summaries
 
 
