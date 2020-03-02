@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 
 IGNORE_POS = []
 WEIGHT_SCALE = 10
-MIN_SYNONYM_SIMILARITY = 3
+MIN_SYNONYM_SIMILARITY = 2
 
 
 class Preprocessor:
