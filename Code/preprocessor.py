@@ -21,42 +21,53 @@ MIN_SYNONYM_SIMILARITY = 2
 
 
 class Preprocessor:
-    def __init__(self, story):
-        self.story = story.lower().strip()
+    def __init__(self, story, print_results=True):
+        self.story = story.lower().strip().replace('\n', ' ')
+        self.print_results = print_results
 
         self.nlp = StanfordCoreNLP('http://localhost:9000')
         self.pcn = ParseConceptNet(False)
 
     def preprocess(self):
-        print('Generating POS tags...')
+        if self.print_results:
+            pp.pprint(self.story)
+
         tokenized = self._tokenize_story()
-        pp.pprint(tokenized)
+        if self.print_results:
+            print('\nGenerating POS tags...')
+            pp.pprint(tokenized)
         similar_words, similar_sentences, vocabulary = self._process_similarity(tokenized)
 
-        print('Generating word and sentence adjacency matrices...')
+        if self.print_results:
+            print('\nGenerating word and sentence adjacency matrices...')
         word_adjacency_mat = self._links_dict_to_adjacency_mat(similar_words, vocabulary)
         sentence_adjacency_mat = self._links_dict_to_adjacency_mat(similar_sentences, range(len(tokenized)))
 
-        print('Plotting similarity between words and sentences')
-        labels = {i: vocabulary[i] for i in range(len(vocabulary))}
-        self._plot_text_relationship_map(word_adjacency_mat, 'Word Relationship Map', labels)
-        self._plot_text_relationship_map(sentence_adjacency_mat, 'Sentence Relationship Map')
+        if self.print_results:
+            print('\nPlotting similarity between words and sentences...')
+            labels = {i: vocabulary[i] for i in range(len(vocabulary))}
+            self._plot_text_relationship_map(word_adjacency_mat, 'Word Relationship Map', labels)
+            self._plot_text_relationship_map(sentence_adjacency_mat, 'Sentence Relationship Map')
 
-        print('Ordering sentences by importance...')
         ordered_sentences = self._order_sentences_by_importance(sentence_adjacency_mat, story)
-        pp.pprint(ordered_sentences)
+        if self.print_results:
+            print('\nOrdering sentences by importance...')
+            pp.pprint(ordered_sentences)
 
-        print('Building synonyms...')
         synonyms = self._get_synonyms(similar_words)
-        pp.pprint(synonyms)
+        if self.print_results:
+            print('\nBuilding synonyms...')
+            pp.pprint(synonyms)
 
-        print('Getting shortest words for each set of synonyms...')
         shortest_word_map = self._get_shortest_word_map(synonyms)
-        pp.pprint(shortest_word_map)
+        if self.print_results:
+            print('\nGetting shortest words for each set of synonyms...')
+            pp.pprint(shortest_word_map)
 
-        print('Homogenizing story using synonyms...')
         homogenized_story = self._homogenize_text(self.story, shortest_word_map)
-        pp.pprint(homogenized_story)
+        if self.print_results:
+            print('\nHomogenizing story using synonyms...')
+            pp.pprint(homogenized_story)
 
         return homogenized_story
 
@@ -101,6 +112,8 @@ class Preprocessor:
 
     @staticmethod
     def _plot_text_relationship_map(adjacency_mat, title, labels=None):
+        if len(adjacency_mat) == 0:
+            return
         graph = nx.from_numpy_matrix(np.matrix(adjacency_mat), create_using=nx.DiGraph)
         layout = nx.circular_layout(graph)
         nx.draw(graph, layout)
