@@ -212,7 +212,6 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 #constant(direction,backward).
 #constant(direction,none).
 
-cc -> "and " {}
 nn -> "culatello " { object(culatello). subject(culatello). }
 nnp -> "asg " { object(asg). subject(asg). }
 nnp -> "ilasp " { object(ilasp). subject(ilasp). }
@@ -238,7 +237,7 @@ vbz -> "likes " { verb(like). }
 #constant(verb,eat).
 #constant(verb,like).
 
-+ ["jonathan ", "likes ", "asg ", "and ", "ilasp ", ". "]
++ ["jonathan ", "likes ", "asg ", ". "]
 + ["jonathan ", "likes ", "ilasp ", ". "]
 + ["jonathan ", "eats ", "culatello ", ". "]
 
