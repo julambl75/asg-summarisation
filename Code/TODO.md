@@ -10,8 +10,9 @@ In addition we can use weak constraints to rule out certain summaries.
 - Recognize start and end of process -> do not talk about intermediate steps
 - Preprocess sentence components to try and pick up synonyms using ConceptNet (replace synonyms with same word to reduce leaf node count)
 
-## To discuss
+## For next time
 
-1. How to guide learning with ASG to generalize summaries
-2. Toy examples with learning goals for each
-3. List achievable goals for after exams
+- Normalize sentence similarity in Preprocessor
+- Check how effective Preprocessor is (percentage how much smaller ss)
+- Make baseline of 10,000 stories to sentence as NN (hope ASG is more interesting summary than encoder-decoder, find good metric for classification to measure semantic closeness of summaries maybe using ConceptNet)
+- Possibly use importance from Preprocessor to restrict terminal nodes and restrict mode bias
