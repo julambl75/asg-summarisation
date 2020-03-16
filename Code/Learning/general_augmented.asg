@@ -160,6 +160,8 @@ np -> jj {
 }
 
 np -> prp {
+  gram_pers(third).
+
   property(X,Y) :- property(X,Y)@1.
 }
 
@@ -175,7 +177,7 @@ pp -> in np {
 % General leaf nodes
 np -> {}
 np -> {}
-prp -> { vb_obj_match(no_obj). object(no_obj). }
+prp -> { vb_obj_match(no_obj). object(no_obj). gram_pers(third). }
 jj -> {}
 dt -> {}
 rb -> {}
@@ -212,12 +214,13 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 #constant(direction,backward).
 #constant(direction,none).
 
-nn -> "culatello " { object(culatello). subject(culatello). }
-nnp -> "asg " { object(asg). subject(asg). }
-nnp -> "ilasp " { object(ilasp). subject(ilasp). }
-nnp -> "jonathan " { object(jonathan). subject(jonathan). }
-vbz -> "eats " { verb(eat). }
-vbz -> "likes " { verb(like). }
+dt -> "a " {}
+jj -> "electric " { adjective(electric). }
+nn -> "car " { object(car). subject(car). }
+nnp -> "elon " { object(elon). subject(elon). }
+prp -> "it " { singular(it). subject(it). pronoun(it). }
+vbz -> "drives " { verb(drive). }
+vbz -> "is " { verb(be). }
 
 #modeh(action(const(subject),const(verb),const(object),const(tense))):[4]. % subject-verb-object
 #modeh(action(const(subject),const(verb),const(object),const(object),const(tense))):[4]. % subject-verb-objects
@@ -225,19 +228,16 @@ vbz -> "likes " { verb(like). }
 #modeh(action(const(subject),const(verb),const(adjective),const(tense))):[4]. % subject-verb-adjective
 #modeh(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4]. % subject-verb-adjective-object
 
+#constant(adjective,electric).
+#constant(object,car).
+#constant(object,elon).
+#constant(pronoun,it).
+#constant(subject,car).
+#constant(subject,elon).
+#constant(subject,it).
+#constant(verb,be).
+#constant(verb,drive).
 
-#constant(object,asg).
-#constant(object,culatello).
-#constant(object,ilasp).
-#constant(object,jonathan).
-#constant(subject,asg).
-#constant(subject,culatello).
-#constant(subject,ilasp).
-#constant(subject,jonathan).
-#constant(verb,eat).
-#constant(verb,like).
-
-+ ["jonathan ", "likes ", "asg ", ". "]
-+ ["jonathan ", "likes ", "ilasp ", ". "]
-+ ["jonathan ", "eats ", "culatello ", ". "]
++ ["elon ", "drives ", "a ", "car ", ". "]
++ ["it ", "is ", "electric ", ". "]
 

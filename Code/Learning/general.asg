@@ -160,6 +160,8 @@ np -> jj {
 }
 
 np -> prp {
+  gram_pers(third).
+
   property(X,Y) :- property(X,Y)@1.
 }
 
@@ -175,7 +177,7 @@ pp -> in np {
 % General leaf nodes
 np -> {}
 np -> {}
-prp -> { vb_obj_match(no_obj). object(no_obj). }
+prp -> { vb_obj_match(no_obj). object(no_obj). gram_pers(third). }
 jj -> {}
 dt -> {}
 rb -> {}
