@@ -12,7 +12,6 @@ In addition we can use weak constraints to rule out certain summaries.
 
 ## For next time
 
-- Normalize sentence similarity in Preprocessor
 - Check how effective Preprocessor is (percentage how much smaller ss)
 - Make baseline of 10,000 stories to sentence as NN (hope ASG is more interesting summary than encoder-decoder, find good metric for classification to measure semantic closeness of summaries maybe using ConceptNet)
 - Possibly use importance from Preprocessor to restrict terminal nodes and restrict mode bias

@@ -1,4 +1,5 @@
 import argparse
+import math
 import pprint as pp
 import re
 from collections import defaultdict
@@ -18,7 +19,7 @@ warnings.filterwarnings("ignore")
 IGNORE_POS = []
 WEIGHT_SCALE = 10
 MIN_SYNONYM_SIMILARITY = 2
-
+SENT_IMPORTANCE_SQRT = 10
 
 class Preprocessor:
     def __init__(self, story, print_results=True):
@@ -124,11 +125,13 @@ class Preprocessor:
 
     @staticmethod
     def _order_sentences_by_importance(adjacency_mat, story):
-        weights_sum = np.array(list(map(sum, adjacency_mat)))
-        importance_ordering = np.argsort(-weights_sum)
         sentences = [sentence.strip() for sentence in story.split('.')]
+        normalization_factors = [math.ceil(len(sentence) ** 1./SENT_IMPORTANCE_SQRT) for sentence in sentences if len(sentence) > 0]
+        weights_sum = np.array(list(map(sum, adjacency_mat)))
+        normalized_weights = np.around(weights_sum / normalization_factors, decimals=1)
+        importance_ordering = np.argsort(-normalized_weights)
         ordered_sentences = [sentences[i] + '.' for i in importance_ordering]
-        return list(zip(ordered_sentences, sorted(weights_sum, reverse=True)))
+        return list(zip(ordered_sentences, sorted(normalized_weights, reverse=True)))
 
     @staticmethod
     def _get_synonyms(similar_words):
@@ -146,7 +149,7 @@ class Preprocessor:
                         synonyms[other_word].add(word)
                     elif not word_in_synonyms(other_word):
                         synonyms[word].add(other_word)
-        if len(synonyms.values()) > 0:
+        if len(synonyms.values()) > 1:
             assert len(set.intersection(*synonyms.values())) == 0
         return list(synonyms.values())
 
