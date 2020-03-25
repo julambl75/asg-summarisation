@@ -27,8 +27,8 @@ s -> np vp {
   action(elon, drive, car, present).
   action(it, be, electric, present).
   summary(V0_user, V1_user, V2_user, present) :- action(V0_user, V1_user, V2_user, present).
-  summary(V0_user, V1_user, V2_user, present, V4_user) :- var_adjective(V4_user), action(V0_user, V1_user, V2_user, present).
   summary(V0_user, V1_user, V4_user, present) :- var_adjective(V4_user), action(V0_user, V1_user, _, present).
+  summary(V0_user, V1_user, V2_user, present, V4_user) :- var_adjective(V4_user), action(V0_user, V1_user, V2_user, present).
 }
 vp -> vbz np rb {
   tense(present).

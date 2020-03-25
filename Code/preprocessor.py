@@ -21,6 +21,7 @@ WEIGHT_SCALE = 10
 MIN_SYNONYM_SIMILARITY = 2
 SENT_IMPORTANCE_SQRT = 10
 
+
 class Preprocessor:
     def __init__(self, story, print_results=True):
         self.story = story.lower().strip().replace('\n', ' ')
