@@ -1,5 +1,6 @@
 import argparse
 
+from preprocessor import Preprocessor
 from text_to_summary import TextToSummary
 
 FORMAT = 'txt'
@@ -39,5 +40,10 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    text_to_summary = TextToSummary(*process_args(args))
+    processed_args = process_args(args)
+
+    preprocessor = Preprocessor(processed_args[0], False)
+    homogenized_story = preprocessor.preprocess()
+
+    text_to_summary = TextToSummary(homogenized_story, *processed_args[1:])
     text_to_summary.gen_summary()

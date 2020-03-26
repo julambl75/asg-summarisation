@@ -51,7 +51,7 @@ class Preprocessor:
             self._plot_text_relationship_map(word_adjacency_mat, 'Word Relationship Map', labels)
             self._plot_text_relationship_map(sentence_adjacency_mat, 'Sentence Relationship Map')
 
-        ordered_sentences = self._order_sentences_by_importance(sentence_adjacency_mat, story)
+        ordered_sentences = self._order_sentences_by_importance(sentence_adjacency_mat, self.story)
         if self.print_results:
             print('\nOrdering sentences by importance...')
             pp.pprint(ordered_sentences)
@@ -71,7 +71,7 @@ class Preprocessor:
             print('\nHomogenizing story using synonyms...')
             pp.pprint(homogenized_story)
 
-        return homogenized_story
+        return homogenized_story  # TODO, ordered_sentences
 
     def _tokenize_story(self):
         output = self.nlp.annotate(self.story, properties={
@@ -186,6 +186,6 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    story = parse_args()
-    preprocessor = Preprocessor(story)
+    text = parse_args()
+    preprocessor = Preprocessor(text)
     preprocessor.preprocess()
