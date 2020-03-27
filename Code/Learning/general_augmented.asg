@@ -41,9 +41,6 @@ s -> np vp {
   :- property(subject,X)@1, property(verb,Y), property(adjective,A)@2, property(tense,T), not action(X,Y,A,T).
   :- property(subject,X)@1, property(verb,Y), property(object,Z)@2, property(tense,T), property(adjective,A), not action(X,Y,Z,T,A).
 
-  % Compress movement forwards then backwards into no movement
-  movement(X,Y,Z,T) :- property(subject,X), property(verb,Y), property(direction,Z)@2, property(tense,T).
-
   property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
 }
@@ -130,6 +127,13 @@ np -> dt jj nn {
   property(X,Y) :- property(X,Y)@3.
 }
 
+np -> nn {
+  singular(X) :- subject(X)@1.
+  gram_pers(third).
+
+  property(X,Y) :- property(X,Y)@1.
+}
+
 np -> jj nns {
   plural(X) :- subject(X)@2.
   gram_pers(third).
@@ -174,8 +178,17 @@ pp -> in np {
   property(X,Y) :- property(X,Y)@2.
 }
 
+nn -> nn nn {
+  property(X,Y) :- property(X,Y)@1.
+  property(X,Y) :- property(X,Y)@2.
+}
+
+nnp -> nnp nnp {
+  property(X,Y) :- property(X,Y)@1.
+  property(X,Y) :- property(X,Y)@2.
+}
+
 % General leaf nodes
-np -> {}
 np -> {}
 prp -> { vb_obj_match(no_obj). object(no_obj). gram_pers(third). }
 jj -> {}
@@ -214,13 +227,14 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 #constant(direction,backward).
 #constant(direction,none).
 
+cc -> "and " {}
 dt -> "a " {}
 jj -> "electric " { adjective(electric). }
+jj -> "red " { adjective(red). }
 nn -> "car " { object(car). subject(car). }
-nnp -> "elon " { object(elon). subject(elon). }
-prp -> "it " { singular(it). subject(it). pronoun(it). }
-vbz -> "drives " { verb(drive). }
-vbz -> "is " { verb(be). }
+nn -> "mark " { object(mark). subject(mark). }
+prp -> "you " { subject(you). pronoun(you). }
+vbp -> "own " { verb(own). }
 
 #modeh(action(const(subject),const(verb),const(object),const(tense))):[4]. % subject-verb-object
 #modeh(action(const(subject),const(verb),const(object),const(object),const(tense))):[4]. % subject-verb-objects
@@ -229,15 +243,15 @@ vbz -> "is " { verb(be). }
 #modeh(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4]. % subject-verb-adjective-object
 
 #constant(adjective,electric).
+#constant(adjective,red).
 #constant(object,car).
-#constant(object,elon).
-#constant(pronoun,it).
+#constant(object,mark).
+#constant(pronoun,you).
 #constant(subject,car).
-#constant(subject,elon).
-#constant(subject,it).
-#constant(verb,be).
-#constant(verb,drive).
+#constant(subject,mark).
+#constant(subject,you).
+#constant(verb,own).
 
-+ ["elon ", "drives ", "a ", "car ", ". "]
-+ ["it ", "is ", "electric ", ". "]
++ ["you ", "and ", "mark ", "own ", "a ", "electric ", "car ", ". "]
++ ["you ", "own ", "a ", "red ", "car ", ". "]
 

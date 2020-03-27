@@ -14,7 +14,8 @@ class Helpers:
 
     # Add necessary predicates to ASG leaf nodes for edge cases
     def get_base_predicates(self, tag, lemma):
-        if tag == 'prp':
+        # TODO fix edge case
+        if tag == 'prp' and lemma != 'you':
             is_plural = self.is_plural_pronoun(lemma)
             return self._form_gram_num_predicate(lemma, is_plural)
         # elif tag == 'vbd':

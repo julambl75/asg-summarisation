@@ -1,3 +1,2 @@
-Elon Musk is the CEO of Tesla.
-You and Elon both have an electric car.
-The vehicle you own is red.
+You and Mark have an electric car.
+You own a red vehicle.

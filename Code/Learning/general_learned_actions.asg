@@ -16,16 +16,21 @@ s -> np vp {
    :- not subject.
    :- property(plural, Y_user)@2, property(singular, X_user)@1.
    :- property(plural, Y_user)@1, property(singular, X_user)@2.
-   :- not summary(X_user, Y_user, Z_user, T_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user)@1.
-   :- not summary(X_user, Y_user, Z1_user, Z2_user, T_user), Z1_user != Z2_user, property(tense, T_user), property(object, Z2_user)@2, property(object, Z1_user)@2, property(verb, Y_user), property(subject, X_user)@1.
-   :- not summary(X_user, Y_user, A_user, T_user), property(tense, T_user), property(adverb, A_user)@2, property(verb, Y_user), property(subject, X_user)@1.
-   :- not summary(X_user, Y_user, A_user, T_user), property(tense, T_user), property(adjective, A_user)@2, property(verb, Y_user), property(subject, X_user)@1.
-   :- not summary(X_user, Y_user, Z_user, T_user, A_user), property(adjective, A_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user)@1.
-  movement(X_user, Y_user, Z_user, T_user) :- property(tense, T_user), property(direction, Z_user)@2, property(verb, Y_user), property(subject, X_user).
+   :- not action(X_user, Y_user, Z_user, T_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user)@1.
+   :- not action(X_user, Y_user, Z1_user, Z2_user, T_user), Z1_user != Z2_user, property(tense, T_user), property(object, Z2_user)@2, property(object, Z1_user)@2, property(verb, Y_user), property(subject, X_user)@1.
+   :- not action(X_user, Y_user, A_user, T_user), property(tense, T_user), property(adverb, A_user)@2, property(verb, Y_user), property(subject, X_user)@1.
+   :- not action(X_user, Y_user, A_user, T_user), property(tense, T_user), property(adjective, A_user)@2, property(verb, Y_user), property(subject, X_user)@1.
+   :- not action(X_user, Y_user, Z_user, T_user, A_user), property(adjective, A_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user)@1.
   property(X_user, Y_user) :- property(X_user, Y_user)@1.
   property(X_user, Y_user) :- property(X_user, Y_user)@2.
-  action(elon, drive, car, present).
-  action(it, be, electric, present).
+  action(mark, own, car, present).
+  action(you, own, car, present).
+  action(mark, own, electric, present).
+  action(you, own, electric, present).
+  action(you, own, red, present).
+  action(mark, own, car, present, electric).
+  action(you, own, car, present, electric).
+  action(you, own, car, present, red).
 }
 vp -> vbz np rb {
   tense(present).
@@ -80,6 +85,11 @@ np -> dt jj nn {
   property(X_user, Y_user) :- property(X_user, Y_user)@2.
   property(X_user, Y_user) :- property(X_user, Y_user)@3.
 }
+np -> nn {
+  singular(X_user) :- subject(X_user)@1.
+  gram_pers(third).
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+}
 np -> jj nns {
   plural(X_user) :- subject(X_user)@2.
   gram_pers(third).
@@ -111,7 +121,14 @@ pp -> in np {
   property(X_user, Y_user) :- property(X_user, Y_user)@1.
   property(X_user, Y_user) :- property(X_user, Y_user)@2.
 }
-np -> {}
+nn -> nn nn {
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+  property(X_user, Y_user) :- property(X_user, Y_user)@2.
+}
+nnp -> nnp nnp {
+  property(X_user, Y_user) :- property(X_user, Y_user)@1.
+  property(X_user, Y_user) :- property(X_user, Y_user)@2.
+}
 np -> {}
 prp -> {
   vb_obj_match(no_obj).
@@ -126,28 +143,28 @@ vbd -> "was " vbg {
   singular(be).
   property(X_user, Y_user) :- property(X_user, Y_user)@2.
 }
+cc -> "and " {}
 dt -> "a " {}
 jj -> "electric " {
   adjective(electric).
+}
+jj -> "red " {
+  adjective(red).
 }
 nn -> "car " {
   object(car).
   subject(car).
 }
-nnp -> "elon " {
-  object(elon).
-  subject(elon).
+nn -> "mark " {
+  object(mark).
+  subject(mark).
 }
-prp -> "it " {
-  singular(it).
-  subject(it).
-  pronoun(it).
+prp -> "you " {
+  subject(you).
+  pronoun(you).
 }
-vbz -> "drives " {
-  verb(drive).
-}
-vbz -> "is " {
-  verb(be).
+vbp -> "own " {
+  verb(own).
 }
 
 #lexer -> {
@@ -169,54 +186,4 @@ vbz -> "is " {
   property(continuous, X_user) :- continuous(X_user).
   property(gram_pers, X_user) :- gram_pers(X_user).
   property(tense, X_user) :- tense(X_user).
-  var_adjective(electric).
-  var_object(car).
-  var_object(elon).
-  var_subject(car).
-  var_subject(elon).
-  var_verb(drive).
 }
-dt -> "a " {}
-dt -> "an " {}
-jj -> "electric " { adjective(electric). }
-nn -> "car " { object(car). subject(car). }
-nnp -> "elon " { object(elon). subject(elon). }
-prp -> "it " { singular(it). subject(it). pronoun(it). }
-vbz -> "drives " { verb(drive). }
-vbz -> "is " { verb(be). }
-
-% General constants
-#constant(object,no_obj).
-#constant(tense,present).
-#constant(tense,past).
-#constant(direction,forward).
-#constant(direction,backward).
-#constant(direction,none).
-
-#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
-#modeh(summary(var(var_subject),var(var_verb),var(var_object),var(var_object),const(tense))):[4].
-#modeh(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
-#modeh(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
-#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
-
-%#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
-%#modeba(summary(var(var_subject),var(var_verb),var(var_object),var(var_object),const(tense))):[4].
-%#modeba(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
-%#modeba(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
-%#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
-
-#modebb(var_subject(var(var_subject))):[4].
-#modebb(var_verb(var(var_verb))):[4].
-#modebb(var_adjective(var(var_adjective))):[4].
-#modebb(var_object(var(var_object))):[4].
-
-#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
-#modeba(action(var(var_subject),var(var_verb),var(var_object),var(var_object),const(tense))):[4].
-#modeba(action(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
-#modeba(action(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
-#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
-
-#maxv(5).
-
-+ ["elon ", "drives ", "an ", "electric ", "car ", ". "]
-
