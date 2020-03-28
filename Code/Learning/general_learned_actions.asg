@@ -16,11 +16,11 @@ s -> np vp {
    :- not subject.
    :- property(plural, Y_user)@2, property(singular, X_user)@1.
    :- property(plural, Y_user)@1, property(singular, X_user)@2.
-   :- not action(X_user, Y_user, Z_user, T_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user)@1.
-   :- not action(X_user, Y_user, Z1_user, Z2_user, T_user), Z1_user != Z2_user, property(tense, T_user), property(object, Z2_user)@2, property(object, Z1_user)@2, property(verb, Y_user), property(subject, X_user)@1.
-   :- not action(X_user, Y_user, A_user, T_user), property(tense, T_user), property(adverb, A_user)@2, property(verb, Y_user), property(subject, X_user)@1.
-   :- not action(X_user, Y_user, A_user, T_user), property(tense, T_user), property(adjective, A_user)@2, property(verb, Y_user), property(subject, X_user)@1.
-   :- not action(X_user, Y_user, Z_user, T_user, A_user), property(adjective, A_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user)@1.
+   :- not summary(X_user, Y_user, Z_user, T_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user)@1.
+   :- not summary(X_user, Y_user, Z1_user, Z2_user, T_user), Z1_user != Z2_user, property(tense, T_user), property(object, Z2_user)@2, property(object, Z1_user)@2, property(verb, Y_user), property(subject, X_user)@1.
+   :- not summary(X_user, Y_user, A_user, T_user), property(tense, T_user), property(adverb, A_user)@2, property(verb, Y_user), property(subject, X_user)@1.
+   :- not summary(X_user, Y_user, A_user, T_user), property(tense, T_user), property(adjective, A_user)@2, property(verb, Y_user), property(subject, X_user)@1.
+   :- not summary(X_user, Y_user, Z_user, T_user, A_user), property(adjective, A_user), property(tense, T_user), property(object, Z_user)@2, property(verb, Y_user), property(subject, X_user)@1.
   property(X_user, Y_user) :- property(X_user, Y_user)@1.
   property(X_user, Y_user) :- property(X_user, Y_user)@2.
   action(mark, own, car, present).
@@ -77,13 +77,15 @@ np -> np cc np {
   property(X_user, Y_user) :- property(X_user, Y_user)@2.
   property(X_user, Y_user) :- property(X_user, Y_user)@3.
 }
-np -> dt jj nn {
-  singular(X_user) :- subject(X_user)@3.
+np -> dt jj jj nn {
+  singular(X_user) :- subject(X_user)@4.
   gram_pers(third).
-   :- not property(can_have, X_user)@3, property(n_adj_match, X_user)@2, property(X_user, Y_user)@2.
+   :- not property(can_have, X_user)@4, property(n_adj_match, X_user)@2, property(X_user, Y_user)@2.
+   :- not property(can_have, X_user)@4, property(n_adj_match, X_user)@3, property(X_user, Y_user)@3.
   property(X_user, Y_user) :- property(X_user, Y_user)@1.
   property(X_user, Y_user) :- property(X_user, Y_user)@2.
   property(X_user, Y_user) :- property(X_user, Y_user)@3.
+  property(X_user, Y_user) :- property(X_user, Y_user)@4.
 }
 np -> nn {
   singular(X_user) :- subject(X_user)@1.
@@ -186,4 +188,55 @@ vbp -> "own " {
   property(continuous, X_user) :- continuous(X_user).
   property(gram_pers, X_user) :- gram_pers(X_user).
   property(tense, X_user) :- tense(X_user).
+  var_adjective(electric).
+  var_adjective(red).
+  var_object(car).
+  var_pronoun(you).
+  var_subject(car).
+  var_subject(you).
+  var_verb(own).
 }
+cc -> "and " {}
+dt -> "a " {}
+jj -> "electric " { adjective(electric). }
+jj -> "red " { adjective(red). }
+nn -> "car " { object(car). subject(car). }
+nn -> "mark " { object(mark). subject(mark). }
+prp -> "you " { subject(you). pronoun(you). }
+vbp -> "own " { verb(own). }
+
+% General constants
+#constant(object,no_obj).
+#constant(tense,present).
+#constant(tense,past).
+#constant(direction,forward).
+#constant(direction,backward).
+#constant(direction,none).
+
+#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_object),var(var_object),const(tense))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
+#modeh(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
+
+%#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+%#modeba(summary(var(var_subject),var(var_verb),var(var_object),var(var_object),const(tense))):[4].
+%#modeba(summary(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
+%#modeba(summary(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
+%#modeba(summary(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
+
+#modebb(var_subject(var(var_subject))):[4].
+#modebb(var_verb(var(var_verb))):[4].
+#modebb(var_adjective(var(var_adjective))):[4].
+#modebb(var_object(var(var_object))):[4].
+
+#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_object),var(var_object),const(tense))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_adverb),const(tense))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_adjective),const(tense))):[4].
+#modeba(action(var(var_subject),var(var_verb),var(var_object),const(tense),var(var_adjective))):[4].
+
+#maxv(5).
+
++ ["you ", "own ", "a ", "red ", "electric ", "car ", ". "]
+

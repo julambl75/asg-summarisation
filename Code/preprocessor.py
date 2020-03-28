@@ -3,6 +3,7 @@ import math
 import pprint as pp
 import re
 from collections import defaultdict
+from operator import itemgetter
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -66,7 +67,7 @@ class Preprocessor:
             print('\nGetting shortest words for each set of synonyms...')
             pp.pprint(shortest_word_map)
 
-        homogenized_story = self._homogenize_text(self.story, shortest_word_map)
+        homogenized_story = self._homogenize_text(self.story, shortest_word_map, ordered_sentences)
         if self.print_results:
             print('\nHomogenizing story using synonyms...')
             pp.pprint(homogenized_story)
@@ -166,9 +167,14 @@ class Preprocessor:
 
     # From https://stackoverflow.com/questions/17730788/search-and-replace-with-whole-word-only-option
     @staticmethod
-    def _homogenize_text(story, word_map):
+    def _homogenize_text(story, word_map, ordered_sentences):
         if len(word_map) == 0:
             return story
+        importances = list(map(itemgetter(1), ordered_sentences))
+        importance_1st_quartile = np.percentile(importances, 25)
+        pruned_sentences = list(map(itemgetter(0), filter(lambda x: x[1] < importance_1st_quartile, ordered_sentences)))
+        for prune in pruned_sentences:
+            story = story.replace(prune, '')
         replace = lambda m: word_map[m.group(0)]
         return re.sub('|'.join(r'\b%s\b' % re.escape(s) for s in word_map), replace, story)
 
@@ -177,12 +183,16 @@ def parse_args():
     parser = argparse.ArgumentParser()
     command_group = parser.add_mutually_exclusive_group(required=True)
     command_group.add_argument('-f', '--file', type=str, help='path to text file')
+    command_group.add_argument('-a', '--all_files', type=str, help='path to folder with text file')
     command_group.add_argument('-t', '--text', type=str, help='text (use double quotation marks)')
     args = parser.parse_args()
     if args.text:
         return args.text
     if args.file:
         return open(args.file).read()
+    if args.all_files:
+        path = '{}/{}'.format(args.all_files, args.all_files)
+        return open('{}.txt'.format(path)).read()
 
 
 if __name__ == '__main__':
