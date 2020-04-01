@@ -58,9 +58,11 @@ To ensure subject-verb agreement in the present tense, we use constraints to che
 
 In order to keep track of what information the original text contains, we can define the 4-ary predicate `action`, which respectively takes a subject, verb and object. There also exists a more specific 5-ary predicate with the same name, which simply takes an adjective as an additional parameter. This is then used in a constraint, which restricts the subparts of a given sentence to match the information passed via `action`. For example, with the single predicate `action(mary,eat,apple,past)`, a sentence is restricted to say that Mary ate one or more apples.
 
-At the moment the grammar supports four different sentence structures:
+At the moment the grammar supports five different sentence structures:
 - subject-verb-object
+- subject-verb-object-object
 - subject-verb-adverb
+- subject-verb-adjective
 - subject-verb-adjective-object
 
 ## Sentence Group Level
@@ -93,4 +95,46 @@ In order to teach our program how to understand a narrative, we have started out
 
 In order to generate a summary, we have a script called `main.py`, which takes a text as input. From this, it splits it into sentences, which get divided into words. For each sentence, a list of its constituent words is appended as a positive example to our ASG program. We do not create a single positive example for the entire text, otherwise our program would not be able to learn from it, due to the restriction on the number of sentences in a summary (thus we can use the same script without changing any rules). In order to be able to learn about the actions that take place in the story, we use the parse tree to create ILASP constants for each word; these then also get appended to the ASG program.
 
-At this stage we run `asg` in learning mode, to generate a new program that contains the `action` predicates learned from the text. Then, we run this new program in run mode, which finally lists all the possible summaries.
+At this stage we run `asg` in learning mode, to generate a new program that contains the `action` predicates learned from the text.
+
+When building up new summary generation rules, we slightly change the mode bias, allowing us to learn rules to give summaries based on `action` predicates and additional words from the text. This gives us rules for the predicate `summary`.  
+
+Then, we run this new program in run mode, which finally lists the possible summaries.
+
+# Preprocessor
+
+## Idea
+
+The goal of the `Preprocessor` is to simplify the original story to make the job easier and faster for ASG. The first thing it does is create a text relationship map for all related words (using ConceptNET). From this, it is able to create one for sentences by summing the weights of words on a per-sentence basis.
+
+Now that we can quantify how "related" sentences are, we sum all of these outgoing links for every sentence, dividing this by a normalizing constant to penalize longer sentences (as they have a better chance to contain words that are similar to words in other sentences). The more "linked" a sentence is, the more relevant its meaning to the story, so the more important it is for the summary.
+
+**(Simplification 1)** What the `Preprocessor` then does is to drop sentences which have a normalized importance that is lower than the 25th percentile, effectively keeping only the more "relevant" ones.
+
+**(Simplification 2)** Its final step is to replace every word in a synonym pair (weight >= 2 according to ConceptNET) with its shorter counterpart, if possible.
+
+## Search Space Reduction
+
+Running time in ILASP is proportional to the search space size, so by reducing the latter we can make ASG faster.
+
+By dropping sentences which are irrelevant for the summary and homogenizing the text, we are able to greatly reduce the search space, as can be seen in the below examples. In both cases, we will refer to the search space for learning the `action` predicates (see above).
+
+### Example 1: Peter Little
+
+See the original story in Samples/peter_little/peter_little_full.txt.
+
+|  | Original | Simplification 1 | Simplification 2 |
+|-----------------------------|:--------:|:----------------:|:----------------:|
+| ASG tree leaf nodes |  |  |  |
+| Constants for learning task |  |  |  |
+| Search space size |  |  |  |
+
+### Example 2: Elon
+
+See the original story in Samples/elon/elon.txt.
+
+|  | Original | Simplification 1 | Simplification 2 |
+|-----------------------------|:--------:|:----------------:|:----------------:|
+| ASG tree leaf nodes | 14 | ? | 8 |
+| Constants for learning task | 17 | ? | 9 |
+| Search space size | 2016 | ? | 120 |

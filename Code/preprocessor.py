@@ -17,7 +17,8 @@ from parse_concept_net import ParseConceptNet
 
 warnings.filterwarnings("ignore")
 
-IGNORE_POS = []
+IGNORE_POS = ['DT', '.']
+SAME_WORD_SIMILARITY = 8
 WEIGHT_SCALE = 10
 MIN_SYNONYM_SIMILARITY = 2
 SENT_IMPORTANCE_SQRT = 10
@@ -89,16 +90,20 @@ class Preprocessor:
 
         for i, sentence in enumerate(tokenized):
             for word, pos in sentence:
-                for j, other_sentence in enumerate(tokenized):
-                    if i != j:
-                        for other_word, other_pos in other_sentence:
-                            if word != other_word and pos == other_pos and not pos in IGNORE_POS:
-                                similarity = self.pcn.compare_words(word, other_word)
-                                if similarity > 0:
-                                    vocabulary.add(word)
-                                    vocabulary.add(other_word)
-                                    similar_words[word][other_word] = similarity
-                                    similar_sentences[i][j] += similarity
+                if pos not in IGNORE_POS:
+                    for j, other_sentence in enumerate(tokenized):
+                        if i != j:
+                            for other_word, other_pos in other_sentence:
+                                if pos == other_pos:
+                                    if word == other_word:
+                                        similarity = SAME_WORD_SIMILARITY
+                                    else:
+                                        similarity = self.pcn.compare_words(word, other_word)
+                                    if similarity > 0:
+                                        vocabulary.add(word)
+                                        vocabulary.add(other_word)
+                                        similar_words[word][other_word] = similarity
+                                        similar_sentences[i][j] += similarity
         return similar_words, similar_sentences, vocabulary
 
     @staticmethod
@@ -128,7 +133,8 @@ class Preprocessor:
     @staticmethod
     def _order_sentences_by_importance(adjacency_mat, story):
         sentences = [sentence.strip() for sentence in story.split('.')]
-        normalization_factors = [math.ceil(len(sentence) ** 1./SENT_IMPORTANCE_SQRT) for sentence in sentences if len(sentence) > 0]
+        normalization_factors = [math.ceil(len(sentence) ** 1. / SENT_IMPORTANCE_SQRT) for sentence in sentences if
+                                 len(sentence) > 0]
         weights_sum = np.array(list(map(sum, adjacency_mat)))
         normalized_weights = np.around(weights_sum / normalization_factors, decimals=1)
         importance_ordering = np.argsort(-normalized_weights)
