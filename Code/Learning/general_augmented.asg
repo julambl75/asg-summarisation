@@ -181,11 +181,13 @@ pp -> in np {
 }
 
 nn -> nn nn {
+  :- object(X)@1, object(X)@2.
   property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
 }
 
 nnp -> nnp nnp {
+  :- object(X)@1, object(X)@2.
   property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
 }
@@ -229,15 +231,10 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 #constant(direction,backward).
 #constant(direction,none).
 
-cc -> "and " {}
-dt -> "a " {}
-dt -> "an " {}
-jj -> "electric " { adjective(electric). }
-jj -> "red " { adjective(red). }
-nn -> "car " { object(car). subject(car). }
-nn -> "mark " { object(mark). subject(mark). }
-prp -> "you " { subject(you). pronoun(you). }
-vbp -> "own " { verb(own). }
+dt -> "the " {}
+jj -> "black " { adjective(black). }
+nn -> "cat " { object(cat). subject(cat). }
+vbz -> "is " { verb(be). }
 
 #modeh(action(const(subject),const(verb),const(object),const(tense))):[4]. % subject-verb-object
 #modeh(action(const(subject),const(verb),const(object),const(object),const(tense))):[4]. % subject-verb-objects
@@ -245,16 +242,10 @@ vbp -> "own " { verb(own). }
 #modeh(action(const(subject),const(verb),const(adjective),const(tense))):[4]. % subject-verb-adjective
 #modeh(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4]. % subject-verb-adjective-object
 
-#constant(adjective,electric).
-#constant(adjective,red).
-#constant(object,car).
-#constant(object,mark).
-#constant(pronoun,you).
-#constant(subject,car).
-#constant(subject,mark).
-#constant(subject,you).
-#constant(verb,own).
+#constant(adjective,black).
+#constant(object,cat).
+#constant(subject,cat).
+#constant(verb,be).
 
-+ ["you ", "and ", "mark ", "own ", "an ", "electric ", "car ", ". "]
-+ ["you ", "own ", "a ", "red ", "car ", ". "]
++ ["the ", "cat ", "is ", "black ", ". "]
 
