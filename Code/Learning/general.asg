@@ -123,6 +123,8 @@ np -> dt jj jj nn {
   :- property(X,Y)@2, property(n_adj_match,X)@2, not property(can_have,X)@4.
   :- property(X,Y)@3, property(n_adj_match,X)@3, not property(can_have,X)@4.
 
+  :- adjective(X)@2, adjective(X)@3.
+
   property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
   property(X,Y) :- property(X,Y)@3.
@@ -182,12 +184,14 @@ pp -> in np {
 
 nn -> nn nn {
   :- object(X)@1, object(X)@2.
+  
   property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
 }
 
 nnp -> nnp nnp {
   :- object(X)@1, object(X)@2.
+
   property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
 }
