@@ -18,7 +18,8 @@ from parse_concept_net import ParseConceptNet
 warnings.filterwarnings("ignore")
 
 IGNORE_POS = ['DT', '.']
-SAME_WORD_SIMILARITY = 8
+SAME_WORD_POS = ['NN', 'NNS', 'NNP', 'NNPS']
+SAME_WORD_SIMILARITY = 5
 WEIGHT_SCALE = 10
 MIN_SYNONYM_SIMILARITY = 2
 SENT_IMPORTANCE_SQRT = 10
@@ -96,7 +97,7 @@ class Preprocessor:
                             for other_word, other_pos in other_sentence:
                                 if pos == other_pos:
                                     if word == other_word:
-                                        similarity = SAME_WORD_SIMILARITY
+                                        similarity = SAME_WORD_SIMILARITY if pos in SAME_WORD_POS else 0
                                     else:
                                         similarity = self.pcn.compare_words(word, other_word)
                                     if similarity > 0:

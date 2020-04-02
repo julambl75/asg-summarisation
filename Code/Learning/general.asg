@@ -184,7 +184,7 @@ pp -> in np {
 
 nn -> nn nn {
   :- object(X)@1, object(X)@2.
-  
+
   property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
 }
