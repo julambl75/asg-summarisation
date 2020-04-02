@@ -73,7 +73,7 @@ class Preprocessor:
             print('\nHomogenizing story using synonyms...')
             pp.pprint(homogenized_story)
 
-        return homogenized_story  # TODO, ordered_sentences
+        return homogenized_story
 
     def _tokenize_story(self):
         output = self.nlp.annotate(self.story, properties={

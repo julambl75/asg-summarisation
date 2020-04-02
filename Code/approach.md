@@ -117,24 +117,14 @@ Now that we can quantify how "related" sentences are, we sum all of these outgoi
 
 Running time in ILASP is proportional to the search space size, so by reducing the latter we can make ASG faster.
 
-By dropping sentences which are irrelevant for the summary and homogenizing the text, we are able to greatly reduce the search space, as can be seen in the below examples. In both cases, we will refer to the search space for learning the `action` predicates (see above).
+By dropping sentences which are irrelevant for the summary and homogenizing the text, we are able to greatly reduce the search space, as can be seen in the below example.
 
-### Example 1: Peter Little
+### Example: Elon
 
-See the original story in Samples/peter_little/peter_little_full.txt.
-
-|  | Original | Simplification 1 | Simplification 2 |
-|-----------------------------|:--------:|:----------------:|:----------------:|
-| ASG tree leaf nodes |  |  |  |
-| Constants for learning task |  |  |  |
-| Search space size |  |  |  |
-
-### Example 2: Elon
-
-See the original story in Samples/elon/elon.txt.
+See the original story in Samples/elon/elon.txt. In this example, we will refer to the search space for learning the `action` predicates (see above).
 
 |  | Original | Simplification 1 | Simplification 2 |
 |-----------------------------|:--------:|:----------------:|:----------------:|
-| ASG tree leaf nodes | 14 | ? | 8 |
-| Constants for learning task | 17 | ? | 9 |
-| Search space size | 2016 | ? | 120 |
+| ASG tree leaf nodes | 14 | 11 | 8 |
+| Constants for learning task | 17 | 13 | 9 |
+| Search space size | 2016 | 480 | 120 |

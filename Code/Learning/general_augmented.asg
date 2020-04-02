@@ -231,28 +231,13 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 
 cc -> "and " {}
 dt -> "a " {}
-ex -> "there " {}
-in -> "for " {}
-in -> "in " {}
-jj -> "curious " { adjective(curious). }
-jj -> "famous " { adjective(famous). }
-jj -> "little " { adjective(little). }
-nn -> "astrophysicist " { object(astrophysicist). subject(astrophysicist). }
-nn -> "boy " { object(boy). subject(boy). }
-nn -> "peter " { object(peter). subject(peter). }
-nns -> "exams " { object(exam). subject(exam). }
-nns -> "planets " { object(planet). subject(planet). }
-nns -> "stars " { object(star). subject(star). }
-prp -> "he " { singular(he). subject(he). pronoun(he). }
-prp$ -> "his " {}
-rb -> "hard " { adverb(hard). }
-rb -> "little " { adverb(little). }
-rb -> "now " { adverb(now). }
-vbd -> "became " { verb(become). }
-vbd -> "studied " { verb(study). }
-vbd -> "was " { verb(be). }
-vbn -> "named " { verb(name). }
-vbz -> "is " { verb(be). }
+dt -> "an " {}
+jj -> "electric " { adjective(electric). }
+jj -> "red " { adjective(red). }
+nn -> "car " { object(car). subject(car). }
+nn -> "mark " { object(mark). subject(mark). }
+prp -> "you " { subject(you). pronoun(you). }
+vbp -> "own " { verb(own). }
 
 #modeh(action(const(subject),const(verb),const(object),const(tense))):[4]. % subject-verb-object
 #modeh(action(const(subject),const(verb),const(object),const(object),const(tense))):[4]. % subject-verb-objects
@@ -260,33 +245,16 @@ vbz -> "is " { verb(be). }
 #modeh(action(const(subject),const(verb),const(adjective),const(tense))):[4]. % subject-verb-adjective
 #modeh(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4]. % subject-verb-adjective-object
 
-#constant(adjective,curious).
-#constant(adjective,famous).
-#constant(adjective,little).
-#constant(adverb,hard).
-#constant(adverb,little).
-#constant(adverb,now).
-#constant(object,astrophysicist).
-#constant(object,boy).
-#constant(object,exam).
-#constant(object,peter).
-#constant(object,planet).
-#constant(object,star).
-#constant(pronoun,he).
-#constant(subject,astrophysicist).
-#constant(subject,boy).
-#constant(subject,exam).
-#constant(subject,he).
-#constant(subject,peter).
-#constant(subject,planet).
-#constant(subject,star).
-#constant(verb,be).
-#constant(verb,become).
-#constant(verb,name).
-#constant(verb,study).
+#constant(adjective,electric).
+#constant(adjective,red).
+#constant(object,car).
+#constant(object,mark).
+#constant(pronoun,you).
+#constant(subject,car).
+#constant(subject,mark).
+#constant(subject,you).
+#constant(verb,own).
 
-+ ["there ", "was ", "a ", "curious ", "little ", "boy ", "named ", "peter ", "little ", ". "]
-+ ["he ", "was ", "curious ", "in ", "stars ", "and ", "planets ", ". "]
-+ ["he ", "studied ", "hard ", "for ", "his ", "exams ", "and ", "became ", "a ", "astrophysicist ", ". "]
-+ ["now ", "he ", "is ", "famous ", ". "]
++ ["you ", "and ", "mark ", "own ", "an ", "electric ", "car ", ". "]
++ ["you ", "own ", "a ", "red ", "car ", ". "]
 
