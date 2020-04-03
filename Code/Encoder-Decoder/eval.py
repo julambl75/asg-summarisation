@@ -11,7 +11,7 @@ def evaluate(encoder, decoder, sentence, max_length=MAX_LENGTH):
                                                      encoder_hidden)
             encoder_outputs[ei] += encoder_output[0, 0]
 
-        decoder_input = torch.tensor([[SOS_token]], device=device)  # SOS
+        decoder_input = torch.tensor([[SOS_TOKEN]], device=device)  # SOS
 
         decoder_hidden = encoder_hidden
 
@@ -23,7 +23,7 @@ def evaluate(encoder, decoder, sentence, max_length=MAX_LENGTH):
                 decoder_input, decoder_hidden, encoder_outputs)
             decoder_attentions[di] = decoder_attention.data
             topv, topi = decoder_output.data.topk(1)
-            if topi.item() == EOS_token:
+            if topi.item() == EOS_TOKEN:
                 decoded_words.append('<EOS>')
                 break
             else:

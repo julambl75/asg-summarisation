@@ -1,1 +1,1 @@
-A large majority of the code here is copied from the following site, but the point here was to get a good comparison point and not build a neural network from scratch: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html.
+A large majority of the code in this directory is adapted from the following site: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html.

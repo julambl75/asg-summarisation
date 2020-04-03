@@ -1,16 +1,10 @@
 from __future__ import unicode_literals, print_function, division
-from io import open
-import unicodedata
-import string
-import re
-import random
 
 import torch
 import torch.nn as nn
-from torch import optim
 import torch.nn.functional as F
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+from rnn_utils import DEVICE
 
 
 class EncoderRNN(nn.Module):
@@ -28,7 +22,7 @@ class EncoderRNN(nn.Module):
         return output, hidden
 
     def init_hidden(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
+        return torch.zeros(1, 1, self.hidden_size, device=DEVICE)
 
 
 class DecoderRNN(nn.Module):
@@ -49,16 +43,15 @@ class DecoderRNN(nn.Module):
         return output, hidden
 
     def init_hidden(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
+        return torch.zeros(1, 1, self.hidden_size, device=DEVICE)
 
 
 class AttnDecoderRNN(nn.Module):
-    def __init__(self, hidden_size, output_size, dropout_p=0.1, max_length=MAX_LENGTH):
+    def __init__(self, hidden_size, output_size, dropout_p=0.1):
         super(AttnDecoderRNN, self).__init__()
         self.hidden_size = hidden_size
         self.output_size = output_size
         self.dropout_p = dropout_p
-        self.max_length = max_length
 
         self.embedding = nn.Embedding(self.output_size, self.hidden_size)
         self.attn = nn.Linear(self.hidden_size * 2, self.max_length)
@@ -85,4 +78,4 @@ class AttnDecoderRNN(nn.Module):
         return output, hidden, attn_weights
 
     def init_hidden(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
+        return torch.zeros(1, 1, self.hidden_size, device=DEVICE)

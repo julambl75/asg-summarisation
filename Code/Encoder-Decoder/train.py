@@ -1,36 +1,22 @@
 from __future__ import unicode_literals, print_function, division
-from io import open
-import unicodedata
-import string
-import re
-import random
+import time
 
 import torch
 import torch.nn as nn
 from torch import optim
-import torch.nn.functional as F
 
-teacher_forcing_ratio = 0.5
+from rnn_model import EncoderRNN, AttnDecoderRNN
+from rnn_utils import DEVICE, tensors_from_pair
+from rnn_utils import time_since, show_plot
 
+from lang import *
 
-def indexesFromSentence(lang, sentence):
-    return [lang.word2index[word] for word in sentence.split(' ')]
+TEACHER_FORCING_RATIO = 0.5
 
-
-def tensorFromSentence(lang, sentence):
-    indexes = indexesFromSentence(lang, sentence)
-    indexes.append(EOS_token)
-    return torch.tensor(indexes, dtype=torch.long, device=device).view(-1, 1)
+PAIRS = prepare_data(TRAIN)
 
 
-def tensorsFromPair(pair):
-    input_tensor = tensorFromSentence(input_lang, pair[0])
-    target_tensor = tensorFromSentence(output_lang, pair[1])
-    return (input_tensor, target_tensor)
-
-
-def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion,
-          max_length=MAX_LENGTH):
+def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion):
     encoder_hidden = encoder.init_hidden()
 
     encoder_optimizer.zero_grad()
@@ -39,7 +25,7 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
     input_length = input_tensor.size(0)
     target_length = target_tensor.size(0)
 
-    encoder_outputs = torch.zeros(max_length, encoder.hidden_size, device=device)
+    encoder_outputs = torch.zeros(MAX_LENGTH, encoder.hidden_size, device=DEVICE)
 
     loss = 0
 
@@ -48,11 +34,11 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
             input_tensor[ei], encoder_hidden)
         encoder_outputs[ei] = encoder_output[0, 0]
 
-    decoder_input = torch.tensor([[SOS_token]], device=device)
+    decoder_input = torch.tensor([[SOS_TOKEN]], device=DEVICE)
 
     decoder_hidden = encoder_hidden
 
-    use_teacher_forcing = True if random.random() < teacher_forcing_ratio else False
+    use_teacher_forcing = True if random.random() < TEACHER_FORCING_RATIO else False
 
     if use_teacher_forcing:
         # Teacher forcing: Feed the target as the next input
@@ -71,7 +57,7 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
             decoder_input = topi.squeeze().detach()  # detach from history as input
 
             loss += criterion(decoder_output, target_tensor[di])
-            if decoder_input.item() == EOS_token:
+            if decoder_input.item() == EOS_TOKEN:
                 break
 
     loss.backward()
@@ -82,7 +68,7 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
     return loss.item() / target_length
 
 
-def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
+def train_iters(encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
     start = time.time()
     plot_losses = []
     print_loss_total = 0  # Reset every print_every
@@ -90,7 +76,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
-    training_pairs = [tensorsFromPair(random.choice(pairs))
+    training_pairs = [tensors_from_pair(random.choice(PAIRS))
                       for i in range(n_iters)]
     criterion = nn.NLLLoss()
 
@@ -107,7 +93,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         if iter % print_every == 0:
             print_loss_avg = print_loss_total / print_every
             print_loss_total = 0
-            print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
+            print('%s (%d %d%%) %.4f' % (time_since(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
 
         if iter % plot_every == 0:
@@ -115,12 +101,12 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             plot_losses.append(plot_loss_avg)
             plot_loss_total = 0
 
-    showPlot(plot_losses)
+    show_plot(plot_losses)
 
 
 if __name__ == '__main__':
     hidden_size = 256
-    encoder1 = EncoderRNN(input_lang.n_words, hidden_size).to(device)
-    attn_decoder1 = AttnDecoderRNN(hidden_size, output_lang.n_words, dropout_p=0.1).to(device)
+    encoder1 = EncoderRNN(INPUT.n_words, hidden_size).to(DEVICE)
+    attn_decoder1 = AttnDecoderRNN(hidden_size, OUTPUT.n_words, dropout_p=0.1).to(DEVICE)
 
-    trainIters(encoder1, attn_decoder1, 75000, print_every=5000)
+    train_iters(encoder1, attn_decoder1, 75000, print_every=5000)
