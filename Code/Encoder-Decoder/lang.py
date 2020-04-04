@@ -53,23 +53,23 @@ def normalize_string(s):
     return s
 
 
+# Read a file and split into lines
+def read_data(lang, dataset):
+    return open(f'data/{lang}_{dataset}.txt', encoding='utf-8').read().strip().split('\n')
+
+
 def read_langs(dataset):
     print("Reading lines...")
-
-    lines = {}
-
-    # Read the files and split into lines
-    for lang in enumerate([INPUT, OUTPUT]):
-        lines[lang] = open('data/%s_%s.txt' % (lang, dataset), encoding='utf-8'). \
-            read().strip().split('\n')
+    lines = [read_data(lang, dataset) for lang in (INPUT, OUTPUT)]
 
     # Split every line into pairs and normalize
-    pairs = list(map(normalize_string, zip(*lines.values())))
+    pairs = list(map(lambda pair: tuple(map(normalize_string, pair)), zip(*lines)))
 
     input_lang = Lang(INPUT)
     output_lang = Lang(OUTPUT)
 
     return input_lang, output_lang, pairs
+
 
 # eng_prefixes = (
 #     "i am ", "i m ",

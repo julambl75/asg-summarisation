@@ -1,4 +1,6 @@
 from __future__ import unicode_literals, print_function, division
+
+import random
 import time
 
 import torch
@@ -6,8 +8,7 @@ import torch.nn as nn
 from torch import optim
 
 from rnn_model import EncoderRNN, AttnDecoderRNN
-from rnn_utils import DEVICE, tensors_from_pair
-from rnn_utils import time_since, show_plot
+from rnn_utils import DEVICE, tensors_from_pair, time_since, show_plot
 
 from lang import *
 
@@ -102,11 +103,3 @@ def train_iters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lea
             plot_loss_total = 0
 
     show_plot(plot_losses)
-
-
-if __name__ == '__main__':
-    hidden_size = 256
-    encoder1 = EncoderRNN(INPUT.n_words, hidden_size).to(DEVICE)
-    attn_decoder1 = AttnDecoderRNN(hidden_size, OUTPUT.n_words, dropout_p=0.1).to(DEVICE)
-
-    train_iters(encoder1, attn_decoder1, 75000, print_every=5000)

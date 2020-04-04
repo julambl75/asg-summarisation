@@ -1,17 +1,27 @@
+import random
+
+import torch
+
+from rnn_utils import INPUT, OUTPUT, DEVICE, tensor_from_sentence
+from lang import SOS_TOKEN, EOS_TOKEN, MAX_LENGTH, TEST, prepare_data
+
+PAIRS = prepare_data(TEST)
+
+
 def evaluate(encoder, decoder, sentence, max_length=MAX_LENGTH):
     with torch.no_grad():
-        input_tensor = tensorFromSentence(input_lang, sentence)
+        input_tensor = tensor_from_sentence(INPUT, sentence)
         input_length = input_tensor.size()[0]
         encoder_hidden = encoder.initHidden()
 
-        encoder_outputs = torch.zeros(max_length, encoder.hidden_size, device=device)
+        encoder_outputs = torch.zeros(max_length, encoder.hidden_size, device=DEVICE)
 
         for ei in range(input_length):
             encoder_output, encoder_hidden = encoder(input_tensor[ei],
                                                      encoder_hidden)
             encoder_outputs[ei] += encoder_output[0, 0]
 
-        decoder_input = torch.tensor([[SOS_TOKEN]], device=device)  # SOS
+        decoder_input = torch.tensor([[SOS_TOKEN]], device=DEVICE)  # SOS
 
         decoder_hidden = encoder_hidden
 
@@ -27,15 +37,16 @@ def evaluate(encoder, decoder, sentence, max_length=MAX_LENGTH):
                 decoded_words.append('<EOS>')
                 break
             else:
-                decoded_words.append(output_lang.index2word[topi.item()])
+                decoded_words.append(OUTPUT.index2word[topi.item()])
 
             decoder_input = topi.squeeze().detach()
 
         return decoded_words, decoder_attentions[:di + 1]
 
-def evaluateRandomly(encoder, decoder, n=10):
+
+def evaluate_randomly(encoder, decoder, n=10):
     for i in range(n):
-        pair = random.choice(pairs)
+        pair = random.choice(PAIRS)
         print('>', pair[0])
         print('=', pair[1])
         output_words, attentions = evaluate(encoder, decoder, pair[0])
