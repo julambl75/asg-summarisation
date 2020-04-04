@@ -1,5 +1,8 @@
+import os
 import re
 import unicodedata
+
+PATH = os.path.dirname(os.path.abspath(__file__))
 
 SOS_TOKEN = 0
 EOS_TOKEN = 1
@@ -55,7 +58,7 @@ def normalize_string(s):
 
 # Read a file and split into lines
 def read_data(lang, dataset):
-    return open(f'data/{lang}_{dataset}.txt', encoding='utf-8').read().strip().split('\n')
+    return open(f'{PATH}/data/{lang}_{dataset}.txt', encoding='utf-8').read().strip().split('\n')
 
 
 def read_langs(dataset):
