@@ -19,6 +19,8 @@
 ###
 import os
 
+from pattern.en import conjugate, singularize, pluralize, referenced
+
 PATH = os.path.dirname(os.path.abspath(__file__))
 
 WORD_TYPES = ['adj', 'adv', 'noun', 'verb']
@@ -29,18 +31,31 @@ def read_data(word_type):
     return list(map(lambda w: w.replace('_', ' '), wordbank))
 
 
-def get_singular(word_type, word):
-    assert word_type == 'noun'
-    return word
+# https://www.clips.uantwerpen.be/pages/pattern-en#conjugation
 
+# >>> verb = "go"
+# >>> conjugate(verb,
+# ...     tense = "past",           # INFINITIVE, PRESENT, PAST, FUTURE
+# ...    person = 3,                # 1, 2, 3 or None
+# ...    number = "singular",       # SG, PL
+# ...      mood = "indicative",     # INDICATIVE, IMPERATIVE, CONDITIONAL, SUBJUNCTIVE
+# ...    aspect = "imperfective",   # IMPERFECTIVE, PERFECTIVE, PROGRESSIVE
+# ...   negated = False)            # True or False
+# u'went'
 
-def get_plural(word_type, word):
-    assert word_type == 'noun'
-    if word[-1:] == 'y':
-        return word[:-1] + 'ies'
-    return word
+def make_sentence(subject, verb, v_object, adjective=None, adverb=None):
+    np = referenced(subject, article='indefinite')
+    vp = conjugate(verb, tense='past', person=3, number='plural') + ' ' + adjective + ' ' + pluralize(v_object)
+    return np + ' ' + vp + ' ' + adverb
 
 
 if __name__ == '__main__':
     words = {word_type: read_data(word_type) for word_type in WORD_TYPES}
-    pass
+
+    adjective = words['adj'][15]
+    adverb = words['adv'][15]
+    noun = words['noun'][15]
+    noun2 = words['noun'][35]
+    verb = words['verb'][15]
+
+    print(make_sentence(noun, verb, noun2, adjective, adverb))
