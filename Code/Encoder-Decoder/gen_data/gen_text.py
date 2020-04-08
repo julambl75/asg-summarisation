@@ -85,7 +85,7 @@ class GenData:
         words = self.datamuse_api.words(rel_syn=noun, topics=context, max=5)
         return self.get_random(words)['word'] if words else None
 
-    def make_summary(self, subject, descriptor, adjective):
+    def make_summary_pair(self, subject, descriptor, adjective):
         other_descriptor = self.find_synonym_with_context(descriptor, adjective)
         other_adjective = self.find_common_adj_for_noun(descriptor)
         if other_descriptor is None or other_adjective is None:
@@ -99,16 +99,29 @@ class GenData:
         sentence2 = ' '.join([s_object_def, verb, adjective, 'and', other_adjective])
         return summary, [sentence1, sentence2]
 
+    def gen_summary_pairs(self, n, stories_dest, summaries_dest):
+        pairs = []
+        for i in range(n):
+            if i % 10 == 0:
+                print(f'[{i}/{n}] Generating story/summary pairs...')
+            adjective = self.get_random(self.adjectives)
+            subject = self.get_random(self.names)
+            descriptor = self.get_random(self.nouns)
+            pairs.append(self.make_summary_pair(subject, descriptor, adjective))
+        summaries, stories = tuple(map(list, zip(*pairs)))
+        print(f'[{n}/{n}] Writing story/summary pairs to files...')
+        with open(stories_dest, 'w') as stories_file:
+            stories_file.writelines(stories)
+        with open(summaries_dest, 'w') as summaries_file:
+            summaries_file.writelines(summaries)
+        print('Done')
+
 
 # https://www.clips.uantwerpen.be/pages/pattern-en
 # https://www.datamuse.com/api/
 if __name__ == '__main__':
     gen_data = GenData()
+    gen_data.gen_summary_pairs(20, f'{PATH}/../data/stories_train.txt', f'{PATH}/../data/summaries_train.txt')
+    # for i in range(5):
+    #     print(gen_data.make_summary_pair('Joe', 'dog', 'rambunctious'))
 
-    for i in range(5):
-        print(gen_data.make_summary('Joe', 'dog', 'rambunctious'))
-    for i in range(10):
-        subject = gen_data.get_random(gen_data.names)
-        descriptor = gen_data.get_random(gen_data.nouns)
-        adjective = gen_data.get_random(gen_data.adjectives)
-        print(gen_data.make_summary(subject, descriptor, adjective))
