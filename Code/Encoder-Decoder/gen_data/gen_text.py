@@ -43,6 +43,10 @@ NOUN = 'n'
 VERB = 'v'
 ADJ = 'j'
 
+TRAIN = 'train'
+TEST = 'test'
+EVAL = 'eval'
+
 
 class GenData:
     def __init__(self):
@@ -99,29 +103,49 @@ class GenData:
         sentence2 = ' '.join([s_object_def, verb, adjective, 'and', other_adjective])
         return summary, [sentence1, sentence2]
 
-    def gen_summary_pairs(self, n, stories_dest, summaries_dest):
+    @staticmethod
+    def punctuate_example(example):
+        if type(example) is not list:
+            example = [example]
+        return ' '.join(list(map(lambda s: s + '.', example))) + '\n'
+
+    def punctuate_examples(self, examples):
+        return list(map(self.punctuate_example, examples))
+
+    def gen_summary_pairs(self, n, nn_step):
         pairs = []
-        for i in range(n):
+        i = 0
+        while i < n:
             if i % 10 == 0:
                 print(f'[{i}/{n}] Generating story/summary pairs...')
             adjective = self.get_random(self.adjectives)
             subject = self.get_random(self.names)
             descriptor = self.get_random(self.nouns)
-            pairs.append(self.make_summary_pair(subject, descriptor, adjective))
+            summary_pair = self.make_summary_pair(subject, descriptor, adjective)
+            if summary_pair is not None:
+                i += 1
+                pairs.append(summary_pair)
         summaries, stories = tuple(map(list, zip(*pairs)))
         print(f'[{n}/{n}] Writing story/summary pairs to files...')
+        stories_dest = self.get_export_file('stories', nn_step)
+        summaries_dest = self.get_export_file('summaries', nn_step)
         with open(stories_dest, 'w') as stories_file:
-            stories_file.writelines(stories)
+            stories_file.writelines(self.punctuate_examples(stories))
         with open(summaries_dest, 'w') as summaries_file:
-            summaries_file.writelines(summaries)
+            summaries_file.writelines(self.punctuate_examples(summaries))
         print('Done')
+
+    @staticmethod
+    def get_export_file(data_type, nn_step):
+        return f'{PATH}/../data/{data_type}_{nn_step}.txt'
 
 
 # https://www.clips.uantwerpen.be/pages/pattern-en
 # https://www.datamuse.com/api/
 if __name__ == '__main__':
     gen_data = GenData()
-    gen_data.gen_summary_pairs(20, f'{PATH}/../data/stories_train.txt', f'{PATH}/../data/summaries_train.txt')
+    gen_data.gen_summary_pairs(10000, TRAIN)
+    gen_data.gen_summary_pairs(1000, TEST)
     # for i in range(5):
     #     print(gen_data.make_summary_pair('Joe', 'dog', 'rambunctious'))
 
