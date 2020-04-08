@@ -29,20 +29,29 @@
 ###
 # We need a large number of pairs for train (~9,000), a small number for test (~1,000), and a few for eval (~10).
 ###
+import csv
 import os
 import random
 
+from operator import itemgetter
 from pattern.en import conjugate, singularize, pluralize, referenced, lemma
 from datamuse import datamuse
 
 PATH = os.path.dirname(os.path.abspath(__file__))
 
-WORD_TYPES = ['adj', 'adv', 'noun', 'verb', 'name']
+NOUN = 'n'
+VERB = 'v'
+ADJ = 'j'
 
 
 class GenData:
     def __init__(self):
-        self.words = {word_type: self.read_data(word_type) for word_type in WORD_TYPES}
+        self.words = self.read_words()
+        self.names = self.read_names()
+
+        self.nouns = self.get_words_of_type('n')
+        self.adjectives = self.get_words_of_type('j')
+
         self.datamuse_api = datamuse.Datamuse()
         # There is a bug with Python 3.7 causing the first call to Pattern to crash due to a StopIteration
         try:
@@ -51,20 +60,30 @@ class GenData:
             pass
 
     @staticmethod
-    def read_data(word_type):
-        wordbank = open(f'{PATH}/words/{word_type}.txt', encoding='utf-8').read().strip().split('\n')
-        return list(map(lambda w: w.replace('_', ' '), wordbank))
+    def read_names():
+        with open(f'{PATH}/words/names.txt', encoding='utf-8') as names_file:
+            return names_file.read().strip().split('\n')
 
-    def get_random_word(self, word_type):
-        return random.choice(self.words[word_type])
+    @staticmethod
+    def read_words():
+        with open(f'{PATH}/words/words.csv') as words_csv:
+            reader = csv.reader(words_csv, delimiter=',')
+            return [tuple(row) for row in reader]
+
+    def get_words_of_type(self, word_type):
+        return list(map(itemgetter(0), filter(lambda e: e[1] == word_type, self.words)))
+
+    @staticmethod
+    def get_random(words):
+        return random.choice(words)
 
     def find_common_adj_for_noun(self, noun):
         words = self.datamuse_api.words(rel_jjb=noun, max=5)
-        return random.choice(words)['word'] if words else None
+        return self.get_random(words)['word'] if words else None
 
     def find_synonym_with_context(self, noun, context):
         words = self.datamuse_api.words(rel_syn=noun, topics=context, max=5)
-        return random.choice(words)['word'] if words else None
+        return self.get_random(words)['word'] if words else None
 
     def make_summary(self, subject, descriptor, adjective):
         other_descriptor = self.find_synonym_with_context(descriptor, adjective)
@@ -89,7 +108,7 @@ if __name__ == '__main__':
     for i in range(5):
         print(gen_data.make_summary('Joe', 'dog', 'rambunctious'))
     for i in range(10):
-        subject = gen_data.get_random_word('name')
-        descriptor = gen_data.get_random_word('noun')
-        adjective = gen_data.get_random_word('adj')
+        subject = gen_data.get_random(gen_data.names)
+        descriptor = gen_data.get_random(gen_data.nouns)
+        adjective = gen_data.get_random(gen_data.adjectives)
         print(gen_data.make_summary(subject, descriptor, adjective))
