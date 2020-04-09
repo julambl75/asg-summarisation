@@ -16,7 +16,8 @@ if __name__ == '__main__':
     encoder1 = EncoderRNN(INPUT_LANG.n_words, hidden_size).to(DEVICE)
     attn_decoder1 = AttnDecoderRNN(hidden_size, OUTPUT_LANG.n_words, dropout_p=0.1).to(DEVICE)
 
-    train_iters(encoder1, attn_decoder1, 75000, print_every=5000)
+    # train_iters(encoder1, attn_decoder1, 75000, print_every=5000)
+    train_iters(encoder1, attn_decoder1, 3500, print_every=5000)
 
     evaluate_randomly(encoder1, attn_decoder1)
 
