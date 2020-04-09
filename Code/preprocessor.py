@@ -23,6 +23,7 @@ SAME_WORD_SIMILARITY = 5
 WEIGHT_SCALE = 10
 MIN_SYNONYM_SIMILARITY = 2
 SENT_IMPORTANCE_SQRT = 10
+MIN_NUM_SENT_FOR_PRUNE = 3
 
 
 class Preprocessor:
@@ -177,11 +178,12 @@ class Preprocessor:
     def _homogenize_text(story, word_map, ordered_sentences):
         if len(word_map) == 0:
             return story
-        importances = list(map(itemgetter(1), ordered_sentences))
-        importance_1st_quartile = np.percentile(importances, 25)
-        pruned_sentences = list(map(itemgetter(0), filter(lambda x: x[1] < importance_1st_quartile, ordered_sentences)))
-        for prune in pruned_sentences:
-            story = story.replace(prune, '')
+        if len(ordered_sentences) >= MIN_NUM_SENT_FOR_PRUNE:
+            importances = list(map(itemgetter(1), ordered_sentences))
+            importance_1st_quartile = np.percentile(importances, 25)
+            pruned_sentences = list(map(itemgetter(0), filter(lambda x: x[1] < importance_1st_quartile, ordered_sentences)))
+            for prune in pruned_sentences:
+                story = story.replace(prune, '')
         replace = lambda m: word_map[m.group(0)]
         return re.sub('|'.join(r'\b%s\b' % re.escape(s) for s in word_map), replace, story)
 

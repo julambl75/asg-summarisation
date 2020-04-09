@@ -123,6 +123,8 @@ np -> dt jj jj nn {
   :- property(X,Y)@2, property(n_adj_match,X)@2, not property(can_have,X)@4.
   :- property(X,Y)@3, property(n_adj_match,X)@3, not property(can_have,X)@4.
 
+  :- adjective(X)@2, adjective(X)@3.
+
   property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
   property(X,Y) :- property(X,Y)@3.
@@ -182,12 +184,14 @@ pp -> in np {
 
 nn -> nn nn {
   :- object(X)@1, object(X)@2.
+
   property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
 }
 
 nnp -> nnp nnp {
   :- object(X)@1, object(X)@2.
+
   property(X,Y) :- property(X,Y)@1.
   property(X,Y) :- property(X,Y)@2.
 }
@@ -231,10 +235,15 @@ vbd -> "was " vbg { singular(be). property(X,Y) :- property(X,Y)@2. }
 #constant(direction,backward).
 #constant(direction,none).
 
+cc -> "and " {}
+dt -> "a " {}
 dt -> "the " {}
-jj -> "black " { adjective(black). }
-nn -> "cat " { object(cat). subject(cat). }
-vbz -> "is " { verb(be). }
+jj -> "brown " { adjective(brown). }
+jj -> "formal " { adjective(formal). }
+jj -> "logical " { adjective(logical). }
+nn -> "logic " { object(logic). subject(logic). }
+nn -> "matthew " { object(matthew). subject(matthew). }
+vbd -> "was " { verb(be). }
 
 #modeh(action(const(subject),const(verb),const(object),const(tense))):[4]. % subject-verb-object
 #modeh(action(const(subject),const(verb),const(object),const(object),const(tense))):[4]. % subject-verb-objects
@@ -242,10 +251,15 @@ vbz -> "is " { verb(be). }
 #modeh(action(const(subject),const(verb),const(adjective),const(tense))):[4]. % subject-verb-adjective
 #modeh(action(const(subject),const(verb),const(object),const(tense),const(adjective))):[4]. % subject-verb-adjective-object
 
-#constant(adjective,black).
-#constant(object,cat).
-#constant(subject,cat).
+#constant(adjective,brown).
+#constant(adjective,formal).
+#constant(adjective,logical).
+#constant(object,logic).
+#constant(object,matthew).
+#constant(subject,logic).
+#constant(subject,matthew).
 #constant(verb,be).
 
-+ ["the ", "cat ", "is ", "black ", ". "]
++ ["matthew ", "was ", "a ", "logic ", ". "]
++ ["the ", "logical ", "logic ", "was ", "brown ", "and ", "formal ", ". "]
 

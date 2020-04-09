@@ -23,7 +23,10 @@ def process_args(args):
         path = '{}/{}'.format(args.all_files, args.all_files)
         text = open('{}.{}'.format(path, FORMAT)).read()
         pos_summaries = open('{}{}.{}'.format(path, POS_SUMMARIES_EXT, FORMAT)).read()
-        neg_summaries = open('{}{}.{}'.format(path, NEG_SUMMARIES_EXT, FORMAT)).read()
+        try:
+            neg_summaries = open('{}{}.{}'.format(path, NEG_SUMMARIES_EXT, FORMAT)).read()
+        except IOError:
+            neg_summaries = ''
         return text, pos_summaries, neg_summaries
 
 
