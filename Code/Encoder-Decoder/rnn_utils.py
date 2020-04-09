@@ -13,19 +13,19 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 plt.switch_backend('agg')
 
 
-def indexes_from_sentence(lang, sentence):
-    return [lang.word2index[word] for word in sentence.split(' ')]
+def indexes_from_sentence(lang, sentences):
+    return [lang.word2index[word] for word in sentences.split(' ')]
 
 
-def tensor_from_sentence(lang, sentence):
-    indexes = indexes_from_sentence(lang, sentence)
+def tensor_from_sentence(lang, sentences):
+    indexes = indexes_from_sentence(lang, sentences)
     indexes.append(EOS_TOKEN)
     return torch.tensor(indexes, dtype=torch.long, device=DEVICE).view(-1, 1)
 
 
-def tensors_from_pair(pair):
-    input_tensor = tensor_from_sentence(INPUT, pair[0])
-    target_tensor = tensor_from_sentence(OUTPUT, pair[1])
+def tensors_from_pair(input_lang, output_lang, pair):
+    input_tensor = tensor_from_sentence(input_lang, pair[0])
+    target_tensor = tensor_from_sentence(output_lang, pair[1])
     return input_tensor, target_tensor
 
 

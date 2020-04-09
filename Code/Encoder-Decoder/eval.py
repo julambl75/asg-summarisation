@@ -5,7 +5,7 @@ import torch
 from rnn_utils import INPUT, OUTPUT, DEVICE, tensor_from_sentence
 from lang import SOS_TOKEN, EOS_TOKEN, MAX_LENGTH, TEST, prepare_data
 
-PAIRS = prepare_data(TEST)
+INPUT_LANG, OUTPUT_LANG, PAIRS = prepare_data(TEST)
 
 
 def evaluate(encoder, decoder, sentence, max_length=MAX_LENGTH):

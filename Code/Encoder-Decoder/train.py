@@ -7,14 +7,12 @@ import torch
 import torch.nn as nn
 from torch import optim
 
-from rnn_model import EncoderRNN, AttnDecoderRNN
-from rnn_utils import DEVICE, tensors_from_pair, time_since, show_plot
-
 from lang import *
+from rnn_utils import DEVICE, tensors_from_pair, time_since, show_plot
 
 TEACHER_FORCING_RATIO = 0.5
 
-PAIRS = prepare_data(TRAIN)
+INPUT_LANG, OUTPUT_LANG, PAIRS = prepare_data(TRAIN)
 
 
 def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion):
@@ -77,8 +75,7 @@ def train_iters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lea
 
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
-    training_pairs = [tensors_from_pair(random.choice(PAIRS))
-                      for i in range(n_iters)]
+    training_pairs = [tensors_from_pair(INPUT_LANG, OUTPUT_LANG, random.choice(PAIRS)) for _ in range(n_iters)]
     criterion = nn.NLLLoss()
 
     for iter in range(1, n_iters + 1):
