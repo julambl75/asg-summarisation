@@ -26,6 +26,11 @@ class Lang:
         self.word2count = {}
         self.index2word = {0: "SOS", 1: "EOS"}
         self.n_words = 2  # Count SOS and EOS
+        self.add_word('.')
+
+    def add_sentence(self, sentence):
+        for word in sentence.split(' '):
+            self.add_word(word)
 
     def add_word(self, word):
         if word not in self.word2index:
@@ -80,5 +85,8 @@ def prepare_data(dataset):
     pairs = read_pairs(dataset)
     print("Read %s sentence pairs" % len(pairs))
     lang = read_words()
+    for pair in pairs:
+        lang.add_sentence(pair[0])
+        lang.add_sentence(pair[1])
     print("Counted words:", lang.n_words)
     return lang, pairs

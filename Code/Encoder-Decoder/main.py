@@ -1,15 +1,10 @@
-from eval import evaluate_randomly, evaluate
+import torch
+
+from lang import PATH
 from rnn_model import EncoderRNN, AttnDecoderRNN
-from rnn_utils import DEVICE, show_attention
+from rnn_utils import DEVICE
 from train import LANG, train_iters
-
-
-def evaluate_and_show_attention(input_sentence):
-    output_words, attentions = evaluate(encoder1, attn_decoder1, input_sentence)
-    print('input =', input_sentence)
-    print('output =', ' '.join(output_words))
-    show_attention(input_sentence, output_words, attentions)
-
+from eval import evaluate_randomly
 
 if __name__ == '__main__':
     hidden_size = 256
@@ -17,9 +12,9 @@ if __name__ == '__main__':
     attn_decoder1 = AttnDecoderRNN(hidden_size, LANG.n_words, dropout_p=0.1).to(DEVICE)
 
     # train_iters(encoder1, attn_decoder1, 75000, print_every=5000)
-    train_iters(encoder1, attn_decoder1, 500, print_every=100)
+    train_iters(encoder1, attn_decoder1, 20, print_every=20)
+
+    torch.save(encoder1.state_dict(), f'{PATH}/models/encoder.pt')
+    torch.save(attn_decoder1.state_dict(), f'{PATH}/models/decoder.pt')
 
     evaluate_randomly(encoder1, attn_decoder1)
-
-    # eval_stories = read_data(INPUT, EVAL)
-    # evaluate_and_show_attention(eval_stories[0])

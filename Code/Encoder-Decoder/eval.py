@@ -3,7 +3,7 @@ import random
 import torch
 
 from lang import SOS_TOKEN, EOS_TOKEN, MAX_LENGTH, TEST, prepare_data
-from rnn_utils import DEVICE, tensor_from_sentence
+from rnn_utils import DEVICE, tensor_from_sentence, show_attention
 
 LANG, PAIRS = prepare_data(TEST)
 
@@ -53,3 +53,4 @@ def evaluate_randomly(encoder, decoder, n=10):
         output_sentence = ' '.join(output_words)
         print('<', output_sentence)
         print('')
+    show_attention(pair[0], output_words, attentions)

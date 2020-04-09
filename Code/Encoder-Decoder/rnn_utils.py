@@ -5,17 +5,16 @@ import matplotlib.pyplot as plt
 import torch
 
 import matplotlib.ticker as ticker
-from pattern.en import lemma
 
 from lang import EOS_TOKEN
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-plt.switch_backend('agg')
+plt.switch_backend('macosx')
 
 
 def indexes_from_sentence(lang, sentences):
-    return [lang.word2index[lemma(word)] for word in sentences.split(' ')]
+    return [lang.word2index[word] for word in sentences.split(' ')]
 
 
 def tensor_from_sentence(lang, sentences):
@@ -61,8 +60,7 @@ def show_attention(input_sentence, output_words, attentions):
     fig.colorbar(cax)
 
     # Set up axes
-    ax.set_xticklabels([''] + input_sentence.split(' ') +
-                       ['<EOS>'], rotation=90)
+    ax.set_xticklabels([''] + input_sentence.split(' ') + ['<EOS>'], rotation=90)
     ax.set_yticklabels([''] + output_words)
 
     # Show label at every tick
