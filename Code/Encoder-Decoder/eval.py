@@ -53,4 +53,3 @@ def evaluate_randomly(encoder, decoder, n=10):
         output_sentence = ' '.join(output_words)
         print('<', output_sentence)
         print('')
-    show_attention(pair[0], output_words, attentions)
