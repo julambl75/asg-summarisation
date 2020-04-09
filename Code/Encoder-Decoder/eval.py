@@ -5,12 +5,12 @@ import torch
 from lang import SOS_TOKEN, EOS_TOKEN, MAX_LENGTH, TEST, prepare_data
 from rnn_utils import DEVICE, tensor_from_sentence
 
-INPUT_LANG, OUTPUT_LANG, PAIRS = prepare_data(TEST)
+LANG, PAIRS = prepare_data(TEST)
 
 
 def evaluate(encoder, decoder, sentence, max_length=MAX_LENGTH):
     with torch.no_grad():
-        input_tensor = tensor_from_sentence(INPUT_LANG, sentence)
+        input_tensor = tensor_from_sentence(LANG, sentence)
         input_length = input_tensor.size()[0]
         encoder_hidden = encoder.init_hidden()
 
@@ -37,7 +37,7 @@ def evaluate(encoder, decoder, sentence, max_length=MAX_LENGTH):
                 decoded_words.append('<EOS>')
                 break
             else:
-                decoded_words.append(OUTPUT_LANG.index2word[topi.item()])
+                decoded_words.append(LANG.index2word[topi.item()])
 
             decoder_input = topi.squeeze().detach()
 

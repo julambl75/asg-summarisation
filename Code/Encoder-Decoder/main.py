@@ -1,7 +1,7 @@
 from eval import evaluate_randomly, evaluate
 from rnn_model import EncoderRNN, AttnDecoderRNN
 from rnn_utils import DEVICE, show_attention
-from train import INPUT_LANG, OUTPUT_LANG, train_iters
+from train import LANG, train_iters
 
 
 def evaluate_and_show_attention(input_sentence):
@@ -13,11 +13,11 @@ def evaluate_and_show_attention(input_sentence):
 
 if __name__ == '__main__':
     hidden_size = 256
-    encoder1 = EncoderRNN(INPUT_LANG.n_words, hidden_size).to(DEVICE)
-    attn_decoder1 = AttnDecoderRNN(hidden_size, OUTPUT_LANG.n_words, dropout_p=0.1).to(DEVICE)
+    encoder1 = EncoderRNN(LANG.n_words, hidden_size).to(DEVICE)
+    attn_decoder1 = AttnDecoderRNN(hidden_size, LANG.n_words, dropout_p=0.1).to(DEVICE)
 
     # train_iters(encoder1, attn_decoder1, 75000, print_every=5000)
-    train_iters(encoder1, attn_decoder1, 3500, print_every=5000)
+    train_iters(encoder1, attn_decoder1, 500, print_every=100)
 
     evaluate_randomly(encoder1, attn_decoder1)
 

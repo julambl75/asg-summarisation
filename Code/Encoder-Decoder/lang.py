@@ -1,6 +1,9 @@
 import os
 import re
 import unicodedata
+from operator import itemgetter
+
+from gen_data import gen_text
 
 PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -18,16 +21,11 @@ EVAL = 'eval'
 
 
 class Lang:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
         self.word2index = {}
         self.word2count = {}
         self.index2word = {0: "SOS", 1: "EOS"}
         self.n_words = 2  # Count SOS and EOS
-
-    def add_sentence(self, sentence):
-        for word in sentence.split(' '):
-            self.add_word(word)
 
     def add_word(self, word):
         if word not in self.word2index:
@@ -61,49 +59,26 @@ def read_data(lang, dataset):
     return open(f'{PATH}/data/{lang}_{dataset}.txt', encoding='utf-8').read().strip().split('\n')
 
 
-def read_langs(dataset):
-    print("Reading lines...")
+def read_pairs(dataset):
     lines = [read_data(lang, dataset) for lang in (INPUT, OUTPUT)]
-
     # Split every line into pairs and normalize
     pairs = list(map(lambda pair: tuple(map(normalize_string, pair)), zip(*lines)))
-
-    input_lang = Lang(INPUT)
-    output_lang = Lang(OUTPUT)
-
-    return input_lang, output_lang, pairs
+    return pairs
 
 
-# eng_prefixes = (
-#     "i am ", "i m ",
-#     "he is", "he s ",
-#     "she is", "she s ",
-#     "you are", "you re ",
-#     "we are", "we re ",
-#     "they are", "they re "
-# )
-#
-#
-# def filter_pair(p):
-#     return len(p[0].split(' ')) < MAX_LENGTH and \
-#            len(p[1].split(' ')) < MAX_LENGTH and \
-#            p[1].startswith(eng_prefixes)
-#
-#
-# def filter_pairs(pairs):
-#     return [pair for pair in pairs if filter_pair(pair)]
+def read_words():
+    gen_data = gen_text.GenData()
+    words = list(map(itemgetter(0), gen_data.read_words()))
+    names = gen_data.read_names()
+    lang = Lang()
+    for word in words + names:
+        lang.add_word(word)
+    return lang
 
 
 def prepare_data(dataset):
-    input_lang, output_lang, pairs = read_langs(dataset)
+    pairs = read_pairs(dataset)
     print("Read %s sentence pairs" % len(pairs))
-    # pairs = filter_pairs(pairs)
-    # print("Trimmed to %s sentence pairs" % len(pairs))
-    print("Counting words...")
-    for pair in pairs:
-        input_lang.add_sentence(pair[0])
-        output_lang.add_sentence(pair[1])
-    print("Counted words:")
-    print(input_lang.name, input_lang.n_words)
-    print(output_lang.name, output_lang.n_words)
-    return input_lang, output_lang, pairs
+    lang = read_words()
+    print("Counted words:", lang.n_words)
+    return lang, pairs

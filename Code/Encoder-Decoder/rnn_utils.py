@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 import torch
 
 import matplotlib.ticker as ticker
+from pattern.en import lemma
 
-from lang import EOS_TOKEN, INPUT, OUTPUT
+from lang import EOS_TOKEN
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -14,7 +15,7 @@ plt.switch_backend('agg')
 
 
 def indexes_from_sentence(lang, sentences):
-    return [lang.word2index[word] for word in sentences.split(' ')]
+    return [lang.word2index[lemma(word)] for word in sentences.split(' ')]
 
 
 def tensor_from_sentence(lang, sentences):
@@ -23,9 +24,9 @@ def tensor_from_sentence(lang, sentences):
     return torch.tensor(indexes, dtype=torch.long, device=DEVICE).view(-1, 1)
 
 
-def tensors_from_pair(input_lang, output_lang, pair):
-    input_tensor = tensor_from_sentence(input_lang, pair[0])
-    target_tensor = tensor_from_sentence(output_lang, pair[1])
+def tensors_from_pair(lang, pair):
+    input_tensor = tensor_from_sentence(lang, pair[0])
+    target_tensor = tensor_from_sentence(lang, pair[1])
     return input_tensor, target_tensor
 
 
