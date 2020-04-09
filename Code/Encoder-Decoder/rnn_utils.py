@@ -1,7 +1,10 @@
 import math
 import time
 
+import matplotlib.pyplot as plt
 import torch
+
+import matplotlib.ticker as ticker
 
 from lang import EOS_TOKEN
 
@@ -36,3 +39,13 @@ def time_since(since, percent):
     es = s / percent
     rs = es - s
     return '%s (- %s)' % (as_minutes(s), as_minutes(rs))
+
+
+def show_plot(points):
+    plt.figure()
+    fig, ax = plt.subplots()
+    loc = ticker.MultipleLocator(base=0.2)
+    # this locator puts ticks at regular intervals
+    ax.yaxis.set_major_locator(loc)
+    plt.plot(points)
+    plt.show()

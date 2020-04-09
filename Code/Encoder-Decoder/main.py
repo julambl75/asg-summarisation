@@ -16,4 +16,4 @@ if __name__ == '__main__':
     torch.save(encoder1.state_dict(), f'{PATH}/models/encoder.pt')
     torch.save(attn_decoder1.state_dict(), f'{PATH}/models/decoder.pt')
 
-    evaluate_randomly(encoder1, attn_decoder1)
+    evaluate_randomly(encoder1, attn_decoder1, 100)
