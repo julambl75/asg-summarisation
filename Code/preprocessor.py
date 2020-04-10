@@ -11,8 +11,8 @@ import numpy as np
 import warnings
 
 from ordered_set import OrderedSet
-from pycorenlp import StanfordCoreNLP
 
+from helper import Helper
 from parse_concept_net import ParseConceptNet
 
 warnings.filterwarnings("ignore")
@@ -31,14 +31,14 @@ class Preprocessor:
         self.story = story.lower().strip().replace('\n', ' ')
         self.print_results = print_results
 
-        self.nlp = StanfordCoreNLP('http://localhost:9000')
+        self.helper = Helper()
         self.pcn = ParseConceptNet(False)
 
     def preprocess(self):
         if self.print_results:
             pp.pprint(self.story)
 
-        tokenized = self._tokenize_story()
+        tokenized = self.helper.tokenize_text(self.story)
         if self.print_results:
             print('\nGenerating POS tags...')
             pp.pprint(tokenized)
@@ -76,14 +76,6 @@ class Preprocessor:
             pp.pprint(homogenized_story)
 
         return homogenized_story
-
-    def _tokenize_story(self):
-        output = self.nlp.annotate(self.story, properties={
-            'annotators': 'pos',
-            'outputFormat': 'json'
-        })
-        tokenized = [[(word['word'], word['pos']) for word in sentence['tokens']] for sentence in output['sentences']]
-        return tokenized
 
     def _process_similarity(self, tokenized):
         similar_words = defaultdict(lambda: defaultdict(lambda: 0))

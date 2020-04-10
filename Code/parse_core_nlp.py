@@ -5,7 +5,7 @@ from pycorenlp import StanfordCoreNLP
 import nltk
 from nltk.tree import *
 
-from helpers import Helpers
+from helper import Helper
 
 DIR = os.path.dirname(os.path.realpath(__file__))
 PARSE_CONSTANTS_JSON = DIR + '/parse_constants.json'
@@ -29,7 +29,7 @@ class ParseCoreNLP:
 
         # Load English tokenizer, tagger, parser, NER and word vectors
         self.nlp = StanfordCoreNLP('http://localhost:9000')
-        self.helpers = Helpers()
+        self.helper = Helper()
 
     # Returns a pair ([context_specific_asg], [ilasp_constants]) or ([context_specific_asg], [ilasp_background_vars])
     def parse_text(self, background_variables=False):
@@ -87,7 +87,7 @@ class ParseCoreNLP:
             if word in self.lemmas.keys() and tag in POS_CATEGORIES.keys():
                 categories = POS_CATEGORIES[tag]
                 lemma = self.lemmas[word]
-                predicates = self.helpers.get_base_predicates(tag, lemma)
+                predicates = self.helper.get_base_predicates(tag, lemma)
 
                 for category in categories:
                     self.constants.add((category, lemma))

@@ -29,12 +29,10 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
     loss = 0
 
     for ei in range(input_length):
-        encoder_output, encoder_hidden = encoder(
-            input_tensor[ei], encoder_hidden)
+        encoder_output, encoder_hidden = encoder(input_tensor[ei], encoder_hidden)
         encoder_outputs[ei] = encoder_output[0, 0]
 
     decoder_input = torch.tensor([[SOS_TOKEN]], device=DEVICE)
-
     decoder_hidden = encoder_hidden
 
     use_teacher_forcing = True if random.random() < TEACHER_FORCING_RATIO else False
@@ -46,7 +44,6 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
                 decoder_input, decoder_hidden, encoder_outputs)
             loss += criterion(decoder_output, target_tensor[di])
             decoder_input = target_tensor[di]  # Teacher forcing
-
     else:
         # Without teacher forcing: use its own predictions as the next input
         for di in range(target_length):
