@@ -8,7 +8,7 @@ import torch.nn as nn
 from torch import optim
 
 from lang import *
-from rnn_utils import DEVICE, tensors_from_pair, time_since, show_plot
+from utils import DEVICE, tensors_from_pair, time_since, show_plot
 
 TEACHER_FORCING_RATIO = 0.5
 
@@ -35,20 +35,18 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
     decoder_input = torch.tensor([[SOS_TOKEN]], device=DEVICE)
     decoder_hidden = encoder_hidden
 
-    use_teacher_forcing = True if random.random() < TEACHER_FORCING_RATIO else False
+    use_teacher_forcing = random.random() < TEACHER_FORCING_RATIO
 
     if use_teacher_forcing:
         # Teacher forcing: Feed the target as the next input
         for di in range(target_length):
-            decoder_output, decoder_hidden, decoder_attention = decoder(
-                decoder_input, decoder_hidden, encoder_outputs)
+            decoder_output, decoder_hidden, decoder_attention = decoder(decoder_input, decoder_hidden, encoder_outputs)
             loss += criterion(decoder_output, target_tensor[di])
             decoder_input = target_tensor[di]  # Teacher forcing
     else:
         # Without teacher forcing: use its own predictions as the next input
         for di in range(target_length):
-            decoder_output, decoder_hidden, decoder_attention = decoder(
-                decoder_input, decoder_hidden, encoder_outputs)
+            decoder_output, decoder_hidden, decoder_attention = decoder(decoder_input, decoder_hidden, encoder_outputs)
             topv, topi = decoder_output.topk(1)
             decoder_input = topi.squeeze().detach()  # detach from history as input
 
@@ -80,16 +78,20 @@ def train_iters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lea
         input_tensor = training_pair[0]
         target_tensor = training_pair[1]
 
-        loss = train(input_tensor, target_tensor, encoder,
-                     decoder, encoder_optimizer, decoder_optimizer, criterion)
+        loss = train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion)
         print_loss_total += loss
         plot_loss_total += loss
+
+        # TODO
+        # if print_loss_total / print_every < EARLY_STOP_LOSS:
+        #     break
+
+        # TODO validation loss
 
         if iter % print_every == 0:
             print_loss_avg = print_loss_total / print_every
             print_loss_total = 0
-            print('%s (%d %d%%) %.4f' % (time_since(start, iter / n_iters),
-                                         iter, iter / n_iters * 100, print_loss_avg))
+            print('%s (%d %d%%) %.4f' % (time_since(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
 
         if iter % plot_every == 0:
             plot_loss_avg = plot_loss_total / plot_every

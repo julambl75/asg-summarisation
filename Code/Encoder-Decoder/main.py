@@ -1,8 +1,8 @@
 import torch
 
 from lang import PATH
-from rnn_model import EncoderRNN, AttnDecoderRNN
-from rnn_utils import DEVICE
+from model_rnn import EncoderRNN, AttnDecoderRNN
+from utils import DEVICE
 from train import LANG, train_iters
 from eval import evaluate_randomly
 

@@ -1,3 +1,4 @@
+torchtext
 pattern
 torch
 matplotlib
@@ -8,6 +9,7 @@ nltk
 pycorenlp
 inflect==0.2.5
 python-datamuse
+unidecode
 
 # When running this you might have an 'egginfo' installation error saying mysql_config is not found.
 # If this happens run 'brew install mysql' on macOS, or 'sudo apt-get install libmysqlclient-dev' on Ubuntu.

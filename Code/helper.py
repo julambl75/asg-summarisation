@@ -1,6 +1,7 @@
 import itertools
 
 import inflect
+from nltk.translate.bleu_score import sentence_bleu
 from pycorenlp import StanfordCoreNLP
 
 
@@ -45,3 +46,12 @@ class Helper:
         if ignore_sentence:
             return list(itertools.chain.from_iterable(tokenized))
         return tokenized
+
+    # BLEU score evaluates the quality of machine-translated text
+    @staticmethod
+    def bleu_score(story, summary):
+        return sentence_bleu([story], summary)
+
+    @staticmethod
+    def count_sentences(text):
+        return len(list(filter(lambda s: len(s) > 0, text.strip().split('.'))))

@@ -3,6 +3,8 @@ import re
 import unicodedata
 from operator import itemgetter
 
+import unidecode as unidecode
+
 from gen_data import gen_text
 
 PATH = os.path.dirname(os.path.abspath(__file__))
@@ -26,13 +28,19 @@ class Lang:
         self.word2count = {}
         self.index2word = {0: "SOS", 1: "EOS"}
         self.n_words = 2  # Count SOS and EOS
-        self.add_word('.')
+        self.characters = set()
+        self.longest_word = 0
 
     def add_sentence(self, sentence):
         for word in sentence.split(' '):
             self.add_word(word)
 
     def add_word(self, word):
+        for character in word:
+            self.characters.add(character)
+        if len(word) > self.longest_word:
+            self.longest_word = len(word)
+
         if word not in self.word2index:
             self.word2index[word] = self.n_words
             self.word2count[word] = 1
@@ -51,9 +59,10 @@ def unicode_to_ascii(s):
     )
 
 
-# Lowercase, trim, and remove non-letter characters
+# Lowercase, trim, remove non-letter characters and remove accents
 def normalize_string(s):
     s = unicode_to_ascii(s.lower().strip())
+    s = unidecode.unidecode(s)
     s = re.sub(r"([.!?])", r" \1", s)
     s = re.sub(r"[^a-zA-Z.!?]+", r" ", s)
     return s
@@ -77,7 +86,7 @@ def read_words():
     names = gen_data.read_names()
     lang = Lang()
     for word in words + names:
-        lang.add_word(word)
+        lang.add_word(normalize_string(word))
     return lang
 
 

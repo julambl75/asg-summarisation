@@ -3,7 +3,7 @@ import random
 import torch
 
 from lang import SOS_TOKEN, EOS_TOKEN, MAX_LENGTH, TEST, prepare_data
-from rnn_utils import DEVICE, tensor_from_sentence
+from utils import DEVICE, tensor_from_sentence
 
 LANG, PAIRS = prepare_data(TEST)
 
