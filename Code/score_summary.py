@@ -7,6 +7,10 @@ import language_check
 from helper import Helper
 from parse_concept_net import ParseConceptNet
 
+BATCH_STORY_PREFIX = '> '
+BATCH_SUMMARY_PREFIX = '< '
+EOS_POSTFIX = '<EOS>'
+
 SAME_WORD_SIMILARITY = 5
 SAME_WORD_POS = ['NN', 'NNS', 'NNP', 'NNPS']
 
@@ -30,10 +34,10 @@ class SummaryScorer:
         bleu_score *= self.helper.count_sentences(story) / self.helper.count_sentences(summary)
 
         grammar_penalty = self.grammar_penalty()
-
         length_penalty = self.length_penalty()
 
-        return similarity_score * bleu_score * grammar_penalty * length_penalty
+        overall_score = similarity_score * bleu_score * grammar_penalty * length_penalty
+        return round(overall_score, 1)
 
     def similarity_score(self):
         tokenized_story = self.helper.tokenize_text(self.story, ignore_sentence=True)
@@ -52,7 +56,7 @@ class SummaryScorer:
                         summary_similarity += similarity
                     if similarity > 0:
                         similar_words[story_word][summary_word] = similarity
-        pp.pprint({k: dict(v) for k, v in dict(similar_words).items()})
+        # pp.pprint({k: dict(v) for k, v in dict(similar_words).items()})
         return summary_similarity
 
     # Decrease final score by 25% for every grammar error other than uncommon proper noun
@@ -71,16 +75,41 @@ class SummaryScorer:
         return 1 / (2 ** penalty)
 
 
+def trim_batch_arg(lines):
+    return list(map(lambda l: l[2:].replace(EOS_POSTFIX, ''), lines))
+
+
+def process_args(args):
+    if args.pair:
+        pair = args.pair
+        for i, pair_item in enumerate(pair):
+            try:
+                pair[i] = open(pair_item).read()
+            except IOError:
+                pass
+        return tuple(zip(pair))
+    batch_results = open(args.batch).read()
+    lines = batch_results.split('\n')
+    story_lines = list(filter(lambda l: l.startswith(BATCH_STORY_PREFIX), lines))
+    summary_lines = list(filter(lambda l: l.startswith(BATCH_SUMMARY_PREFIX), lines))
+    return tuple(map(trim_batch_arg, (story_lines, summary_lines)))
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--story', type=str, help='path to text file', required=True)
-    parser.add_argument('-s', '--summary', type=str, help='path to folder with text file', required=True)
+    command_group = parser.add_mutually_exclusive_group(required=True)
+    command_group.add_argument('-b', '--batch', type=str, help='path to file with results of generating summaries')
+    command_group.add_argument('-p', '--pair', type=str, nargs=2, help='strings or paths for story and summary')
     args = parser.parse_args()
-    return args.story, args.summary
+    return process_args(args)
 
 
 if __name__ == '__main__':
-    story, summary = parse_args()
-    summary_scorer = SummaryScorer(story, summary)
-    score = summary_scorer.score()
-    print(score)
+    stories, summaries = parse_args()
+    for story, summary in list(zip(stories, summaries)):
+        print(story)
+        print(summary)
+        summary_scorer = SummaryScorer(story, summary)
+        score = summary_scorer.score()
+        print(score)
+        pass
