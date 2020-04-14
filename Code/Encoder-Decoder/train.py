@@ -19,7 +19,7 @@ class Trainer:
         self.encoder = encoder
         self.decoder = decoder
 
-        self.pairs = prepare_data(TRAIN, self.lang)
+        self.pairs, self.max_seq_length = prepare_data(TRAIN, self.lang)
 
     def train(self, input_tensor, target_tensor, encoder_optimizer, decoder_optimizer, criterion):
         encoder_hidden = self.encoder.init_hidden()
@@ -38,7 +38,7 @@ class Trainer:
             encoder_output, encoder_hidden = self.encoder(input_tensor[ei], encoder_hidden)
             encoder_outputs[ei] = encoder_output[0, 0]
 
-        decoder_input = torch.tensor([[SOS_TOKEN]], device=DEVICE)
+        decoder_input = torch.tensor([[self.lang.seq_start_id]], device=DEVICE)
         decoder_hidden = encoder_hidden
 
         use_teacher_forcing = random.random() < TEACHER_FORCING_RATIO
@@ -57,7 +57,7 @@ class Trainer:
                 decoder_input = topi.squeeze().detach()  # detach from history as input
 
                 loss += criterion(decoder_output, target_tensor[di])
-                if decoder_input.item() == EOS_TOKEN:
+                if decoder_input.item() == self.lang.seq_end_id:
                     break
 
         loss.backward()
@@ -73,7 +73,7 @@ class Trainer:
         print_loss_total = 0  # Reset every print_every
         plot_loss_total = 0  # Reset every plot_every
 
-        training_pairs = [tensors_from_pair(self.lang, random.choice(self.pairs)) for _ in range(n_iters)]
+        training_pairs = [tensors_from_pair(self.lang, random.choice(self.pairs), self.max_seq_length) for _ in range(n_iters)]
 
         encoder_optimizer = optim.SGD(self.encoder.parameters(), lr=learning_rate)
         decoder_optimizer = optim.SGD(self.decoder.parameters(), lr=learning_rate)
@@ -97,8 +97,7 @@ class Trainer:
             if iter % print_every == 0:
                 print_loss_avg = print_loss_total / print_every
                 print_loss_total = 0
-                print('%s (%d %d%%) %.4f' % (
-                time_since(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
+                print('%s (%d %d%%) %.4f' % (time_since(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
 
             if iter % plot_every == 0:
                 plot_loss_avg = plot_loss_total / plot_every

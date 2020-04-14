@@ -2,8 +2,8 @@ import random
 
 import torch
 
-from lang import SOS_TOKEN, EOS_TOKEN, MAX_LENGTH, TEST, prepare_data
-from utils import DEVICE, tensor_from_sentence
+from lang import *
+from utils import DEVICE, tensor_from_sequence
 
 
 class Evaluator:
@@ -12,22 +12,21 @@ class Evaluator:
         self.encoder = encoder
         self.decoder = decoder
 
-        self.pairs = prepare_data(TEST, self.lang)
+        self.pairs, self.max_seq_length = prepare_data(TEST, self.lang)
 
     def evaluate(self, sentence, max_length=MAX_LENGTH):
         with torch.no_grad():
-            input_tensor = tensor_from_sentence(self.lang, sentence)
+            input_tensor = tensor_from_sequence(self.lang, sentence, self.max_seq_length)
             input_length = input_tensor.size()[0]
             encoder_hidden = self.encoder.init_hidden()
 
             encoder_outputs = torch.zeros(max_length, self.encoder.hidden_size, device=DEVICE)
 
             for ei in range(input_length):
-                encoder_output, encoder_hidden = self.encoder(input_tensor[ei],
-                                                              encoder_hidden)
+                encoder_output, encoder_hidden = self.encoder(input_tensor[ei], encoder_hidden)
                 encoder_outputs[ei] += encoder_output[0, 0]
 
-            decoder_input = torch.tensor([[SOS_TOKEN]], device=DEVICE)  # SOS
+            decoder_input = torch.tensor([[self.lang.seq_start_id]], device=DEVICE)
 
             decoder_hidden = encoder_hidden
 
@@ -35,15 +34,14 @@ class Evaluator:
             decoder_attentions = torch.zeros(max_length, max_length)
 
             for di in range(max_length):
-                decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden,
-                                                                                 encoder_outputs)
+                decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden, encoder_outputs)
                 decoder_attentions[di] = decoder_attention.data
                 topv, topi = decoder_output.data.topk(1)
-                if topi.item() == EOS_TOKEN:
-                    decoded_words.append('<EOS>')
+                if topi.item() == self.lang.seq_end_id:
+                    decoded_words.append(SEQ_END_TOKEN)
                     break
                 else:
-                    decoded_words.append(self.lang.index2word[topi.item()])
+                    decoded_words.append(self.lang.id_to_sequence[topi.item()])
 
                 decoder_input = topi.squeeze().detach()
 

@@ -6,24 +6,18 @@ import torch
 
 import matplotlib.ticker as ticker
 
-from lang import EOS_TOKEN
-
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def indexes_from_sentence(lang, sentences):
-    return [lang.word2index[word] for word in sentences.split(' ')]
-
-
-def tensor_from_sentence(lang, sentences):
-    indexes = indexes_from_sentence(lang, sentences)
-    indexes.append(EOS_TOKEN)
+def tensor_from_sequence(lang, sentences, max_seq_length):
+    indexes = lang.sequence_to_ids(sentences)
+    indexes += [lang.seq_pad_id] * (max_seq_length - len(indexes))
     return torch.tensor(indexes, dtype=torch.long, device=DEVICE).view(-1, 1)
 
 
-def tensors_from_pair(lang, pair):
-    input_tensor = tensor_from_sentence(lang, pair[0])
-    target_tensor = tensor_from_sentence(lang, pair[1])
+def tensors_from_pair(lang, pair, max_seq_length):
+    input_tensor = tensor_from_sequence(lang, pair[0], max_seq_length)
+    target_tensor = tensor_from_sequence(lang, pair[1], max_seq_length)
     return input_tensor, target_tensor
 
 
