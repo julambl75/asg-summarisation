@@ -3,7 +3,8 @@ import re
 import unicodedata
 from operator import itemgetter
 
-import unidecode as unidecode
+import contractions
+from unidecode import unidecode
 from pytorch_pretrained_bert import BertTokenizer
 
 from gen_data import gen_text
@@ -22,17 +23,14 @@ TRAIN = 'train'
 TEST = 'test'
 EVAL = 'eval'
 
-TOKENIZER = BertTokenizer.from_pretrained("bert-base-multilingual-cased", do_lower_case=False)
-
-# ttokens_ = self.bert_tokeniser.tokenize(line)
-# story_idxs.append(self.bert_tokeniser.convert_tokens_to_ids(tokens_))
-
 
 class Lang:
     def __init__(self):
-        self.word2index = {}
+        self.word2count = {}
         self.index2word = {SOS_TOKEN: "SOS", EOS_TOKEN: "EOS"}
         self.n_words = 2  # Count SOS and EOS
+
+        self.tokenizer = BertTokenizer.from_pretrained("bert-base-multilingual-cased", do_lower_case=False)
 
     def add_sentence(self, sentence):
         for word in sentence.split(' '):
@@ -40,13 +38,16 @@ class Lang:
 
     def add_word(self, word):
         pass
-#         if word not in self.word2index:
-#             self.word2index[word] = self.n_words
-#             self.word2count[word] = 1
-#             self.index2word[self.n_words] = word
-#             self.n_words += 1
-#         else:
-#             self.word2count[word] += 1
+        # ttokens_ = self.bert_tokeniser.tokenize(line)
+        # story_idxs.append(self.bert_tokeniser.convert_tokens_to_ids(tokens_))
+
+        # if word not in self.word2index:
+        #     self.word2index[word] = self.n_words
+        #     self.word2count[word] = 1
+        #     self.index2word[self.n_words] = word
+        #     self.n_words += 1
+        # else:
+        #     self.word2count[word] += 1
 
 
 # Turn a Unicode string to plain ASCII, thanks to
@@ -58,12 +59,13 @@ def unicode_to_ascii(s):
     )
 
 
-# Trim, remove non-letter characters and remove accents
+# Trim, remove non-letter characters, remove accents and expand contractions
 def normalize_string(s):
     s = unicode_to_ascii(s.strip())
-    s = unidecode.unidecode(s)
+    s = unidecode(s)
     s = re.sub(r"([.!?])", r" \1", s)
     s = re.sub(r"[^a-zA-Z.!?]+", r" ", s)
+    s = contractions.fix(s)
     return s
 
 

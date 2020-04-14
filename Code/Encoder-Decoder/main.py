@@ -8,6 +8,7 @@ from eval import evaluate_randomly
 
 if __name__ == '__main__':
     hidden_size = 256
+    tokenizer =
     encoder1 = EncoderRNN(LANG.n_words, hidden_size).to(DEVICE)
     attn_decoder1 = AttnDecoderRNN(hidden_size, LANG.n_words, dropout_p=0.1).to(DEVICE)
 
