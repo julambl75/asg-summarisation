@@ -16,8 +16,6 @@ SEQ_END_TOKEN = '[SEP]'
 SEQ_PAD_TOKEN = '[PAD]'
 UNKNOWN_TOKEN = '[UNK]'
 
-MAX_LENGTH = 100
-
 INPUT = 'stories'
 OUTPUT = 'summaries'
 

@@ -14,7 +14,7 @@ class Evaluator:
 
         self.pairs, self.max_seq_length = prepare_data(TEST, self.lang)
 
-    def evaluate(self, sentence, max_length=MAX_LENGTH):
+    def evaluate(self, sentence, max_length):
         with torch.no_grad():
             input_tensor = tensor_from_sequence(self.lang, sentence, self.max_seq_length)
             input_length = input_tensor.size()[0]

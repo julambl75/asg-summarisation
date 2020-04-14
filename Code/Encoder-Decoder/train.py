@@ -30,7 +30,7 @@ class Trainer:
         input_length = input_tensor.size(0)
         target_length = target_tensor.size(0)
 
-        encoder_outputs = torch.zeros(MAX_LENGTH, self.encoder.hidden_size, device=DEVICE)
+        encoder_outputs = torch.zeros(self.max_seq_length, self.encoder.hidden_size, device=DEVICE)
 
         loss = 0
 

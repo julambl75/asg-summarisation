@@ -4,22 +4,19 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from lang import MAX_LENGTH
 from utils import DEVICE
 
 
 class EncoderRNN(nn.Module):
-    def __init__(self, input_size, hidden_size):
+    def __init__(self, input_size, hidden_size, num_layers=1):
         super(EncoderRNN, self).__init__()
         self.hidden_size = hidden_size
-
-        self.embedding = nn.Linear(input_size, hidden_size)  # TODO remove embedding
-        self.gru = nn.GRU(hidden_size, hidden_size)  # TODO stacked LSTM?
+        self.num_layers = num_layers
+        self.gru = nn.GRU(input_size, hidden_size, num_layers)
 
     def forward(self, input, hidden):
-        embedded = self.embedding(input).view(1, 1, -1)
-        output = embedded
-        output, hidden = self.gru(output, hidden)
+        input = input.view(1, 1, -1)
+        output, hidden = self.gru(input, hidden)
         return output, hidden
 
     def init_hidden(self):
@@ -48,11 +45,11 @@ class DecoderRNN(nn.Module):
 
 
 class AttnDecoderRNN(nn.Module):
-    def __init__(self, hidden_size, output_size, dropout_p=0.1, max_length=MAX_LENGTH):
+    def __init__(self, hidden_size, output_size, dropout=0.1, max_length=100):
         super(AttnDecoderRNN, self).__init__()
         self.hidden_size = hidden_size
         self.output_size = output_size
-        self.dropout_p = dropout_p
+        self.dropout_p = dropout
         self.max_length = max_length
 
         self.embedding = nn.Embedding(self.output_size, self.hidden_size)
