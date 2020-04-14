@@ -13,7 +13,7 @@ class EncoderRNN(nn.Module):
         super(EncoderRNN, self).__init__()
         self.hidden_size = hidden_size
 
-        self.embedding = nn.Embedding(input_size, hidden_size)
+        self.embedding = nn.Linear(input_size, hidden_size)  # TODO remove embedding
         self.gru = nn.GRU(hidden_size, hidden_size)  # TODO stacked LSTM?
 
     def forward(self, input, hidden):
