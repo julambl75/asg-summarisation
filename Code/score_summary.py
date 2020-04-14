@@ -107,9 +107,9 @@ def parse_args():
 if __name__ == '__main__':
     stories, summaries = parse_args()
     for story, summary in list(zip(stories, summaries)):
-        print(story)
-        print(summary)
         summary_scorer = SummaryScorer(story, summary)
         score = summary_scorer.score()
+        print(story)
+        print(summary)
         print(score)
         pass

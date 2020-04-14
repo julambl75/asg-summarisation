@@ -20,14 +20,14 @@ class Preprocessor:
 
         print("Completed preprocessor initialisation")
 
-    def bert_preprocess(self, ens, des):
+    def bert_preprocess(self, stories, summaries):
         idxs_en = []
-        for line in ens:
+        for line in stories:
             tokens_ = self.bert_tokeniser.tokenize(line)
             idxs_en.append(self.bert_tokeniser.convert_tokens_to_ids(tokens_))
 
         idxs_de = []
-        for line in des:
+        for line in summaries:
             tokens_ = self.bert_tokeniser.tokenize(line)
             idxs_de.append(self.bert_tokeniser.convert_tokens_to_ids(tokens_))
 

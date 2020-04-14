@@ -144,8 +144,8 @@ class GenData:
 # https://www.datamuse.com/api/
 if __name__ == '__main__':
     gen_data = GenData()
-    gen_data.gen_summary_pairs(1000, TRAIN)
-    gen_data.gen_summary_pairs(100, TEST)
+    gen_data.gen_summary_pairs(10000, TRAIN)
+    gen_data.gen_summary_pairs(1000, TEST)
     # for i in range(5):
     #     print(gen_data.make_summary_pair('Joe', 'dog', 'rambunctious'))
 

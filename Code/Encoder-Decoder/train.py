@@ -6,13 +6,23 @@ import time
 import torch
 import torch.nn as nn
 from torch import optim
+import torchvision.transforms as T
 
 from lang import *
+from preprocessor import Preprocessor
 from utils import DEVICE, tensors_from_pair, time_since, show_plot
 
 TEACHER_FORCING_RATIO = 0.5
 
 LANG, PAIRS = prepare_data(TRAIN)
+
+pre = Preprocessor(DEVICE)
+conv_transforms = T.Compose([
+    T.Lambda(lambda pair: pre.bert_preprocess_embs(*pair)),
+])
+lstm_transforms = T.Compose([
+    T.Lambda(lambda pair: pre.bert_preprocess(*pair)),
+])
 
 
 def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion):
