@@ -4,8 +4,8 @@ import unicodedata
 from operator import itemgetter
 
 import contractions
-from unidecode import unidecode
 from pytorch_pretrained_bert import BertTokenizer
+from unidecode import unidecode
 
 from gen_data import gen_text
 
@@ -26,7 +26,6 @@ EVAL = 'eval'
 
 class Lang:
     def __init__(self):
-        self.word2count = {}
         self.index2word = {SOS_TOKEN: "SOS", EOS_TOKEN: "EOS"}
         self.n_words = 2  # Count SOS and EOS
 
@@ -37,13 +36,11 @@ class Lang:
             self.add_word(word)
 
     def add_word(self, word):
-        pass
-        # ttokens_ = self.bert_tokeniser.tokenize(line)
-        # story_idxs.append(self.bert_tokeniser.convert_tokens_to_ids(tokens_))
+        tokens = self.tokenizer.tokenize(word)
+        story_idxs.append(self.tokeniser.convert_tokens_to_ids(tokens))
 
         # if word not in self.word2index:
         #     self.word2index[word] = self.n_words
-        #     self.word2count[word] = 1
         #     self.index2word[self.n_words] = word
         #     self.n_words += 1
         # else:
@@ -78,7 +75,7 @@ def read_pairs(dataset):
     lines = [read_data(lang, dataset) for lang in (INPUT, OUTPUT)]
     # Split every line into pairs and normalize
     pairs = list(map(lambda pair: tuple(map(normalize_string, pair)), zip(*lines)))
-    return pairs  # tuple(lines)
+    return pairs
 
 
 def read_words():
