@@ -12,6 +12,7 @@ inflect==0.2.5
 python-datamuse
 unidecode
 language-check
+pytorch_pretrained_bert
 
 # When running this you might have an 'egginfo' installation error saying mysql_config is not found.
 # If this happens run 'brew install mysql' on macOS, or 'sudo apt-get install libmysqlclient-dev' on Ubuntu.
