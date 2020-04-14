@@ -5,50 +5,56 @@ import torch
 from lang import SOS_TOKEN, EOS_TOKEN, MAX_LENGTH, TEST, prepare_data
 from utils import DEVICE, tensor_from_sentence
 
-LANG, PAIRS = prepare_data(TEST)
 
+class Evaluator:
+    def __init__(self, lang, encoder, decoder):
+        self.lang = lang
+        self.encoder = encoder
+        self.decoder = decoder
 
-def evaluate(encoder, decoder, sentence, max_length=MAX_LENGTH):
-    with torch.no_grad():
-        input_tensor = tensor_from_sentence(LANG, sentence)
-        input_length = input_tensor.size()[0]
-        encoder_hidden = encoder.init_hidden()
+        self.pairs = prepare_data(TEST, self.lang)
 
-        encoder_outputs = torch.zeros(max_length, encoder.hidden_size, device=DEVICE)
+    def evaluate(self, sentence, max_length=MAX_LENGTH):
+        with torch.no_grad():
+            input_tensor = tensor_from_sentence(self.lang, sentence)
+            input_length = input_tensor.size()[0]
+            encoder_hidden = self.encoder.init_hidden()
 
-        for ei in range(input_length):
-            encoder_output, encoder_hidden = encoder(input_tensor[ei],
-                                                     encoder_hidden)
-            encoder_outputs[ei] += encoder_output[0, 0]
+            encoder_outputs = torch.zeros(max_length, self.encoder.hidden_size, device=DEVICE)
 
-        decoder_input = torch.tensor([[SOS_TOKEN]], device=DEVICE)  # SOS
+            for ei in range(input_length):
+                encoder_output, encoder_hidden = self.encoder(input_tensor[ei],
+                                                              encoder_hidden)
+                encoder_outputs[ei] += encoder_output[0, 0]
 
-        decoder_hidden = encoder_hidden
+            decoder_input = torch.tensor([[SOS_TOKEN]], device=DEVICE)  # SOS
 
-        decoded_words = []
-        decoder_attentions = torch.zeros(max_length, max_length)
+            decoder_hidden = encoder_hidden
 
-        for di in range(max_length):
-            decoder_output, decoder_hidden, decoder_attention = decoder(decoder_input, decoder_hidden, encoder_outputs)
-            decoder_attentions[di] = decoder_attention.data
-            topv, topi = decoder_output.data.topk(1)
-            if topi.item() == EOS_TOKEN:
-                decoded_words.append('<EOS>')
-                break
-            else:
-                decoded_words.append(LANG.index2word[topi.item()])
+            decoded_words = []
+            decoder_attentions = torch.zeros(max_length, max_length)
 
-            decoder_input = topi.squeeze().detach()
+            for di in range(max_length):
+                decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden,
+                                                                                 encoder_outputs)
+                decoder_attentions[di] = decoder_attention.data
+                topv, topi = decoder_output.data.topk(1)
+                if topi.item() == EOS_TOKEN:
+                    decoded_words.append('<EOS>')
+                    break
+                else:
+                    decoded_words.append(self.lang.index2word[topi.item()])
 
-        return decoded_words, decoder_attentions[:di + 1]
+                decoder_input = topi.squeeze().detach()
 
+            return decoded_words, decoder_attentions[:di + 1]
 
-def evaluate_randomly(encoder, decoder, n=10):
-    for i in range(n):
-        pair = random.choice(PAIRS)
-        print('>', pair[0])
-        print('=', pair[1])
-        output_words, attentions = evaluate(encoder, decoder, pair[0])
-        output_sentence = ' '.join(output_words)
-        print('<', output_sentence)
-        print('')
+    def evaluate_randomly(self, n=10):
+        for i in range(n):
+            pair = random.choice(self.pairs)
+            print('>', pair[0])
+            print('=', pair[1])
+            output_words, attentions = self.evaluate(pair[0])
+            output_sentence = ' '.join(output_words)
+            print('<', output_sentence)
+            print('')

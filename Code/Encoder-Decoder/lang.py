@@ -30,6 +30,14 @@ class Lang:
         self.n_words = 2  # Count SOS and EOS
 
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-multilingual-cased", do_lower_case=False)
+        self._read_words()
+
+    def _read_words(self):
+        gen_data = gen_text.GenData()
+        words = list(map(itemgetter(0), gen_data.read_words()))
+        names = gen_data.read_names()
+        for word in words + names:
+            self.add_word(normalize_string(word))
 
     def add_sentence(self, sentence):
         for word in sentence.split(' '):
@@ -37,7 +45,7 @@ class Lang:
 
     def add_word(self, word):
         tokens = self.tokenizer.tokenize(word)
-        story_idxs.append(self.tokeniser.convert_tokens_to_ids(tokens))
+        ids = self.tokeniser.convert_tokens_to_ids(tokens)
 
         # if word not in self.word2index:
         #     self.word2index[word] = self.n_words
@@ -71,27 +79,16 @@ def read_data(lang, dataset):
     return open(f'{PATH}/data/{lang}_{dataset}.txt', encoding='utf-8').read().strip().split('\n')
 
 
-def read_pairs(dataset):
-    lines = [read_data(lang, dataset) for lang in (INPUT, OUTPUT)]
+def read_pairs(lang, dataset):
+    lines = [read_data(lang, dataset) for pair in (INPUT, OUTPUT)]
     # Split every line into pairs and normalize
     pairs = list(map(lambda pair: tuple(map(normalize_string, pair)), zip(*lines)))
     return pairs
 
 
-def read_words():
-    gen_data = gen_text.GenData()
-    words = list(map(itemgetter(0), gen_data.read_words()))
-    names = gen_data.read_names()
-    lang = Lang()
-    for word in words + names:
-        lang.add_word(normalize_string(word))
-    return lang
-
-
-def prepare_data(dataset):
-    pairs = read_pairs(dataset)
+def prepare_data(dataset, lang):
+    pairs = read_pairs(lang, dataset)
     print("Read %s sentence pairs" % len(pairs))
-    lang = read_words()
     for pair in pairs:
         lang.add_sentence(pair[0])
         lang.add_sentence(pair[1])

@@ -12,90 +12,97 @@ from utils import DEVICE, tensors_from_pair, time_since, show_plot
 
 TEACHER_FORCING_RATIO = 0.5
 
-PAIRS = prepare_data(TRAIN, tokenizer)
 
+class Trainer:
+    def __init__(self, lang, encoder, decoder):
+        self.lang = lang
+        self.encoder = encoder
+        self.decoder = decoder
 
-def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion):
-    encoder_hidden = encoder.init_hidden()
+        self.pairs = prepare_data(TRAIN, self.lang)
 
-    encoder_optimizer.zero_grad()
-    decoder_optimizer.zero_grad()
+    def train(self, input_tensor, target_tensor, encoder_optimizer, decoder_optimizer, criterion):
+        encoder_hidden = self.encoder.init_hidden()
 
-    input_length = input_tensor.size(0)
-    target_length = target_tensor.size(0)
+        encoder_optimizer.zero_grad()
+        decoder_optimizer.zero_grad()
 
-    encoder_outputs = torch.zeros(MAX_LENGTH, encoder.hidden_size, device=DEVICE)
+        input_length = input_tensor.size(0)
+        target_length = target_tensor.size(0)
 
-    loss = 0
+        encoder_outputs = torch.zeros(MAX_LENGTH, self.encoder.hidden_size, device=DEVICE)
 
-    for ei in range(input_length):
-        encoder_output, encoder_hidden = encoder(input_tensor[ei], encoder_hidden)
-        encoder_outputs[ei] = encoder_output[0, 0]
+        loss = 0
 
-    decoder_input = torch.tensor([[SOS_TOKEN]], device=DEVICE)
-    decoder_hidden = encoder_hidden
+        for ei in range(input_length):
+            encoder_output, encoder_hidden = self.encoder(input_tensor[ei], encoder_hidden)
+            encoder_outputs[ei] = encoder_output[0, 0]
 
-    use_teacher_forcing = random.random() < TEACHER_FORCING_RATIO
+        decoder_input = torch.tensor([[SOS_TOKEN]], device=DEVICE)
+        decoder_hidden = encoder_hidden
 
-    if use_teacher_forcing:
-        # Teacher forcing: Feed the target as the next input
-        for di in range(target_length):
-            decoder_output, decoder_hidden, decoder_attention = decoder(decoder_input, decoder_hidden, encoder_outputs)
-            loss += criterion(decoder_output, target_tensor[di])
-            decoder_input = target_tensor[di]  # Teacher forcing
-    else:
-        # Without teacher forcing: use its own predictions as the next input
-        for di in range(target_length):
-            decoder_output, decoder_hidden, decoder_attention = decoder(decoder_input, decoder_hidden, encoder_outputs)
-            topv, topi = decoder_output.topk(1)
-            decoder_input = topi.squeeze().detach()  # detach from history as input
+        use_teacher_forcing = random.random() < TEACHER_FORCING_RATIO
 
-            loss += criterion(decoder_output, target_tensor[di])
-            if decoder_input.item() == EOS_TOKEN:
-                break
+        if use_teacher_forcing:
+            # Teacher forcing: Feed the target as the next input
+            for di in range(target_length):
+                decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden, encoder_outputs)
+                loss += criterion(decoder_output, target_tensor[di])
+                decoder_input = target_tensor[di]  # Teacher forcing
+        else:
+            # Without teacher forcing: use its own predictions as the next input
+            for di in range(target_length):
+                decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden, encoder_outputs)
+                topv, topi = decoder_output.topk(1)
+                decoder_input = topi.squeeze().detach()  # detach from history as input
 
-    loss.backward()
+                loss += criterion(decoder_output, target_tensor[di])
+                if decoder_input.item() == EOS_TOKEN:
+                    break
 
-    encoder_optimizer.step()
-    decoder_optimizer.step()
+        loss.backward()
 
-    return loss.item() / target_length
+        encoder_optimizer.step()
+        decoder_optimizer.step()
 
+        return loss.item() / target_length
 
-def train_iters(lang, encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
-    start = time.time()
-    plot_losses = []
-    print_loss_total = 0  # Reset every print_every
-    plot_loss_total = 0  # Reset every plot_every
+    def train_iters(self, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
+        start = time.time()
+        plot_losses = []
+        print_loss_total = 0  # Reset every print_every
+        plot_loss_total = 0  # Reset every plot_every
 
-    encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
-    decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
-    training_pairs = [tensors_from_pair(lang, random.choice(PAIRS)) for _ in range(n_iters)]
-    criterion = nn.NLLLoss()
+        training_pairs = [tensors_from_pair(self.lang, random.choice(self.pairs)) for _ in range(n_iters)]
 
-    for iter in range(1, n_iters + 1):
-        training_pair = training_pairs[iter - 1]
-        input_tensor = training_pair[0]
-        target_tensor = training_pair[1]
+        encoder_optimizer = optim.SGD(self.encoder.parameters(), lr=learning_rate)
+        decoder_optimizer = optim.SGD(self.decoder.parameters(), lr=learning_rate)
+        criterion = nn.NLLLoss()
 
-        loss = train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion)
-        print_loss_total += loss
-        plot_loss_total += loss
+        for iter in range(1, n_iters + 1):
+            training_pair = training_pairs[iter - 1]
+            input_tensor = training_pair[0]
+            target_tensor = training_pair[1]
 
-        # TODO
-        # if print_loss_total / print_every < EARLY_STOP_LOSS:
-        #     break
+            loss = self.train(input_tensor, target_tensor, encoder_optimizer, decoder_optimizer, criterion)
+            print_loss_total += loss
+            plot_loss_total += loss
 
-        # TODO validation loss
+            # TODO
+            # if print_loss_total / print_every < EARLY_STOP_LOSS:
+            #     break
 
-        if iter % print_every == 0:
-            print_loss_avg = print_loss_total / print_every
-            print_loss_total = 0
-            print('%s (%d %d%%) %.4f' % (time_since(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
+            # TODO validation loss
 
-        if iter % plot_every == 0:
-            plot_loss_avg = plot_loss_total / plot_every
-            plot_losses.append(plot_loss_avg)
-            plot_loss_total = 0
+            if iter % print_every == 0:
+                print_loss_avg = print_loss_total / print_every
+                print_loss_total = 0
+                print('%s (%d %d%%) %.4f' % (
+                time_since(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
 
-    show_plot(plot_losses)
+            if iter % plot_every == 0:
+                plot_loss_avg = plot_loss_total / plot_every
+                plot_losses.append(plot_loss_avg)
+                plot_loss_total = 0
+
+        show_plot(plot_losses)
