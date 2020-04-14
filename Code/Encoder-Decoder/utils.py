@@ -8,7 +8,7 @@ import matplotlib.ticker as ticker
 
 from lang import EOS_TOKEN
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 def indexes_from_sentence(lang, sentences):

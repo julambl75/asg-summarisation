@@ -121,12 +121,16 @@ class GenData:
             adjective = self.get_random(self.adjectives)
             subject = self.get_random(self.names)
             descriptor = self.get_random(self.nouns)
-            summary_pair = self.make_summary_pair(subject, descriptor, adjective)
-            if summary_pair is not None:
-                i += 1
-                pairs.append(summary_pair)
+            try:
+                summary_pair = self.make_summary_pair(subject, descriptor, adjective)
+                if summary_pair is not None:
+                    i += 1
+                    pairs.append(summary_pair)
+            except ValueError:
+                print('Reached daily query limit, stopping here...')
+                break
         summaries, stories = tuple(map(list, zip(*pairs)))
-        print(f'[{n}/{n}] Writing story/summary pairs to files...')
+        print(f'[{i}/{n}] Writing story/summary pairs to files...')
         stories_dest = self.get_export_file('stories', nn_step)
         summaries_dest = self.get_export_file('summaries', nn_step)
         with open(stories_dest, 'w') as stories_file:
