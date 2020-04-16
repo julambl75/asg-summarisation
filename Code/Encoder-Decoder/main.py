@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     trainer = Trainer(lang, encoder, attn_decoder, train_pairs, seq_length)
     # trainer.train_iters(10000, print_every=500)
-    trainer.train_iters(500, print_every=500)
+    trainer.train_iters(500, print_every=10)
 
     torch.save(encoder.state_dict(), f'{PATH}/models/encoder.pt')
     torch.save(attn_decoder.state_dict(), f'{PATH}/models/decoder.pt')

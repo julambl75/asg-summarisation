@@ -40,7 +40,8 @@ class Evaluator:
                     decoded_words.append(SEQ_END_TOKEN)
                     break
                 else:
-                    decoded_words.append(self.lang.bert_id_to_sequence[topi.item()])
+                    bert_id = self.lang.emb2bert[topi.item()]
+                    decoded_words.append(self.lang.bert_id_to_sequence(bert_id))
 
                 decoder_input = topi.squeeze().detach()
 

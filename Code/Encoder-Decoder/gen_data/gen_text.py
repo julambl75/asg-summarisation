@@ -106,8 +106,8 @@ class GenData:
     @staticmethod
     def punctuate_example(example):
         if type(example) is not list:
-            example = [example]
-        return ' '.join(list(map(lambda s: s + '.', example))) + '\n'
+            example = [example.capitalize()]
+        return ' '.join(list(map(lambda s: s.capitalize() + '.', example))) + '\n'
 
     def punctuate_examples(self, examples):
         return list(map(self.punctuate_example, examples))
