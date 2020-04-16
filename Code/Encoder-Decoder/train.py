@@ -96,7 +96,7 @@ class Trainer:
                 print_loss_avg = print_loss_total / print_every
                 print_loss_total = 0
                 print('%s (%d %d%%) %.4f' % (
-                time_since(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
+                    time_since(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
 
             if iter % plot_every == 0:
                 plot_loss_avg = plot_loss_total / plot_every
