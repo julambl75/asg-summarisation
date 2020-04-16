@@ -2,6 +2,11 @@ import random
 
 import torch
 
+if __package__ is None:
+    import sys
+    from os import path
+    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
 from helper import Helper
 from lang import SEQ_END_TOKEN
 from score_summary import SummaryScorer
@@ -37,7 +42,8 @@ class Evaluator:
             decoder_attentions = torch.zeros(self.seq_length, self.seq_length)
 
             for di in range(self.seq_length):
-                decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden, encoder_outputs)
+                decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden,
+                                                                                 encoder_outputs)
                 decoder_attentions[di] = decoder_attention.data
                 topv, topi = decoder_output.data.topk(1)
                 if topi.item() == self.lang.seq_end_id:
