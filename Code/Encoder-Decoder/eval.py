@@ -10,7 +10,6 @@ from helper import Helper
 from lang import SEQ_END_TOKEN
 from score_summary import SummaryScorer
 from utils import DEVICE, tensor_from_sequence
-exit(1)
 
 
 class Evaluator:
