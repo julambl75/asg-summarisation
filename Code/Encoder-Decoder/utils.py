@@ -10,13 +10,10 @@ DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 def tensor_from_sequence(lang, sentences, seq_length):
-    indexes = lang.sequence_to_bert_ids(sentences)
-
-    # TODO
-    indexes = lang.bert_ids_to_lang_ids(indexes)
-
-    indexes += [lang.seq_pad_id] * (seq_length - len(indexes))
-    return torch.tensor(indexes, dtype=torch.long, device=DEVICE).view(-1, 1)
+    bert_ids = lang.sequence_to_bert_ids(sentences)
+    emb_ids = [lang.bert2emb[bert_id] for bert_id in bert_ids]
+    emb_ids += [lang.seq_pad_id] * (seq_length - len(emb_ids))
+    return torch.tensor(emb_ids, dtype=torch.long, device=DEVICE).view(-1, 1)
 
 
 def tensors_from_pair(lang, pair, seq_length):

@@ -24,43 +24,43 @@ EVAL = 'eval'
 
 class Lang:
     def __init__(self):
-        self.word2index = {}
-        self.index2word = {}
+        self.bert2emb = {}
+        self.emb2bert = []  # dict would allow more efficient lookup, but this is only used for evaluation
         self.n_words = 0
 
-        self.tokenizer = BertTokenizer.from_pretrained("bert-base-multilingual-cased", do_lower_case=False)
+        self.bert_tokenizer = BertTokenizer.from_pretrained("bert-base-multilingual-cased", do_lower_case=False)
+        self._add_base_tokens()
         self._read_words()
 
-        self.seq_start_id = self.tokenizer.convert_tokens_to_ids([SEQ_START_TOKEN])[0]
-        self.seq_end_id = self.tokenizer.convert_tokens_to_ids([SEQ_END_TOKEN])[0]
-        self.seq_pad_id = self.tokenizer.convert_tokens_to_ids([SEQ_PAD_TOKEN])[0]
+        # Set initial encodings in BERT universe, get converted to embeddings universe in prepare_embeddings
+        self.seq_start_id = self.bert_tokenizer.convert_tokens_to_ids([SEQ_START_TOKEN])[0]
+        self.seq_end_id = self.bert_tokenizer.convert_tokens_to_ids([SEQ_END_TOKEN])[0]
+        self.seq_pad_id = self.bert_tokenizer.convert_tokens_to_ids([SEQ_PAD_TOKEN])[0]
+
+    def _add_base_tokens(self):
+        for base_token in [SEQ_START_TOKEN, SEQ_END_TOKEN, SEQ_PAD_TOKEN, UNKNOWN_TOKEN]:
+            self._extend_known_tokens(base_token)
 
     def _read_words(self):
         gen_data = gen_text.GenData()
         words = list(map(itemgetter(0), gen_data.read_words()))
         names = gen_data.read_names()
         for sequence in words + names:
-            self.sequence_to_bert_ids(sequence)
+            self._extend_known_tokens(sequence)
+
+    def _extend_known_tokens(self, sequence):
+        bert_ids = self.sequence_to_bert_ids(sequence)
+        self.emb2bert.extend(bert_ids)
+        return bert_ids
 
     def sequence_to_bert_ids(self, sequence):
-        tokens = self.tokenizer.tokenize(sequence)
-        return self.tokenizer.convert_tokens_to_ids(tokens)
+        tokens = self.bert_tokenizer.tokenize(sequence)
+        return self.bert_tokenizer.convert_tokens_to_ids(tokens)
 
     def bert_id_to_sequence(self, bert_id):
-        if bert_id in self.tokenizer.ids_to_tokens:
-            return self.tokenizer.ids_to_tokens[bert_id]
+        if bert_id in self.bert_tokenizer.ids_to_tokens:
+            return self.bert_tokenizer.ids_to_tokens[bert_id]
         return UNKNOWN_TOKEN
-
-    # class Lang:
-    #
-    #     def add_sentence(self, sentence):
-    #         for word in sentence.split(' '):
-    #             self.add_word(word)
-    #
-    #         if word not in self.word2index:
-    #             self.word2index[word] = self.n_words
-    #             self.index2word[self.n_words] = word
-    #             self.n_words += 1
 
     # Turn a Unicode string to plain ASCII, thanks to
     # https://stackoverflow.com/a/518232/2809427
@@ -90,18 +90,19 @@ class Lang:
 
     def prepare_data(self, nn_part):
         pairs = self.read_pairs(nn_part)
-        print("Read %s sentence pairs" % len(pairs))
-
+        print(f'Read {len(pairs)} sentence pairs from {nn_part} data')
         seq_length = 0
         for pair in pairs:
             for pair_item in pair:
-                ids = self.sequence_to_bert_ids(pair_item)
-                seq_length = max(seq_length, len(ids))
-
-        bert_ids = set(itertools.chain.from_iterable(
-            [list(itertools.chain.from_iterable(tp1.tolist() + tp2.tolist())) for tp1, tp2 in training_pairs]))
-        bert_ids.add(100)  # [UNK]
-        bert_ids_sorted = sorted(list(bert_ids))
-        bert_to_emb = {bert_id: emb for emb, bert_id in enumerate(bert_ids_sorted)}
-
+                bert_ids = self._extend_known_tokens(pair_item)
+                seq_length = max(seq_length, len(bert_ids))
         return pairs, seq_length
+
+    def prepare_embeddings(self):
+        self.emb2bert = sorted(set(self.emb2bert))
+        self.bert2emb = {bert_id: emb for emb, bert_id in enumerate(self.emb2bert)}
+        self.n_words = len(self.emb2bert)
+        print(f'Using embedding with {self.n_words} BERT tokens')
+        self.seq_start_id = self.bert2emb[self.seq_start_id]
+        self.seq_end_id = self.bert2emb[self.seq_end_id]
+        self.seq_pad_id = self.bert2emb[self.seq_pad_id]

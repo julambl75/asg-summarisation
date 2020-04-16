@@ -7,7 +7,6 @@ import torch
 import torch.nn as nn
 from torch import optim
 
-from lang import *
 from utils import DEVICE, tensors_from_pair, time_since, show_plot
 
 TEACHER_FORCING_RATIO = 0.5
@@ -70,6 +69,7 @@ class Trainer:
         print_loss_total = 0  # Reset every print_every
         plot_loss_total = 0  # Reset every plot_every
 
+        print(f'Starting training...')
         training_pairs = [tensors_from_pair(self.lang, random.choice(self.pairs), self.seq_length) for _ in range(n_iters)]
 
         # TODO try Adam

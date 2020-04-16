@@ -2,7 +2,7 @@ import random
 
 import torch
 
-from lang import *
+from lang import SEQ_END_TOKEN
 from utils import DEVICE, tensor_from_sequence
 
 
