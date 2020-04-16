@@ -1,13 +1,5 @@
 import torch
 
-import sys
-from os import path
-print(sys.path)
-print(path.dirname(path.abspath(__file__)))
-print(path.dirname(path.dirname(path.abspath(__file__))))
-sys.path.append(path.dirname((path.abspath(__file__))))
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-
 from eval import Evaluator
 from lang import PATH, Lang, TRAIN, TEST
 from model_rnn import EncoderRNN, AttnDecoderRNN
