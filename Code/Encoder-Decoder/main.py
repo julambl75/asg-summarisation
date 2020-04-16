@@ -1,15 +1,19 @@
 import torch
 
 import sys
+from os import path
 print(sys.path)
-sys.path.append('..')
-exit(2)
+print(path.dirname(path.abspath(__file__)))
+print(path.dirname(path.dirname(path.abspath(__file__))))
+sys.path.append(path.dirname((path.abspath(__file__))))
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from eval import Evaluator
 from lang import PATH, Lang, TRAIN, TEST
 from model_rnn import EncoderRNN, AttnDecoderRNN
 from train import Trainer
 from utils import DEVICE
+exit(2)
 
 HIDDEN_SIZE = 128
 
