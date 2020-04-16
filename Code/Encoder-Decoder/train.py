@@ -14,12 +14,12 @@ TEACHER_FORCING_RATIO = 0.5
 
 
 class Trainer:
-    def __init__(self, lang, encoder, decoder):
+    def __init__(self, lang, encoder, decoder, pairs, seq_length):
         self.lang = lang
         self.encoder = encoder
         self.decoder = decoder
-
-        self.pairs, self.max_seq_length = prepare_data(TRAIN, self.lang)
+        self.pairs = pairs
+        self.seq_length = seq_length
 
     def train(self, input_tensor, target_tensor, encoder_optimizer, decoder_optimizer, criterion):
         encoder_hidden = self.encoder.init_hidden()
@@ -27,11 +27,11 @@ class Trainer:
         encoder_optimizer.zero_grad()
         decoder_optimizer.zero_grad()
 
-        encoder_outputs = torch.zeros(self.max_seq_length, self.encoder.hidden_size, device=DEVICE)
+        encoder_outputs = torch.zeros(self.seq_length, self.encoder.hidden_size, device=DEVICE)
 
         loss = 0
 
-        for ei in range(self.max_seq_length):
+        for ei in range(self.seq_length):
             encoder_output, encoder_hidden = self.encoder(input_tensor[ei], encoder_hidden)
             encoder_outputs[ei] = encoder_output[0, 0]
 
@@ -42,13 +42,13 @@ class Trainer:
 
         if use_teacher_forcing:
             # Teacher forcing: Feed the target as the next input
-            for di in range(self.max_seq_length):
+            for di in range(self.seq_length):
                 decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden, encoder_outputs)
                 loss += criterion(decoder_output, target_tensor[di])
                 decoder_input = target_tensor[di]  # Teacher forcing
         else:
             # Without teacher forcing: use its own predictions as the next input
-            for di in range(self.max_seq_length):
+            for di in range(self.seq_length):
                 decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden, encoder_outputs)
                 topv, topi = decoder_output.topk(1)
                 decoder_input = topi.squeeze().detach()  # detach from history as input
@@ -62,7 +62,7 @@ class Trainer:
         encoder_optimizer.step()
         decoder_optimizer.step()
 
-        return loss.item() / self.max_seq_length
+        return loss.item() / self.seq_length
 
     def train_iters(self, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
         start = time.time()
@@ -70,10 +70,11 @@ class Trainer:
         print_loss_total = 0  # Reset every print_every
         plot_loss_total = 0  # Reset every plot_every
 
-        training_pairs = [tensors_from_pair(self.lang, random.choice(self.pairs), self.max_seq_length) for _ in range(n_iters)]
+        training_pairs = [tensors_from_pair(self.lang, random.choice(self.pairs), self.seq_length) for _ in range(n_iters)]
 
-        encoder_optimizer = optim.Adam(self.encoder.parameters(), lr=learning_rate)
-        decoder_optimizer = optim.Adam(self.decoder.parameters(), lr=learning_rate)
+        # TODO try Adam
+        encoder_optimizer = optim.SGD(self.encoder.parameters(), lr=learning_rate)
+        decoder_optimizer = optim.SGD(self.decoder.parameters(), lr=learning_rate)
         criterion = nn.NLLLoss()
 
         for iter in range(1, n_iters + 1):
@@ -89,7 +90,7 @@ class Trainer:
             # if print_loss_total / print_every < EARLY_STOP_LOSS:
             #     break
 
-            # TODO validation loss
+            # TODO validation loss and evaluate on new set?
 
             if iter % print_every == 0:
                 print_loss_avg = print_loss_total / print_every

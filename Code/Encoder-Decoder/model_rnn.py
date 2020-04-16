@@ -8,12 +8,12 @@ from utils import DEVICE
 
 
 class EncoderRNN(nn.Module):
-    def __init__(self, hidden_size, num_layers=1):
+    def __init__(self, embedding_size, hidden_size, num_layers=1):
         super(EncoderRNN, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        self.embedding = nn.Embedding(input_size, hidden_size)
+        self.embedding = nn.Embedding(embedding_size, self.hidden_size)
         self.gru = nn.GRU(hidden_size, hidden_size, num_layers)
 
     def forward(self, input, hidden):
@@ -27,17 +27,17 @@ class EncoderRNN(nn.Module):
 
 
 class AttnDecoderRNN(nn.Module):
-    def __init__(self, hidden_size, dropout_p=0.1):
+    def __init__(self, embedding_size, hidden_size, seq_length, dropout_p=0.1):
         super(AttnDecoderRNN, self).__init__()
         self.hidden_size = hidden_size
         self.dropout_p = dropout_p
 
-        self.embedding = nn.Embedding(output_size, self.hidden_size)
-        self.attn = nn.Linear(self.hidden_size * 2, self.max_length)
+        self.embedding = nn.Embedding(embedding_size, self.hidden_size)
+        self.attn = nn.Linear(self.hidden_size * 2, seq_length)
         self.attn_combine = nn.Linear(self.hidden_size * 2, self.hidden_size)
         self.dropout = nn.Dropout(self.dropout_p)
         self.gru = nn.GRU(self.hidden_size, self.hidden_size)
-        self.out = nn.Linear(self.hidden_size, output_size)
+        self.out = nn.Linear(self.hidden_size, embedding_size)
 
     def forward(self, input, hidden, encoder_outputs):
         embedded = self.embedding(input).view(1, 1, -1)

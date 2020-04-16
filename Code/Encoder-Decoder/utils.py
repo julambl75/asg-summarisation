@@ -9,15 +9,19 @@ import matplotlib.ticker as ticker
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def tensor_from_sequence(lang, sentences, max_seq_length):
-    indexes = lang.sequence_to_ids(sentences)
-    indexes += [lang.seq_pad_id] * (max_seq_length - len(indexes))
+def tensor_from_sequence(lang, sentences, seq_length):
+    indexes = lang.sequence_to_bert_ids(sentences)
+
+    # TODO
+    indexes = lang.bert_ids_to_lang_ids(indexes)
+
+    indexes += [lang.seq_pad_id] * (seq_length - len(indexes))
     return torch.tensor(indexes, dtype=torch.long, device=DEVICE).view(-1, 1)
 
 
-def tensors_from_pair(lang, pair, max_seq_length):
-    input_tensor = tensor_from_sequence(lang, pair[0], max_seq_length)
-    target_tensor = tensor_from_sequence(lang, pair[1], max_seq_length)
+def tensors_from_pair(lang, pair, seq_length):
+    input_tensor = tensor_from_sequence(lang, pair[0], seq_length)
+    target_tensor = tensor_from_sequence(lang, pair[1], seq_length)
     return input_tensor, target_tensor
 
 

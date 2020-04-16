@@ -1,7 +1,7 @@
 import torch
 from pytorch_pretrained_bert import BertTokenizer
 
-from lang import PATH, Lang
+from lang import PATH, Lang, TRAIN
 from model_rnn import EncoderRNN, AttnDecoderRNN
 from utils import DEVICE
 from train import Trainer
@@ -12,14 +12,19 @@ HIDDEN_SIZE = 128
 if __name__ == '__main__':
     lang = Lang()
 
-    encoder = EncoderRNN(HIDDEN_SIZE).to(DEVICE)
-    attn_decoder = AttnDecoderRNN(HIDDEN_SIZE, dropout_p=0.1).to(DEVICE)
+    # TODO fix issue where sequence longer for test
+    train_pairs, train_seq_length = lang.prepare_data(TRAIN)
+    test_pairs, test_seq_length = lang.prepare_data(TRAIN)
+    seq_length = max(train_seq_length, test_seq_length)
 
-    trainer = Trainer(lang, encoder, attn_decoder)
+    encoder = EncoderRNN(lang.n_words, HIDDEN_SIZE).to(DEVICE)
+    attn_decoder = AttnDecoderRNN(lang.n_words, HIDDEN_SIZE, seq_length, dropout_p=0.1).to(DEVICE)
+
+    trainer = Trainer(lang, encoder, attn_decoder, train_pairs, seq_length)
     trainer.train_iters(10000, print_every=500)
 
     torch.save(encoder.state_dict(), f'{PATH}/models/encoder.pt')
     torch.save(attn_decoder.state_dict(), f'{PATH}/models/decoder.pt')
 
-    evaluator = Evaluator(lang, encoder, attn_decoder)
+    evaluator = Evaluator(lang, encoder, attn_decoder, test_pairs, seq_length)
     evaluator.evaluate_randomly(100)
