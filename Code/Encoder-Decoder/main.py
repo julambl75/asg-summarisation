@@ -7,14 +7,13 @@ from utils import DEVICE
 from train import Trainer
 from eval import Evaluator
 
-EMBEDDINGS_SIZE = 768
 HIDDEN_SIZE = 128
 
 if __name__ == '__main__':
     lang = Lang()
 
-    encoder = EncoderRNN(EMBEDDINGS_SIZE, HIDDEN_SIZE).to(DEVICE)
-    attn_decoder = AttnDecoderRNN(HIDDEN_SIZE, EMBEDDINGS_SIZE, dropout=0.1).to(DEVICE)
+    encoder = EncoderRNN(HIDDEN_SIZE).to(DEVICE)
+    attn_decoder = AttnDecoderRNN(HIDDEN_SIZE, dropout_p=0.1).to(DEVICE)
 
     trainer = Trainer(lang, encoder, attn_decoder)
     trainer.train_iters(10000, print_every=500)

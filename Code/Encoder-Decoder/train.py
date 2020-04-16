@@ -27,14 +27,11 @@ class Trainer:
         encoder_optimizer.zero_grad()
         decoder_optimizer.zero_grad()
 
-        input_length = input_tensor.size(0)
-        target_length = target_tensor.size(0)
-
         encoder_outputs = torch.zeros(self.max_seq_length, self.encoder.hidden_size, device=DEVICE)
 
         loss = 0
 
-        for ei in range(input_length):
+        for ei in range(self.max_seq_length):
             encoder_output, encoder_hidden = self.encoder(input_tensor[ei], encoder_hidden)
             encoder_outputs[ei] = encoder_output[0, 0]
 
@@ -45,13 +42,13 @@ class Trainer:
 
         if use_teacher_forcing:
             # Teacher forcing: Feed the target as the next input
-            for di in range(target_length):
+            for di in range(self.max_seq_length):
                 decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden, encoder_outputs)
                 loss += criterion(decoder_output, target_tensor[di])
                 decoder_input = target_tensor[di]  # Teacher forcing
         else:
             # Without teacher forcing: use its own predictions as the next input
-            for di in range(target_length):
+            for di in range(self.max_seq_length):
                 decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden, encoder_outputs)
                 topv, topi = decoder_output.topk(1)
                 decoder_input = topi.squeeze().detach()  # detach from history as input
@@ -65,7 +62,7 @@ class Trainer:
         encoder_optimizer.step()
         decoder_optimizer.step()
 
-        return loss.item() / target_length
+        return loss.item() / self.max_seq_length
 
     def train_iters(self, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
         start = time.time()
@@ -75,8 +72,8 @@ class Trainer:
 
         training_pairs = [tensors_from_pair(self.lang, random.choice(self.pairs), self.max_seq_length) for _ in range(n_iters)]
 
-        encoder_optimizer = optim.SGD(self.encoder.parameters(), lr=learning_rate)
-        decoder_optimizer = optim.SGD(self.decoder.parameters(), lr=learning_rate)
+        encoder_optimizer = optim.Adam(self.encoder.parameters(), lr=learning_rate)
+        decoder_optimizer = optim.Adam(self.decoder.parameters(), lr=learning_rate)
         criterion = nn.NLLLoss()
 
         for iter in range(1, n_iters + 1):

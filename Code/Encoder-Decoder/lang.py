@@ -1,11 +1,9 @@
 import os
-import re
 import unicodedata
 from operator import itemgetter
 
 import contractions
 from pytorch_pretrained_bert import BertTokenizer
-from unidecode import unidecode
 
 from gen_data import gen_text
 
