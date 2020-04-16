@@ -2,6 +2,7 @@ import random
 
 import torch
 
+print(__package__)
 if __package__ is None:
     import sys
     from os import path
