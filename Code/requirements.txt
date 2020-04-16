@@ -16,3 +16,9 @@ language-check
 
 # When running this you might have an 'egginfo' installation error saying mysql_config is not found.
 # If this happens run 'brew install mysql' on macOS, or 'sudo apt-get install libmysqlclient-dev' on Ubuntu.
+
+# On Ubuntu, you might also run into 'Failed building wheel for 'language-check'.
+# The installer script is broken and the fix is to use Java 8:
+#  > sudo apt install openjdk-8-jdk
+#  > sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+#  > pip3 install language-check

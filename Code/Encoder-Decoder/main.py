@@ -5,7 +5,6 @@ from lang import PATH, Lang, TRAIN, TEST
 from model_rnn import EncoderRNN, AttnDecoderRNN
 from train import Trainer
 from utils import DEVICE
-exit(2)
 
 HIDDEN_SIZE = 128
 
