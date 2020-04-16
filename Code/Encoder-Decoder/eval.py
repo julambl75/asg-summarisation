@@ -2,7 +2,9 @@ import random
 
 import torch
 
+from helper import Helper
 from lang import SEQ_END_TOKEN
+from score_summary import SummaryScorer
 from utils import DEVICE, tensor_from_sequence
 
 
@@ -13,6 +15,8 @@ class Evaluator:
         self.decoder = decoder
         self.pairs = pairs
         self.seq_length = seq_length
+
+        self.helper = Helper()
 
     def evaluate(self, sentence):
         with torch.no_grad():
@@ -47,12 +51,32 @@ class Evaluator:
 
             return decoded_words, decoder_attentions[:di + 1]
 
-    def evaluate_randomly(self, n=10):
+    def evaluate_randomly(self, n=10, score_summary=False):
+        bleu_scores_predicted = 0
+        bleu_scores_expected = 0
+
         for i in range(n):
             pair = random.choice(self.pairs)
-            print('>', pair[0])
-            print('=', pair[1])
             output_words, attentions = self.evaluate(pair[0])
             output_sentence = ' '.join(output_words)
+
+            bleu_score_predicted = self.helper.bleu_score(pair[0], output_sentence)
+            bleu_score_expected = self.helper.bleu_score(*pair)
+            bleu_scores_predicted += bleu_score_predicted
+            bleu_scores_expected += bleu_score_expected
+
+            print('>', pair[0])
+            print('=', pair[1])
             print('<', output_sentence)
+            print('| BLEU score (predicted): ', bleu_score_predicted)
+            print('| BLEU score (expected): ', bleu_score_expected)
+
+            if score_summary:
+                summary_scorer_predicted = SummaryScorer(pair[0], output_sentence)
+                summary_scorer_expected = SummaryScorer(*pair)
+                print('| Summary score (predicted): ', summary_scorer_predicted.score())
+                print('| Summary score (expected): ', summary_scorer_expected.score())
             print('')
+
+        print('BLEU score average (predicted): ', bleu_scores_predicted / n)
+        print('BLEU score average (expected): ', bleu_scores_expected / n)

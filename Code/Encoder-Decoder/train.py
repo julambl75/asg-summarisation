@@ -42,13 +42,15 @@ class Trainer:
         if use_teacher_forcing:
             # Teacher forcing: Feed the target as the next input
             for di in range(self.seq_length):
-                decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden, encoder_outputs)
+                decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden,
+                                                                                 encoder_outputs)
                 loss += criterion(decoder_output, target_tensor[di])
                 decoder_input = target_tensor[di]  # Teacher forcing
         else:
             # Without teacher forcing: use its own predictions as the next input
             for di in range(self.seq_length):
-                decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden, encoder_outputs)
+                decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden,
+                                                                                 encoder_outputs)
                 topv, topi = decoder_output.topk(1)
                 decoder_input = topi.squeeze().detach()  # detach from history as input
 
@@ -70,12 +72,12 @@ class Trainer:
         plot_loss_total = 0  # Reset every plot_every
 
         print(f'Starting training...')
-        training_pairs = [tensors_from_pair(self.lang, random.choice(self.pairs), self.seq_length) for _ in range(n_iters)]
+        training_pairs = [tensors_from_pair(self.lang, random.choice(self.pairs), self.seq_length) for _ in
+                          range(n_iters)]
 
-        # TODO try Adam
         encoder_optimizer = optim.SGD(self.encoder.parameters(), lr=learning_rate)
         decoder_optimizer = optim.SGD(self.decoder.parameters(), lr=learning_rate)
-        criterion = nn.NLLLoss()
+        criterion = nn.CrossEntropyLoss()
 
         for iter in range(1, n_iters + 1):
             training_pair = training_pairs[iter - 1]
@@ -90,12 +92,11 @@ class Trainer:
             # if print_loss_total / print_every < EARLY_STOP_LOSS:
             #     break
 
-            # TODO validation loss and evaluate on new set?
-
             if iter % print_every == 0:
                 print_loss_avg = print_loss_total / print_every
                 print_loss_total = 0
-                print('%s (%d %d%%) %.4f' % (time_since(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
+                print('%s (%d %d%%) %.4f' % (
+                time_since(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
 
             if iter % plot_every == 0:
                 plot_loss_avg = plot_loss_total / plot_every

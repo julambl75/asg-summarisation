@@ -30,8 +30,8 @@ class SummaryScorer:
     def score(self):
         similarity_score = self.similarity_score()
 
-        bleu_score = self.helper.bleu_score(story, summary)
-        bleu_score *= self.helper.count_sentences(story) / self.helper.count_sentences(summary)
+        bleu_score = self.helper.bleu_score(self.story, self.summary)
+        bleu_score *= self.helper.count_sentences(self.story) / self.helper.count_sentences(self.summary)
 
         grammar_penalty = self.grammar_penalty()
         length_penalty = self.length_penalty()
