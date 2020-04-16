@@ -1,11 +1,15 @@
 import torch
-from pytorch_pretrained_bert import BertTokenizer
 
+import sys
+print(sys.path)
+sys.path.append('..')
+exit(2)
+
+from eval import Evaluator
 from lang import PATH, Lang, TRAIN, TEST
 from model_rnn import EncoderRNN, AttnDecoderRNN
-from utils import DEVICE
 from train import Trainer
-from eval import Evaluator
+from utils import DEVICE
 
 HIDDEN_SIZE = 128
 

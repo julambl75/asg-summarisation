@@ -2,12 +2,6 @@ import random
 
 import torch
 
-print(__package__)
-if __package__ is None:
-    import sys
-    from os import path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-
 from helper import Helper
 from lang import SEQ_END_TOKEN
 from score_summary import SummaryScorer
