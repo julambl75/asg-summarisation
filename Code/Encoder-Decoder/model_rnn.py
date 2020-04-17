@@ -11,6 +11,7 @@ class EncoderRNN(nn.Module):
     def __init__(self, embedding_size, hidden_size, bidirectional=False):
         super(EncoderRNN, self).__init__()
         self.hidden_size = hidden_size
+        self.bidirectional = bidirectional
 
         self.embedding = nn.Embedding(embedding_size, self.hidden_size)
         self.lstm = nn.LSTM(hidden_size, hidden_size, bidirectional=bidirectional)
