@@ -37,6 +37,8 @@ from operator import itemgetter
 from pattern.en import conjugate, singularize, pluralize, referenced, lemma
 from datamuse import datamuse
 
+from parse_concept_net import ParseConceptNet
+
 PATH = os.path.dirname(os.path.abspath(__file__))
 
 NOUN = 'n'
@@ -47,6 +49,8 @@ TRAIN = 'train'
 TEST = 'test'
 EVAL = 'eval'
 
+MIN_SYNONYM_SCORE = 2
+
 
 class GenData:
     def __init__(self):
@@ -56,6 +60,7 @@ class GenData:
         self.nouns = self.get_words_of_type('n')
         self.adjectives = self.get_words_of_type('j')
 
+        self.pcn = ParseConceptNet(False)
         self.datamuse_api = datamuse.Datamuse()
         # There is a bug with Python 3.7 causing the first call to Pattern to crash due to a StopIteration
         try:
@@ -87,7 +92,8 @@ class GenData:
 
     def find_synonym_with_context(self, noun, context):
         words = self.datamuse_api.words(rel_syn=noun, topics=context, max=5)
-        return self.get_random(words)['word'] if words else None
+        synonyms = [word['word'] for word in words if self.pcn.compare_words(noun, word['word']) >= MIN_SYNONYM_SCORE]
+        return self.get_random(synonyms) if len(synonyms) > 0 else noun
 
     def make_summary_pair(self, subject, descriptor, adjective):
         other_descriptor = self.find_synonym_with_context(descriptor, adjective)
@@ -148,8 +154,6 @@ class GenData:
 # https://www.datamuse.com/api/
 if __name__ == '__main__':
     gen_data = GenData()
-    gen_data.gen_summary_pairs(10000, TRAIN)
+    gen_data.gen_summary_pairs(50000, TRAIN)
     gen_data.gen_summary_pairs(1000, TEST)
-    # for i in range(5):
-    #     print(gen_data.make_summary_pair('Joe', 'dog', 'rambunctious'))
 
