@@ -27,16 +27,17 @@ class EncoderRNN(nn.Module):
 
 
 class AttnDecoderRNN(nn.Module):
-    def __init__(self, embedding_size, hidden_size, seq_length, dropout_p=0.1):
+    def __init__(self, embedding_size, hidden_size, seq_length, dropout_p=0.1, num_layers=1):
         super(AttnDecoderRNN, self).__init__()
         self.hidden_size = hidden_size
         self.dropout_p = dropout_p
+        self.num_layers = num_layers
 
         self.embedding = nn.Embedding(embedding_size, self.hidden_size)
         self.attn = nn.Linear(self.hidden_size * 2, seq_length)
         self.attn_combine = nn.Linear(self.hidden_size * 2, self.hidden_size)
         self.dropout = nn.Dropout(self.dropout_p)
-        self.gru = nn.GRU(self.hidden_size, self.hidden_size)
+        self.gru = nn.GRU(self.hidden_size, self.hidden_size, num_layers)
         self.out = nn.Linear(self.hidden_size, embedding_size)
 
     def forward(self, input, hidden, encoder_outputs):
@@ -56,4 +57,4 @@ class AttnDecoderRNN(nn.Module):
         return output, hidden, attn_weights
 
     def init_hidden(self):
-        return torch.zeros(1, 1, self.hidden_size, device=DEVICE)
+        return torch.zeros(self.num_layers, 1, self.hidden_size, device=DEVICE)
