@@ -75,8 +75,8 @@ class Trainer:
         training_pairs = [tensors_from_pair(self.lang, random.choice(self.pairs), self.seq_length) for _ in
                           range(n_iters)]
 
-        encoder_optimizer = optim.SGD(self.encoder.parameters(), lr=learning_rate)
-        decoder_optimizer = optim.SGD(self.decoder.parameters(), lr=learning_rate)
+        encoder_optimizer = optim.Adam(self.encoder.parameters(), lr=learning_rate)
+        decoder_optimizer = optim.Adam(self.decoder.parameters(), lr=learning_rate)
         criterion = nn.CrossEntropyLoss()
 
         for iter in range(1, n_iters + 1):

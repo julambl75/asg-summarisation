@@ -18,11 +18,11 @@ if __name__ == '__main__':
 
     lang.prepare_embeddings()
 
-    encoder = EncoderRNN(lang.n_words, HIDDEN_SIZE).to(DEVICE)
+    encoder = EncoderRNN(lang.n_words, HIDDEN_SIZE, num_layers=3).to(DEVICE)
     attn_decoder = AttnDecoderRNN(lang.n_words, HIDDEN_SIZE, seq_length, dropout_p=0.1).to(DEVICE)
 
     trainer = Trainer(lang, encoder, attn_decoder, train_pairs, seq_length)
-    trainer.train_iters(10000, print_every=500)
+    trainer.train_iters(30000, print_every=500)
 
     mkpath(f'{PATH}/models/')
     torch.save(encoder.state_dict(), f'{PATH}/models/encoder.pt')
