@@ -37,6 +37,10 @@ from operator import itemgetter
 from pattern.en import conjugate, singularize, pluralize, referenced, lemma
 from datamuse import datamuse
 
+import sys
+from os import path
+sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
+
 from parse_concept_net import ParseConceptNet
 
 PATH = os.path.dirname(os.path.abspath(__file__))
