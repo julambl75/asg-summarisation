@@ -75,8 +75,8 @@ class Trainer:
         training_pairs = [tensors_from_pair(self.lang, random.choice(self.pairs), self.seq_length) for _ in
                           range(n_iters)]
 
-        encoder_optimizer = optim.Adam(self.encoder.parameters(), lr=learning_rate)
-        decoder_optimizer = optim.Adam(self.decoder.parameters(), lr=learning_rate)
+        encoder_optimizer = optim.SGD(self.encoder.parameters(), lr=learning_rate)
+        decoder_optimizer = optim.SGD(self.decoder.parameters(), lr=learning_rate)
         criterion = nn.CrossEntropyLoss()
 
         for iter in range(1, n_iters + 1):
@@ -84,6 +84,7 @@ class Trainer:
             input_tensor = training_pair[0]
             target_tensor = training_pair[1]
 
+            # TODO use BLEU score for loss
             loss = self.train(input_tensor, target_tensor, encoder_optimizer, decoder_optimizer, criterion)
             print_loss_total += loss
             plot_loss_total += loss
