@@ -32,6 +32,7 @@
 import csv
 import os
 import random
+from json import JSONDecodeError
 
 from operator import itemgetter
 from pattern.en import conjugate, singularize, pluralize, referenced, lemma
@@ -95,9 +96,12 @@ class GenData:
         return self.get_random(words)['word'] if words else None
 
     def find_synonym_with_context(self, noun, context):
-        words = self.datamuse_api.words(rel_syn=noun, topics=context, max=5)
-        synonyms = [word['word'] for word in words if self.pcn.compare_words(noun, word['word']) >= MIN_SYNONYM_SCORE]
-        return self.get_random(synonyms) if len(synonyms) > 0 else noun
+        try:
+            words = self.datamuse_api.words(rel_syn=noun, topics=context, max=5)
+            synonyms = [w['word'] for w in words if self.pcn.compare_words(noun, w['word']) >= MIN_SYNONYM_SCORE]
+            return self.get_random(synonyms) if len(synonyms) > 0 else noun
+        except JSONDecodeError:
+            return None
 
     def make_summary_pair(self, subject, descriptor, adjective):
         other_descriptor = self.find_synonym_with_context(descriptor, adjective)
@@ -131,11 +135,11 @@ class GenData:
             adjective = self.get_random(self.adjectives)
             subject = self.get_random(self.names)
             descriptor = self.get_random(self.nouns)
-            # try:
-            summary_pair = self.make_summary_pair(subject, descriptor, adjective)
-            # except ValueError:
-            #     print('Reached daily query limit, stopping here...')
-            #     break
+            try:
+                summary_pair = self.make_summary_pair(subject, descriptor, adjective)
+            except ValueError:
+                print('Reached daily query limit, stopping here...')
+                break
             if summary_pair is not None:
                 i += 1
                 pairs.append(summary_pair)
