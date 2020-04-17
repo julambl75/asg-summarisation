@@ -133,12 +133,12 @@ class GenData:
             descriptor = self.get_random(self.nouns)
             try:
                 summary_pair = self.make_summary_pair(subject, descriptor, adjective)
-                if summary_pair is not None:
-                    i += 1
-                    pairs.append(summary_pair)
             except ValueError:
                 print('Reached daily query limit, stopping here...')
                 break
+            if summary_pair is not None:
+                i += 1
+                pairs.append(summary_pair)
         summaries, stories = tuple(map(list, zip(*pairs)))
         print(f'[{i}/{n}] Writing story/summary pairs to files...')
         stories_dest = self.get_export_file('stories', nn_step)
@@ -158,6 +158,6 @@ class GenData:
 # https://www.datamuse.com/api/
 if __name__ == '__main__':
     gen_data = GenData()
-    gen_data.gen_summary_pairs(50000, TRAIN)
-    gen_data.gen_summary_pairs(1000, TEST)
+    gen_data.gen_summary_pairs(20, TRAIN)
+    # gen_data.gen_summary_pairs(0, TEST)
 
