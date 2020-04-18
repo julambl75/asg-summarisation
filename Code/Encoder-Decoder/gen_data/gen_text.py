@@ -92,7 +92,7 @@ class GenData:
 
     def find_synonym_with_context(self, noun, context):
         words = self.datamuse_api.words(rel_syn=noun, topics=context, max=1)
-        if len(words) > 0 and words[0]['score'] >= MIN_SYNONYM_SCORE:
+        if len(words) > 0 and words[0]['score'] >= MIN_SYNONYM_SCORE or 'score' not in words[0]:
             return words[0]['word']
         return noun
 
