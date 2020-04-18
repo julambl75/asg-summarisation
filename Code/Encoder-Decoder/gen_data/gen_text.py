@@ -93,7 +93,7 @@ class GenData:
     def find_synonym_with_context(self, noun, context):
         words = self.datamuse_api.words(rel_syn=noun, topics=context, max=1)
         if len(words) > 0 and words[0]['score'] >= MIN_SYNONYM_SCORE:
-            return words['word']
+            return words[0]['word']
         return noun
 
     def make_summary_pair(self, subject, descriptor, adjective):
