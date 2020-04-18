@@ -103,7 +103,8 @@ class GenData:
             if len(words) == 0:
                 return None
             chosen_word = self.get_random(words)['word']
-            if self.pcn.compare_words(noun, chosen_word) >= MIN_SYNONYM_SCORE:
+            similarity = self.pcn.compare_words(noun, chosen_word)
+            if similarity >= MIN_SYNONYM_SCORE:
                 return chosen_word
             return noun
         except JSONDecodeError:
