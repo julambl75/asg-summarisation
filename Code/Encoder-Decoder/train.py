@@ -22,11 +22,10 @@ class Trainer:
 
     def train(self, input_tensor, target_tensor, encoder_optimizer, decoder_optimizer, criterion):
         encoder_hidden = self.encoder.init_hidden()
+        encoder_outputs = self.encoder.init_outputs(self.seq_length)
 
         encoder_optimizer.zero_grad()
         decoder_optimizer.zero_grad()
-
-        encoder_outputs = torch.zeros(self.seq_length, self.encoder.hidden_size, device=DEVICE)
 
         loss = 0
 

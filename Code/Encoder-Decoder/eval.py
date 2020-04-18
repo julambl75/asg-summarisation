@@ -25,9 +25,9 @@ class Evaluator:
     def evaluate(self, sentence):
         with torch.no_grad():
             input_tensor = tensor_from_sequence(self.lang, sentence, self.seq_length)
-            encoder_hidden = self.encoder.init_hidden()
 
-            encoder_outputs = torch.zeros(self.seq_length, self.encoder.hidden_size, device=DEVICE)
+            encoder_hidden = self.encoder.init_hidden()
+            encoder_outputs = self.encoder.init_outputs(self.seq_length)
 
             for ei in range(self.seq_length):
                 encoder_output, encoder_hidden = self.encoder(input_tensor[ei], encoder_hidden)
