@@ -141,9 +141,9 @@ class GenData:
         print(f'[{i}/{n}] Writing story/summary pairs to files...')
         stories_dest = self.get_export_file('stories', nn_step)
         summaries_dest = self.get_export_file('summaries', nn_step)
-        with open(stories_dest, 'w') as stories_file:
+        with open(stories_dest, 'a+') as stories_file:
             stories_file.writelines(self.punctuate_examples(stories))
-        with open(summaries_dest, 'w') as summaries_file:
+        with open(summaries_dest, 'a+') as summaries_file:
             summaries_file.writelines(self.punctuate_examples(summaries))
         print('Done')
 
