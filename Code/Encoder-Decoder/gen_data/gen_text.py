@@ -40,12 +40,6 @@ from time import sleep
 from pattern.en import conjugate, singularize, pluralize, referenced, lemma
 from datamuse import datamuse
 
-import sys
-from os import path
-sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
-
-from parse_concept_net import ParseConceptNet
-
 PATH = os.path.dirname(os.path.abspath(__file__))
 
 NOUN = 'n'
@@ -56,7 +50,7 @@ TRAIN = 'train'
 TEST = 'test'
 EVAL = 'eval'
 
-MIN_SYNONYM_SCORE = 2
+MIN_SYNONYM_SCORE = 50000
 
 
 class GenData:
@@ -67,7 +61,6 @@ class GenData:
         self.nouns = self.get_words_of_type('n')
         self.adjectives = self.get_words_of_type('j')
 
-        self.pcn = ParseConceptNet(False)
         self.datamuse_api = datamuse.Datamuse()
         # There is a bug with Python 3.7 causing the first call to Pattern to crash due to a StopIteration
         try:
@@ -98,18 +91,10 @@ class GenData:
         return self.get_random(words)['word'] if words else None
 
     def find_synonym_with_context(self, noun, context):
-        try:
-            words = self.datamuse_api.words(rel_syn=noun, topics=context, max=5)
-            if len(words) == 0:
-                return None
-            chosen_word = self.get_random(words)['word']
-            similarity = self.pcn.compare_words(noun, chosen_word)
-            if similarity >= MIN_SYNONYM_SCORE:
-                return chosen_word
-            return noun
-        except JSONDecodeError:
-            sleep(0.1)
-            return None
+        words = self.datamuse_api.words(rel_syn=noun, topics=context, max=1)
+        if len(words) > 0 and words[0]['score'] >= MIN_SYNONYM_SCORE:
+            return words['word']
+        return noun
 
     def make_summary_pair(self, subject, descriptor, adjective):
         other_descriptor = self.find_synonym_with_context(descriptor, adjective)
