@@ -35,6 +35,8 @@ import random
 from json import JSONDecodeError
 
 from operator import itemgetter
+from time import sleep
+
 from pattern.en import conjugate, singularize, pluralize, referenced, lemma
 from datamuse import datamuse
 
@@ -98,9 +100,14 @@ class GenData:
     def find_synonym_with_context(self, noun, context):
         try:
             words = self.datamuse_api.words(rel_syn=noun, topics=context, max=5)
-            synonyms = [w['word'] for w in words if self.pcn.compare_words(noun, w['word']) >= MIN_SYNONYM_SCORE]
-            return self.get_random(synonyms) if len(synonyms) > 0 else noun
+            if len(words) == 0:
+                return None
+            chosen_word = self.get_random(words)['word']
+            if self.pcn.compare_words(noun, chosen_word) >= MIN_SYNONYM_SCORE:
+                return chosen_word
+            return noun
         except JSONDecodeError:
+            sleep(0.1)
             return None
 
     def make_summary_pair(self, subject, descriptor, adjective):
