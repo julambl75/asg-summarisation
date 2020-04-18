@@ -162,6 +162,6 @@ class GenData:
 # https://www.datamuse.com/api/
 if __name__ == '__main__':
     gen_data = GenData()
-    gen_data.gen_summary_pairs(25000, TRAIN)
+    gen_data.gen_summary_pairs(10000, TRAIN)
     gen_data.gen_summary_pairs(1000, TEST)
 
