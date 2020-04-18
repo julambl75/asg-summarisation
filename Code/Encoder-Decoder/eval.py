@@ -7,7 +7,7 @@ from os import path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from helper import Helper
-from lang import SEQ_END_TOKEN
+from lang import SEQ_END_TOKEN, SEQ_PAD_TOKEN
 from score_summary import SummaryScorer
 from utils import DEVICE, tensor_from_sequence
 
@@ -34,8 +34,11 @@ class Evaluator:
                 encoder_outputs[ei] += encoder_output[0, 0]
 
             decoder_input = torch.tensor([[self.lang.seq_start_id]], device=DEVICE)
-
             decoder_hidden = encoder_hidden
+
+            if self.encoder.bidirectional:
+                decoder_hidden = (torch.sum(decoder_hidden[0], dim=0).unsqueeze(0),
+                                  torch.sum(decoder_hidden[0], dim=0).unsqueeze(0))
 
             decoded_words = []
             decoder_attentions = torch.zeros(self.seq_length, self.seq_length)
@@ -63,6 +66,7 @@ class Evaluator:
         for i in range(n):
             pair = random.choice(self.pairs)
             output_words, attentions = self.evaluate(pair[0])
+            output_words = list(filter(lambda w: w != SEQ_PAD_TOKEN, output_words))
             output_sentence = ' '.join(output_words)
 
             bleu_score_predicted = self.helper.bleu_score(pair[0], output_sentence)

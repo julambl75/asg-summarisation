@@ -31,18 +31,17 @@ class EncoderRNN(nn.Module):
 
 
 class AttnDecoderRNN(nn.Module):
-    def __init__(self, embedding_size, hidden_size, seq_length, dropout_p=0.1, num_layers=1):
+    def __init__(self, embedding_size, hidden_size, seq_length, dropout_p=0.1, bidirectional_encoder=False):
         super(AttnDecoderRNN, self).__init__()
         self.hidden_size = hidden_size
         self.dropout_p = dropout_p
-        self.num_layers = num_layers
 
-        self.embedding = nn.Embedding(embedding_size, self.hidden_size)
+        self.embedding = nn.Embedding(embedding_size, hidden_size)
         self.attn = nn.Linear(hidden_size * 2, seq_length)
-        self.attn_combine = nn.Linear(hidden_size * 2, self.hidden_size)
-        self.dropout = nn.Dropout(self.dropout_p)
-        self.lstm = nn.LSTM(self.hidden_size, self.hidden_size, num_layers)
-        self.out = nn.Linear(self.hidden_size, embedding_size)
+        self.attn_combine = nn.Linear(hidden_size * (2 + int(bidirectional_encoder)), hidden_size)
+        self.dropout = nn.Dropout(dropout_p)
+        self.lstm = nn.LSTM(hidden_size, hidden_size)
+        self.out = nn.Linear(hidden_size, embedding_size)
 
     def forward(self, input, hidden, encoder_outputs):
         embedded = self.embedding(input).view(1, 1, -1)

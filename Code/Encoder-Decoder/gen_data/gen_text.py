@@ -32,15 +32,14 @@
 import csv
 import os
 import random
-from json import JSONDecodeError
-
+from distutils.dir_util import mkpath
 from operator import itemgetter
-from time import sleep
 
-from pattern.en import conjugate, singularize, pluralize, referenced, lemma
 from datamuse import datamuse
+from pattern.en import conjugate, referenced, lemma
 
 PATH = os.path.dirname(os.path.abspath(__file__))
+EXPORT_PATH = PATH + '/../data/'
 
 NOUN = 'n'
 VERB = 'v'
@@ -138,7 +137,9 @@ class GenData:
                 i += 1
                 pairs.append(summary_pair)
         summaries, stories = tuple(map(list, zip(*pairs)))
+
         print(f'[{i}/{n}] Writing story/summary pairs to files...')
+        mkpath(EXPORT_PATH)
         stories_dest = self.get_export_file('stories', nn_step)
         summaries_dest = self.get_export_file('summaries', nn_step)
         with open(stories_dest, 'w') as stories_file:
@@ -149,7 +150,7 @@ class GenData:
 
     @staticmethod
     def get_export_file(data_type, nn_step):
-        return f'{PATH}/../data/{data_type}_{nn_step}.txt'
+        return f'{EXPORT_PATH}/{data_type}_{nn_step}.txt'
 
 
 # https://www.clips.uantwerpen.be/pages/pattern-en

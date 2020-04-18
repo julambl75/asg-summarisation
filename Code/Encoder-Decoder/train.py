@@ -36,6 +36,10 @@ class Trainer:
         decoder_input = torch.tensor([[self.lang.seq_start_id]], device=DEVICE)
         decoder_hidden = encoder_hidden
 
+        if self.encoder.bidirectional:
+            decoder_hidden = (torch.sum(decoder_hidden[0], dim=0).unsqueeze(0),
+                              torch.sum(decoder_hidden[0], dim=0).unsqueeze(0))
+
         use_teacher_forcing = random.random() < TEACHER_FORCING_RATIO
 
         if use_teacher_forcing:
@@ -88,7 +92,7 @@ class Trainer:
             print_loss_total += loss
             plot_loss_total += loss
 
-            # TODO
+            # TODO early stopping
             # if print_loss_total / print_every < EARLY_STOP_LOSS:
             #     break
 
