@@ -57,10 +57,13 @@ class Lang:
         tokens = self.bert_tokenizer.tokenize(sequence)
         return self.bert_tokenizer.convert_tokens_to_ids(tokens)
 
-    def bert_id_to_sequence(self, bert_id):
-        if bert_id in self.bert_tokenizer.ids_to_tokens:
-            return self.bert_tokenizer.ids_to_tokens[bert_id]
-        return UNKNOWN_TOKEN
+    def bert_ids_to_sequence(self, bert_ids):
+        tokens = []
+        for bert_id in bert_ids:
+            if bert_id in self.bert_tokenizer.ids_to_tokens:
+                tokens.append(self.bert_tokenizer.ids_to_tokens[bert_id])
+            tokens.append(UNKNOWN_TOKEN)
+        return ' '.join(tokens).replace(' ##', '')
 
     # Turn a Unicode string to plain ASCII, thanks to
     # https://stackoverflow.com/a/518232/2809427

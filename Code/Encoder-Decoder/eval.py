@@ -1,13 +1,13 @@
 import random
+import sys
+from os import path
 
 import torch
 
-import sys
-from os import path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from helper import Helper
-from lang import SEQ_END_TOKEN, SEQ_PAD_TOKEN
+from lang import SEQ_PAD_TOKEN, SEQ_END_TOKEN, SEQ_START_TOKEN
 from score_summary import SummaryScorer
 from utils import DEVICE, tensor_from_sequence
 
@@ -40,7 +40,7 @@ class Evaluator:
                 decoder_hidden = (torch.sum(decoder_hidden[0], dim=0).unsqueeze(0),
                                   torch.sum(decoder_hidden[0], dim=0).unsqueeze(0))
 
-            decoded_words = []
+            decoded_bert_ids = []
             decoder_attentions = torch.zeros(self.seq_length, self.seq_length)
 
             for di in range(self.seq_length):
@@ -48,14 +48,15 @@ class Evaluator:
                                                                                  encoder_outputs)
                 decoder_attentions[di] = decoder_attention.data
                 topv, topi = decoder_output.data.topk(1)
-                if topi.item() == self.lang.seq_end_id:
-                    decoded_words.append(SEQ_END_TOKEN)
-                    break
-                else:
-                    bert_id = self.lang.emb2bert[topi.item()]
-                    decoded_words.append(self.lang.bert_id_to_sequence(bert_id))
 
+                bert_id = self.lang.emb2bert[topi.item()]
+                decoded_bert_ids.append(bert_id)
+
+                if topi.item() == self.lang.seq_end_id:
+                    break
                 decoder_input = topi.squeeze().detach()
+
+            decoded_words = self.lang.bert_ids_to_sequence(decoded_bert_ids)
 
             return decoded_words, decoder_attentions[:di + 1]
 
@@ -65,23 +66,24 @@ class Evaluator:
 
         for i in range(n):
             pair = random.choice(self.pairs)
-            output_words, attentions = self.evaluate(pair[0])
-            output_words = list(filter(lambda w: w != SEQ_PAD_TOKEN, output_words))
-            output_sentence = ' '.join(output_words)
+            pair = tuple(map(remove_seq_tokens, pair))
 
-            bleu_score_predicted = self.helper.bleu_score(pair[0], output_sentence)
+            predicted, attentions = self.evaluate(pair[0])
+            predicted_sentence = remove_seq_tokens(predicted)
+
+            bleu_score_predicted = self.helper.bleu_score(pair[0], predicted_sentence)
             bleu_score_expected = self.helper.bleu_score(*pair)
             bleu_scores_predicted += bleu_score_predicted
             bleu_scores_expected += bleu_score_expected
 
             print('>', pair[0])
             print('=', pair[1])
-            print('<', output_sentence)
+            print('<', predicted_sentence)
             print('| BLEU score (predicted): ', bleu_score_predicted)
             print('| BLEU score (expected): ', bleu_score_expected)
 
             if score_summary:
-                summary_scorer_predicted = SummaryScorer(pair[0], output_sentence)
+                summary_scorer_predicted = SummaryScorer(pair[0], predicted_sentence)
                 summary_scorer_expected = SummaryScorer(*pair)
                 print('| Summary score (predicted): ', summary_scorer_predicted.score())
                 print('| Summary score (expected): ', summary_scorer_expected.score())
@@ -89,3 +91,9 @@ class Evaluator:
 
         print('BLEU score average (predicted): ', bleu_scores_predicted / n)
         print('BLEU score average (expected): ', bleu_scores_expected / n)
+
+
+def remove_seq_tokens(sequence):
+    for seq_token in [SEQ_PAD_TOKEN, SEQ_START_TOKEN, SEQ_END_TOKEN]:
+        sequence = sequence.replace(seq_token, '')
+    return sequence.replace(' .', '.').replace('  ', ' ').strip()

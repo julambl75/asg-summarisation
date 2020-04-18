@@ -24,7 +24,7 @@ if __name__ == '__main__':
     attn_decoder = AttnDecoderRNN(lang.n_words, HIDDEN_SIZE, seq_length, dropout_p=0.1, bidirectional_encoder=BIDIRECTIONAL).to(DEVICE)
 
     trainer = Trainer(lang, encoder, attn_decoder, train_pairs, seq_length)
-    trainer.train_iters(30000, print_every=500, learning_rate=LEARNING_RATE)
+    trainer.train_iters(10, print_every=500, learning_rate=LEARNING_RATE)
 
     mkpath(f'{PATH}/models/')
     torch.save(encoder.state_dict(), f'{PATH}/models/encoder.pt')
