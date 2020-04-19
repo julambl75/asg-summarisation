@@ -87,7 +87,7 @@ class Trainer:
             input_tensor = training_pair[0]
             target_tensor = training_pair[1]
 
-            # TODO use BLEU score for loss
+            # TODO try minibatches
             loss = self.train(input_tensor, target_tensor, encoder_optimizer, decoder_optimizer, criterion)
             print_loss_total += loss
             plot_loss_total += loss
