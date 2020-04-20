@@ -7,7 +7,7 @@ We can use weak constraints to rule out certain summaries.
 ## TODO
 
 - Run NN examples in ASG
+- Fix scoring
 - Start to collect results for report (may take time)
-- ASG not necessarily fast than NN, but more accurate
-- Use stricter ASG for summary generation to enforce grammar
-- Final goal: take story-specific ASG and general rules to generate summaries 
+- 2 ASGs: less strict for learning actions, very strict for generating summaries
+- Final goal: take story-specific ASG and general rules to generate summaries, then use top 5

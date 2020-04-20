@@ -57,7 +57,9 @@ class Trainer:
                 topv, topi = decoder_output.topk(1)
                 decoder_input = topi.squeeze().detach()  # detach from history as input
 
-                loss += criterion(decoder_output, target_tensor[di])
+                # Only compute the loss for non-padding tokens
+                if target_tensor[di] != self.lang.seq_pad_id:
+                    loss += criterion(decoder_output, target_tensor[di])
                 if decoder_input.item() == self.lang.seq_end_id:
                     break
 
@@ -87,7 +89,6 @@ class Trainer:
             input_tensor = training_pair[0]
             target_tensor = training_pair[1]
 
-            # TODO try minibatches
             loss = self.train(input_tensor, target_tensor, encoder_optimizer, decoder_optimizer, criterion)
             print_loss_total += loss
             plot_loss_total += loss

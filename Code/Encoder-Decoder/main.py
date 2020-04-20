@@ -24,7 +24,7 @@ if __name__ == '__main__':
     encoder, decoder = EncoderDecoder.create(lang.n_words, EMBEDDING_SIZE, HIDDEN_SIZE, seq_length)
 
     trainer = Trainer(lang, encoder, decoder, train_pairs, seq_length)
-    trainer.train_iters(500000, print_every=500, learning_rate=LEARNING_RATE)
+    trainer.train_iters(100000, print_every=500, learning_rate=LEARNING_RATE)
 
     mkpath(f'{PATH}/models/')
     torch.save(encoder.state_dict(), f'{PATH}/models/encoder.pt')

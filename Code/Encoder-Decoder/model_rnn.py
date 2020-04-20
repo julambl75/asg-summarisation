@@ -43,8 +43,8 @@ class AttnDecoderRNN(nn.Module):
     def __init__(self, embedding, embedding_size, hidden_size, seq_length, dropout_p=0.1, bidirectional_encoder=True):
         super(AttnDecoderRNN, self).__init__()
         self.embedding = embedding
-        self.attn = nn.Linear(embedding_size * 2, seq_length)
-        self.attn_combine = nn.Linear(embedding_size * (2 + int(bidirectional_encoder)), embedding_size)
+        self.attn = nn.Linear(embedding_size + hidden_size, seq_length)
+        self.attn_combine = nn.Linear(embedding_size + hidden_size * (1 + int(bidirectional_encoder)), embedding_size)
         self.dropout = nn.Dropout(dropout_p)
         self.lstm = nn.LSTM(embedding_size, hidden_size)
         self.out = nn.Linear(hidden_size, embedding.num_embeddings)
