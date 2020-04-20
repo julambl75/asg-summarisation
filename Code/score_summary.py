@@ -27,16 +27,22 @@ class SummaryScorer:
         self.helper = Helper()
         self.language_checker = language_check.LanguageTool('en-GB')
 
+    # TODO 3 scores: ASG vs NN, internal ASG, ASG vs target ASG
     def score(self):
         similarity_score = self.similarity_score()
 
-        bleu_score = self.helper.bleu_score(self.story, self.summary)
-        bleu_score *= self.helper.count_sentences(self.story) / self.helper.count_sentences(self.summary)
+        # TODO similarity/BLEU score compared to expected summary
+        # TODO compare generated summaries with target ASG summary
+        # TODO check if expected summary is in top 5/10 (hit) of generated summaries (use BLEU)
+        # bleu_score = self.helper.bleu_score(self.story, self.summary)
+        # bleu_score *= self.helper.count_sentences(self.story) / self.helper.count_sentences(self.summary)
 
+        # TOOD use penalties to compare to NN (different score)
         grammar_penalty = self.grammar_penalty()
         length_penalty = self.length_penalty()
 
-        overall_score = similarity_score * bleu_score * grammar_penalty * length_penalty
+        overall_score = similarity_score * grammar_penalty * length_penalty
+        # overall_score = similarity_score * bleu_score * grammar_penalty * length_penalty
         return round(overall_score, 1)
 
     def similarity_score(self):

@@ -109,3 +109,7 @@ class Lang:
         self.seq_start_id = self.bert2emb[self.seq_start_id]
         self.seq_end_id = self.bert2emb[self.seq_end_id]
         self.seq_pad_id = self.bert2emb[self.seq_pad_id]
+
+        # BERT: 119,000 slots for tokens
+        # 1 0 0 0 1 1 ...
+        # 1 1 1 ...

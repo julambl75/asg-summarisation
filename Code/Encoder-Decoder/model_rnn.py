@@ -8,13 +8,14 @@ from utils import DEVICE
 
 
 class EncoderRNN(nn.Module):
-    def __init__(self, embedding_size, hidden_size, bidirectional=False):
+    def __init__(self, vocab_size, embedding_size, hidden_size, bidirectional=False):
         super(EncoderRNN, self).__init__()
-        self.hidden_size = hidden_size
+        self.hidden_size = embedding_size
         self.bidirectional = bidirectional
 
-        self.embedding = nn.Embedding(embedding_size, self.hidden_size)
-        self.lstm = nn.LSTM(hidden_size, hidden_size, bidirectional=bidirectional)
+        # TODO tweak embedding_size, hidden_size
+        self.embedding = nn.Embedding(vocab_size, embedding_size)
+        self.lstm = nn.LSTM(embedding_size, hidden_size, bidirectional=bidirectional)
 
     def forward(self, input, hidden):
         embedded = self.embedding(input).view(1, 1, -1)
@@ -36,6 +37,7 @@ class AttnDecoderRNN(nn.Module):
         self.hidden_size = hidden_size
         self.dropout_p = dropout_p
 
+        # TODO make decoder same as encoder, use same embedding as encoder
         self.embedding = nn.Embedding(embedding_size, hidden_size)
         self.attn = nn.Linear(hidden_size * 2, seq_length)
         self.attn_combine = nn.Linear(hidden_size * (2 + int(bidirectional_encoder)), hidden_size)

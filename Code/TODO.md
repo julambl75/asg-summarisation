@@ -4,19 +4,10 @@ We can use weak constraints to rule out certain summaries.
 
 - Recognize start and end of process -> do not talk about intermediate steps
 
-## To show Alessandra
+## TODO
 
-### Successes
-
-- Preprocessor integration to main loop
-- Preprocessor search space reduction finds
-- SummaryScorer
-- Neural network chosen training examples
-- Neural network
-
-### Problems
-
-- Limited English sentence structure in ASG
-- ASG very slow
-- Do not yet have rules to make summaries, can only generate them
-- Neural network not very good
+- Run NN examples in NN
+- Start to collect results for report (may take time)
+- ASG not necessarily fast than NN, but more accurate
+- Use stricter ASG for summary generation to enforce grammar
+- Final goal: take story-specific ASG and general rules to generate summaries 

@@ -23,7 +23,7 @@
 ### Doing something (work/sit/stand):
 # TODO
 
-### Getting dressed: Sarah put on her cape and make a phone call. / Peter put on his sweatshirt and went to the gym.
+### Getting dressed: Sarah put on her cape and made a phone call. / Peter put on his sweatshirt and went to the gym.
 # TODO
 
 ###
