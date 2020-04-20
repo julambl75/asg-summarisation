@@ -19,7 +19,7 @@ class EncoderDecoder:
 class EncoderRNN(nn.Module):
     def __init__(self, embedding, embedding_size, hidden_size, bidirectional=True):
         super(EncoderRNN, self).__init__()
-        self.hidden_size = embedding_size
+        self.hidden_size = hidden_size
         self.bidirectional = bidirectional
 
         self.embedding = embedding

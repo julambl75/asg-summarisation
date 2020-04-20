@@ -1,11 +1,11 @@
-import torch
 from distutils.dir_util import mkpath
+
+import torch
 
 from eval import Evaluator
 from lang import PATH, Lang, TRAIN, TEST
-from model_rnn import EncoderRNN, AttnDecoderRNN, EncoderDecoder
+from model_rnn import EncoderDecoder
 from train import Trainer
-from utils import DEVICE
 
 LEARNING_RATE = 0.01
 EMBEDDING_SIZE = 64
