@@ -7,14 +7,22 @@ import torch.nn.functional as F
 from utils import DEVICE
 
 
+class EncoderDecoder:
+    @staticmethod
+    def create(num_tokens, embedding_size, hidden_size, seq_length, dropout_p=0.1, bidirectional=True):
+        embedding = nn.Embedding(num_tokens, embedding_size)
+        encoder = EncoderRNN(embedding, embedding_size, hidden_size, bidirectional)
+        decoder = AttnDecoderRNN(embedding, embedding_size, hidden_size, seq_length, dropout_p, bidirectional)
+        return encoder.to(DEVICE), decoder.to(DEVICE)
+
+
 class EncoderRNN(nn.Module):
-    def __init__(self, vocab_size, embedding_size, hidden_size, bidirectional=False):
+    def __init__(self, embedding, embedding_size, hidden_size, bidirectional=True):
         super(EncoderRNN, self).__init__()
         self.hidden_size = embedding_size
         self.bidirectional = bidirectional
 
-        # TODO tweak embedding_size, hidden_size
-        self.embedding = nn.Embedding(vocab_size, embedding_size)
+        self.embedding = embedding
         self.lstm = nn.LSTM(embedding_size, hidden_size, bidirectional=bidirectional)
 
     def forward(self, input, hidden):
@@ -32,18 +40,14 @@ class EncoderRNN(nn.Module):
 
 
 class AttnDecoderRNN(nn.Module):
-    def __init__(self, embedding_size, hidden_size, seq_length, dropout_p=0.1, bidirectional_encoder=False):
+    def __init__(self, embedding, embedding_size, hidden_size, seq_length, dropout_p=0.1, bidirectional_encoder=True):
         super(AttnDecoderRNN, self).__init__()
-        self.hidden_size = hidden_size
-        self.dropout_p = dropout_p
-
-        # TODO make decoder same as encoder, use same embedding as encoder
-        self.embedding = nn.Embedding(embedding_size, hidden_size)
-        self.attn = nn.Linear(hidden_size * 2, seq_length)
-        self.attn_combine = nn.Linear(hidden_size * (2 + int(bidirectional_encoder)), hidden_size)
+        self.embedding = embedding
+        self.attn = nn.Linear(embedding_size * 2, seq_length)
+        self.attn_combine = nn.Linear(embedding_size * (2 + int(bidirectional_encoder)), embedding_size)
         self.dropout = nn.Dropout(dropout_p)
-        self.lstm = nn.LSTM(hidden_size, hidden_size)
-        self.out = nn.Linear(hidden_size, embedding_size)
+        self.lstm = nn.LSTM(embedding_size, hidden_size)
+        self.out = nn.Linear(hidden_size, embedding.num_embeddings)
 
     def forward(self, input, hidden, encoder_outputs):
         embedded = self.embedding(input).view(1, 1, -1)
