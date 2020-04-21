@@ -7,7 +7,7 @@ from lang import PATH, Lang, TRAIN, TEST
 from model_rnn import EncoderDecoder
 from train import Trainer
 
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.0001
 EMBEDDING_SIZE = 64
 HIDDEN_SIZE = 128
 
