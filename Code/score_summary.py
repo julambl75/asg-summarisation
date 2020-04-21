@@ -18,10 +18,11 @@ IGNORE_GRAMMAR_ERRORS = ['MORFOLOGIK_RULE_EN_GB']
 GRAMMAR_ERROR_PENALTY = 0.75
 
 # Cases:
-# - Find best ASG summary without reference
-# - Find best ASG summary with reference
-# - Score NN prediction
-# - Compare NN prediction with ASG summary
+# - Find best ASG summary without reference: similarity, penalties
+# - Find best ASG summary with reference: similarity, reference BLEU, penalties
+# - Score NN prediction: (similarity), reference BLEU
+# - Compare NN prediction with ASG summary: reference BLEUs
+
 
 class SummaryScorer:
     def __init__(self):
