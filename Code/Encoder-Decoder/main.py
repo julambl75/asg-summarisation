@@ -34,4 +34,4 @@ if __name__ == '__main__':
     evaluator_train.evaluate_randomly(10)
 
     evaluator = Evaluator(lang, encoder, decoder, test_pairs, seq_length)
-    evaluator.evaluate_randomly(10)#, score_summary=True)
+    evaluator.evaluate_randomly(10)

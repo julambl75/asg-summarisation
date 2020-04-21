@@ -1,13 +1,10 @@
-import argparse
 from collections import defaultdict
+from operator import itemgetter
 
 import language_check
 
 from helper import Helper
 from parse_concept_net import ParseConceptNet
-
-BATCH_STORY_PREFIX = '> '
-BATCH_SUMMARY_PREFIX = '< '
 
 SAME_WORD_SIMILARITY = 5
 SAME_WORD_POS = ['NN', 'NNS', 'NNP', 'NNPS']
@@ -28,12 +25,18 @@ class SummaryScorer:
         self.helper = Helper()
         self.language_checker = language_check.LanguageTool('en-GB')
 
-    # TODO check if expected summary is in top 5/10 (hit) of generated summaries (use BLEU)
     def asg_score(self, story, summaries, reference=None):
-        pass
+        sorted_scores = []
+        for summary in summaries:
+            score = self._asg_score(story, summary, reference)
+            sorted_scores.append((summary, score))
+        sorted_scores.sort(key=itemgetter(1), reverse=True)
 
-    def compare_score(self):
-        pass
+        # Check if reference summary is in top 5 (hit) of generated summaries
+        if reference:
+            top_5 = list(map(itemgetter(0), sorted_scores[:5]))
+            assert reference in top_5
+        return sorted_scores
 
     def _asg_score(self, story, summary, reference=None):
         score = self._similarity_score(story, summary)
@@ -43,9 +46,6 @@ class SummaryScorer:
         if reference:
             score *= self.helper.bleu_score(summary, reference)
         return round(score, 1)
-
-    def _rnn_score(self, predicted, reference):
-        return self.helper.bleu_score(predicted, reference)
 
     def _similarity_score(self, story, summary):
         tokenized_story = self.helper.tokenize_text(story, ignore_sentence=True)
@@ -81,38 +81,3 @@ class SummaryScorer:
         else:
             penalty = abs(self.helper.count_sentences(summary) - story_length + 1)
         return 1 / (2 ** penalty)
-
-
-def process_args(args):
-    if args.pair:
-        pair = args.pair
-        for i, pair_item in enumerate(pair):
-            try:
-                pair[i] = open(pair_item).read()
-            except IOError:
-                pass
-        return tuple(zip(pair))
-    batch_results = open(args.batch).read()
-    lines = batch_results.split('\n')
-    story_lines = list(filter(lambda l: l.startswith(BATCH_STORY_PREFIX), lines))
-    summary_lines = list(filter(lambda l: l.startswith(BATCH_SUMMARY_PREFIX), lines))
-    return story_lines, summary_lines
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    command_group = parser.add_mutually_exclusive_group(required=True)
-    command_group.add_argument('-b', '--batch', type=str, help='path to file with results of generating summaries')
-    command_group.add_argument('-p', '--pair', type=str, nargs=2, help='strings or paths for story and summary')
-    args = parser.parse_args()
-    return process_args(args)
-
-
-if __name__ == '__main__':
-    summary_scorer = SummaryScorer()
-    stories, summaries = parse_args()
-    for story, summary in list(zip(stories, summaries)):
-        score = summary_scorer.score(story, summary)
-        print(story)
-        print(summary)
-        print(score)
