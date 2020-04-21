@@ -17,37 +17,39 @@ SAME_WORD_POS = ['NN', 'NNS', 'NNP', 'NNPS']
 IGNORE_GRAMMAR_ERRORS = ['MORFOLOGIK_RULE_EN_GB']
 GRAMMAR_ERROR_PENALTY = 0.75
 
+# Cases:
+# - Find best ASG summary without reference
+# - Find best ASG summary with reference
+# - Score NN prediction
+# - Compare NN prediction with ASG summary
 
 class SummaryScorer:
-    def __init__(self, story, summary):
-        self.story = story
-        self.summary = summary
-
+    def __init__(self):
         self.pcn = ParseConceptNet(False)
         self.helper = Helper()
         self.language_checker = language_check.LanguageTool('en-GB')
 
     # TODO 3 scores: ASG vs NN, internal ASG, ASG vs target ASG
-    def score(self):
-        similarity_score = self.similarity_score()
+    def score(self, story, summary):
+        similarity_score = self.similarity_score(story, summary)
 
         # TODO similarity/BLEU score compared to expected summary
         # TODO compare generated summaries with target ASG summary
         # TODO check if expected summary is in top 5/10 (hit) of generated summaries (use BLEU)
-        # bleu_score = self.helper.bleu_score(self.story, self.summary)
-        # bleu_score *= self.helper.count_sentences(self.story) / self.helper.count_sentences(self.summary)
+        # bleu_score = self.helper.bleu_score(story, summary)
+        # bleu_score *= self.helper.count_sentences(story) / self.helper.count_sentences(summary)
 
         # TOOD use penalties to compare to NN (different score)
-        grammar_penalty = self.grammar_penalty()
-        length_penalty = self.length_penalty()
+        grammar_penalty = self.grammar_penalty(story, summary)
+        length_penalty = self.length_penalty(story, summary)
 
         overall_score = similarity_score * grammar_penalty * length_penalty
         # overall_score = similarity_score * bleu_score * grammar_penalty * length_penalty
         return round(overall_score, 1)
 
-    def similarity_score(self):
-        tokenized_story = self.helper.tokenize_text(self.story, ignore_sentence=True)
-        tokenized_summary = self.helper.tokenize_text(self.summary, ignore_sentence=True)
+    def similarity_score(self, story, summary):
+        tokenized_story = self.helper.tokenize_text(story, ignore_sentence=True)
+        tokenized_summary = self.helper.tokenize_text(summary, ignore_sentence=True)
 
         similar_words = defaultdict(lambda: defaultdict(lambda: 0))
         summary_similarity = 0
@@ -66,18 +68,18 @@ class SummaryScorer:
         return summary_similarity
 
     # Decrease final score by 25% for every grammar error other than uncommon proper noun
-    def grammar_penalty(self):
-        errors = self.language_checker.check(self.summary)
+    def grammar_penalty(self, story, summary):
+        errors = self.language_checker.check(summary)
         num_errors = len(list(filter(lambda m: m.ruleId not in IGNORE_GRAMMAR_ERRORS, errors)))
         return GRAMMAR_ERROR_PENALTY ** num_errors
 
     # Divide final score by 2 for ever sentence over limit in summary
-    def length_penalty(self):
-        story_length = self.helper.count_sentences(self.story)
+    def length_penalty(self, story, summary):
+        story_length = self.helper.count_sentences(story)
         if story_length > 3:
-            penalty = abs(self.helper.count_sentences(self.summary) - 3)
+            penalty = abs(self.helper.count_sentences(summary) - 3)
         else:
-            penalty = abs(self.helper.count_sentences(self.summary) - story_length + 1)
+            penalty = abs(self.helper.count_sentences(summary) - story_length + 1)
         return 1 / (2 ** penalty)
 
 
@@ -111,10 +113,10 @@ def parse_args():
 
 
 if __name__ == '__main__':
+    summary_scorer = SummaryScorer()
     stories, summaries = parse_args()
     for story, summary in list(zip(stories, summaries)):
-        summary_scorer = SummaryScorer(story, summary)
-        score = summary_scorer.score()
+        score = summary_scorer.score(story, summary)
         print(story)
         print(summary)
         print(score)
