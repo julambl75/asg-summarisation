@@ -49,4 +49,6 @@ if __name__ == '__main__':
     homogenized_story = preprocessor.preprocess()
 
     text_to_summary = TextToSummary(homogenized_story, *processed_args[1:])
-    text_to_summary.gen_summary()
+    # text_to_summary.gen_summary()
+    text_to_summary._run_print_summaries()
+    pass

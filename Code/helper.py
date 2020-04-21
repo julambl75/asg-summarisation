@@ -49,8 +49,8 @@ class Helper:
 
     # BLEU score evaluates the quality of machine-translated text
     @staticmethod
-    def bleu_score(story, summary):
-        return sentence_bleu([story], summary)
+    def bleu_score(summary, reference):
+        return sentence_bleu([reference], summary)
 
     @staticmethod
     def count_sentences(text):

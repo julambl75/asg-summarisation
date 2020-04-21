@@ -2,7 +2,10 @@ import functools
 import operator
 import re
 import os
+import select
 import shutil
+import subprocess
+import shlex
 
 from parse_core_nlp import ParseCoreNLP
 
@@ -73,7 +76,7 @@ class TextToSummary:
         self._run_learn_summaries()
 
         print('Listing learned summaries...')
-        self._run_print_summaries()
+        summaries = self._run_print_summaries()  # TODO
 
     @staticmethod
     def _text_to_tokens(text):
