@@ -94,11 +94,10 @@ class Trainer:
             print_loss_total += loss
             plot_loss_total += loss
 
-            if print_loss_total / print_every < EARLY_STOP_LOSS:
-                print(f'Training loss below {EARLY_STOP_LOSS}, stopping training...')
-                break
-
             if iter % print_every == 0:
+                if print_loss_total / print_every < EARLY_STOP_LOSS:
+                    print(f'Training loss below {EARLY_STOP_LOSS}, stopping training...')
+                    break
                 print_loss_avg = print_loss_total / print_every
                 print_loss_total = 0
                 print('%s (%d %d%%) %.4f' % (
