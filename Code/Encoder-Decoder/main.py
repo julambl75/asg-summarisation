@@ -24,7 +24,7 @@ if __name__ == '__main__':
     encoder, decoder = EncoderDecoder.create(lang.n_words, EMBEDDING_SIZE, HIDDEN_SIZE, seq_length)
 
     trainer = Trainer(lang, encoder, decoder, train_pairs, seq_length)
-    trainer.train_iters(300000, print_every=500, learning_rate=LEARNING_RATE)
+    trainer.train_iters(300000, LEARNING_RATE, print_every=500)
 
     mkpath(f'{PATH}/models/')
     torch.save(encoder.state_dict(), f'{PATH}/models/encoder.pt')
@@ -32,6 +32,8 @@ if __name__ == '__main__':
 
     evaluator_train = Evaluator(lang, encoder, decoder, train_pairs, seq_length)
     evaluator_train.evaluate_randomly(10)
+
+    # TODO train on validation set
 
     evaluator = Evaluator(lang, encoder, decoder, test_pairs, seq_length)
     evaluator.evaluate_randomly(10)

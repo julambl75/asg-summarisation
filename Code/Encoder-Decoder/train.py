@@ -10,6 +10,7 @@ from torch import optim
 from utils import DEVICE, tensors_from_pair, time_since, show_plot
 
 TEACHER_FORCING_RATIO = 0.5
+EARLY_STOP_LOSS = 0.05
 
 
 class Trainer:
@@ -70,7 +71,7 @@ class Trainer:
 
         return loss.item() / self.seq_length
 
-    def train_iters(self, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
+    def train_iters(self, n_iters, learning_rate, print_every=1000, plot_every=100):
         start = time.time()
         plot_losses = []
         print_loss_total = 0  # Reset every print_every
@@ -93,9 +94,9 @@ class Trainer:
             print_loss_total += loss
             plot_loss_total += loss
 
-            # TODO early stopping
-            # if print_loss_total / print_every < EARLY_STOP_LOSS:
-            #     break
+            if print_loss_total / print_every < EARLY_STOP_LOSS:
+                print(f'Training loss below {EARLY_STOP_LOSS}, stopping training...')
+                break
 
             if iter % print_every == 0:
                 print_loss_avg = print_loss_total / print_every
