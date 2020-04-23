@@ -55,6 +55,7 @@ class Trainer:
             for di in range(self.seq_length):
                 decoder_output, decoder_hidden, decoder_attention = self.decoder(decoder_input, decoder_hidden,
                                                                                  encoder_outputs)
+                # TODO look at top 5/10
                 topv, topi = decoder_output.topk(1)
                 decoder_input = topi.squeeze().detach()  # detach from history as input
 
@@ -95,13 +96,14 @@ class Trainer:
             plot_loss_total += loss
 
             if iter % print_every == 0:
+                print_loss_avg = print_loss_total / print_every
+                print('%s (%d %d%%) %.4f' % (
+                    time_since(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
+
                 if print_loss_total / print_every < EARLY_STOP_LOSS:
                     print(f'Training loss below {EARLY_STOP_LOSS}, stopping training...')
                     break
-                print_loss_avg = print_loss_total / print_every
                 print_loss_total = 0
-                print('%s (%d %d%%) %.4f' % (
-                    time_since(start, iter / n_iters), iter, iter / n_iters * 100, print_loss_avg))
 
             if iter % plot_every == 0:
                 plot_loss_avg = plot_loss_total / plot_every

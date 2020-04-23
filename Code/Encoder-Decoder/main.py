@@ -23,12 +23,15 @@ if __name__ == '__main__':
 
     encoder, decoder = EncoderDecoder.create(lang.n_words, EMBEDDING_SIZE, HIDDEN_SIZE, seq_length)
 
-    trainer = Trainer(lang, encoder, decoder, train_pairs, seq_length)
-    trainer.train_iters(300000, LEARNING_RATE, print_every=500)
+    encoder.load_state_dict(torch.load('/Users/julienamblard/Desktop/run2/models/encoder.pt', map_location=torch.device('cpu')))
+    decoder.load_state_dict(torch.load('/Users/julienamblard/Desktop/run2/models/decoder.pt', map_location=torch.device('cpu')))
 
-    mkpath(f'{PATH}/models/')
-    torch.save(encoder.state_dict(), f'{PATH}/models/encoder.pt')
-    torch.save(decoder.state_dict(), f'{PATH}/models/decoder.pt')
+    # trainer = Trainer(lang, encoder, decoder, train_pairs, seq_length)
+    # trainer.train_iters(300000, LEARNING_RATE, print_every=500)
+    #
+    # mkpath(f'{PATH}/models/')
+    # torch.save(encoder.state_dict(), f'{PATH}/models/encoder.pt')
+    # torch.save(decoder.state_dict(), f'{PATH}/models/decoder.pt')
 
     evaluator_train = Evaluator(lang, encoder, decoder, train_pairs, seq_length)
     evaluator_train.evaluate_randomly(10)

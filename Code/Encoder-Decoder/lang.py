@@ -62,7 +62,8 @@ class Lang:
         for bert_id in bert_ids:
             if bert_id in self.bert_tokenizer.ids_to_tokens:
                 tokens.append(self.bert_tokenizer.ids_to_tokens[bert_id])
-            tokens.append(UNKNOWN_TOKEN)
+            else:
+                tokens.append(UNKNOWN_TOKEN)
         return ' '.join(tokens).replace(' ##', '')
 
     # Turn a Unicode string to plain ASCII, thanks to
