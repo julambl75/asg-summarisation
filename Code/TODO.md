@@ -1,5 +1,3 @@
-We can use weak constraints to rule out certain summaries.
-
 ## Ideas for learning
 
 - Recognize start and end of process -> do not talk about intermediate steps
@@ -21,11 +19,15 @@ http://www.utcompling.com/wiki/openccg/writing-a-grammar-from-scratch
 
 Ideas:
 - final fix-up using language_checker.fix
-- hard-code determiners into derivations
+- hard-code determiners into derivations (https://www.ef.com/wwen/english-resources/english-grammar/determiners/)
 - use lots of simple/precise rules rather than complicated/general ones to minimize ss  
 
 action(VERB, SUBJECT, OBJECT)
 verb(INDICATIVE_FORM, TENSE)
 subject(NAME, IS_PERSON, DETERMINER, DESCRIPTOR)
-object(NAME, DETERMINER, TYPE)
-descriptor(NAME, ADJ_OR_ADV)
+object(NAME, DETERMINER, DESCRIPTOR)
+adjective(NAME)
+adverb(NAME)
+determiner(...)
+conjunct(FIRST, SECOND)
+disjunct(FIRST, SECOND)

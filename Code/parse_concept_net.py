@@ -29,8 +29,8 @@ class ParseConceptNet:
 
     # Returns weight between two words
     def compare_words(self, word, other_word):
-        word = word.replace(' ', '_')
-        other_word = other_word.replace(' ', '_')
+        word = word.replace(' ', '_').lower()
+        other_word = other_word.replace(' ', '_').lower()
 
         obj = requests.get("http://api.conceptnet.io/query?node=/c/en/{}&other=/c/en/{}".format(word, other_word)).json()
         if obj['edges']:

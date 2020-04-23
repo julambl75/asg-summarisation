@@ -28,7 +28,7 @@ MIN_NUM_SENT_FOR_PRUNE = 3
 
 class Preprocessor:
     def __init__(self, story, print_results=True):
-        self.story = story.lower().strip().replace('\n', ' ')
+        self.story = story.strip().replace('\n', ' ')
         self.print_results = print_results
 
         self.helper = Helper()
@@ -88,6 +88,9 @@ class Preprocessor:
                     for j, other_sentence in enumerate(tokenized):
                         if i != j:
                             for other_word, other_pos in other_sentence:
+                                word = word.lower()
+                                other_word = other_word.lower()
+
                                 if pos == other_pos:
                                     if word == other_word:
                                         similarity = SAME_WORD_SIMILARITY if pos in SAME_WORD_POS else 0
