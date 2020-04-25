@@ -47,6 +47,7 @@ class TextToSummary:
         print('Generating positive examples from original text...')
         tokens = self._text_to_tokens(self.text)
         examples = self._gen_asg_examples(tokens)
+        raise Exception('TODO downcase all but proper nouns')
 
         print('Parsing text to create context-specific ASG and ILASP constants...')
         context_specific_asg, ilasp_constants = self.text_parser.parse_text()
@@ -87,7 +88,7 @@ class TextToSummary:
 
     @staticmethod
     def _text_to_tokens_keep_batch(text):
-        text = text.lower().split('\n')
+        text = text.split('\n')
         token_batches = list(map(TextToSummary._text_to_tokens, text))
         tokens = [list(functools.reduce(operator.concat, token_batch, [])) for token_batch in token_batches]
         return list(filter(lambda s: len(s) > 0, tokens))
