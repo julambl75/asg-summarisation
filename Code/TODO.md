@@ -30,7 +30,7 @@ action(VERB, SUBJECT, OBJECT)
 verb(INDICATIVE_FORM, TENSE)
 subject(NOUN, DET, ADJ_OR_ADV)
 object(NOUN, DET, ADJ_OR_ADV)
-noun(NAME)
+[proper(NAME)] -> noun(NAME)    # can be used to rule out summaries with DT before NNP/NNPS
 adj_or_adv(NAME)
 det(...)
 conjunct(FIRST, SECOND)

@@ -18,36 +18,7 @@ s -> np vp {
   % The logical logic was brown and formal.
   % action(verb(be,past), subject(logic,the,logical), object(0,0,conjunct(brown,formal))).
 
-  :- not action(verb(V_N,V_T),subject(S_N,S_D,S_D),object(O_N,O_D,O_A)), verb(V_N,V_T)@2, subject(S_N,S_D,S_D)@1, object(O_N,O_D,O_A)@2.
-
-  :- summary(verb(V_N,V_T),subject(S_N,S_D,S_D),object(O_N,O_D,O_A)), not verb(V_N,V_T)@2.
-  :- summary(verb(V_N,V_T),subject(S_N,S_D,S_D),object(O_N,O_D,O_A)), not subject(S_N,S_D,S_D)@1.
-  :- summary(verb(V_N,V_T),subject(S_N,S_D,S_D),object(O_N,O_D,O_A)), not object(O_N,O_D,O_A)@2.
-}
-
-np -> nnp {
-  % subject(matthew,0,0).
-  subject(N,0,0) :- noun(N)@1.
-}
-
-np -> dt nn {
-  % object(logic,a,0).
-  object(N,D,0) :- det(D)@1, noun(N)@2.
-}
-
-np -> jj "and " jj {
-  % conjunct(brown,formal).
-  conjunct(A1,A2) :- adj_or_adv(A1)@1, adj_or_adv(A2)@2.
-}
-
-np -> dt jj nn {
-  % subject(logic,the,logical).
-  object(N,D,A) :- det(D)@1, adj_or_adv(A)@2, noun(N)@3.
-}
-
-np -> dt jj jj nn {
-  % object(logic,a,conjunct(brown,formal)).
-  object(N,D,conjunct(A1,A2)) :- det(D)@1, adj_or_adv(A1)@2, adj_or_adv(A2)@3, noun(N)@4.
+  :- not action(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), verb(V_N,V_T)@2, subject(S_N,S_D,S_A)@1, object(O_N,O_D,O_A)@2.
 }
 
 vp -> vb np {
@@ -60,8 +31,37 @@ vp -> vb np {
   object(N,D,A) :- object(N,D,A)@2.
 }
 
+np -> nnp {
+  % subject(matthew,0,0).
+  subject(N,0,0) :- noun(N)@1.
+  object(N,0,0) :- noun(N)@1.
+}
+
+np -> dt nn {
+  % object(logic,a,0).
+  subject(N,D,0) :- det(D)@1, noun(N)@2.
+  object(N,D,0) :- det(D)@1, noun(N)@2.
+}
+
+np -> jj "and " jj {
+  % conjunct(brown,formal).
+  object(0,0,conjunct(A1,A2)) :- adj_or_adv(A1)@1, adj_or_adv(A2)@3.
+}
+
+np -> dt jj nn {
+  % subject(logic,the,logical).
+  subject(N,D,A) :- det(D)@1, adj_or_adv(A)@2, noun(N)@3.
+  object(N,D,A) :- det(D)@1, adj_or_adv(A)@2, noun(N)@3.
+}
+
+np -> dt jj jj nn {
+  % object(logic,a,conjunct(brown,formal)).
+  subject(N,D,conjunct(A1,A2)) :- det(D)@1, adj_or_adv(A1)@2, adj_or_adv(A2)@3, noun(N)@4.
+  object(N,D,conjunct(A1,A2)) :- det(D)@1, adj_or_adv(A1)@2, adj_or_adv(A2)@3, noun(N)@4.
+}
+
 nnp -> "Matthew " {
-  noun(matthew).
+  proper(matthew).
 }
 
 nn -> "logic " {
@@ -90,6 +90,10 @@ jj -> "formal " {
 
 vb -> "was " {
   verb(be,past).
+}
+
+#background {
+  noun(N) :- proper(N).
 }
 
 #constant(verb_name,be).
