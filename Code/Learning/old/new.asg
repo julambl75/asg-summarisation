@@ -1,0 +1,97 @@
+start -> s_group {
+   :- count(X)@1, X > 2.
+   :- count(X)@1, X = 0.
+}
+
+s_group -> {
+  count(0).
+}
+
+s_group -> s ". " s_group {
+  count(X + 1) :- count(X)@3.
+}
+
+s -> np vp {
+  % Matthew was a logic.
+  action(verb(be,past), subject(proper(matthew),0,0), object(noun(logic),determiner(a),0)).
+
+  % The logical logic was brown and formal.
+  action(verb(be,past), subject(noun(logic),determiner(the),adjective(logical)), object(0,conjunct(adjective(brown),adjective(formal)))).
+
+  % TODO rule
+  % Matthew was a formal brown logic.
+  % summary(verb(be,past), subject(proper(matthew),0,0), object(noun(logic),determiner(a),conjunct(adjective(brown),adjective(formal)))).
+
+  summary(verb(be,T), S, object(N,D1,conjunct(A1,A2))) :- action(verb(be,T), S, object(N,D1,0)), action(verb(be,T), subject(N,D2,A0), object(0,conjunct(A1,A2))).
+
+  :- summary(verb(V_N,V_T),subject(S_N,S_D,S_D),object(O_N,O_D,O_A)), not verb(V_N,V_T)@2.
+  :- summary(verb(V_N,V_T),subject(S_N,S_D,S_D),object(O_N,O_D,O_A)), not subject(S_N,S_D,S_D)@1.
+  :- summary(verb(V_N,V_T),subject(S_N,S_D,S_D),object(O_N,O_D,O_A)), not object(O_N,O_D,O_A)@2.
+}
+
+np -> nnp {
+  % subject(proper(matthew),0,0).
+  subject(proper(N),0,0) :- proper(N)@1.
+}
+
+np -> dt nn {
+  % object(logic,determiner(a),0).
+  object(noun(N),determiner(D),0) :- noun(N)@1, determiner(D)@2.
+}
+
+np -> jj "and " jj {
+  % conjunct(adjective(brown),adjective(formal)).
+  conjunct(adjective(A1),adjective(A2)) :- adjective(A1)@1, adjective(A2)@2.
+}
+
+np -> dt jj nn {
+  % subject(noun(logic),determiner(the),adjective(logical)).
+  object(noun(N),determiner(D),adjective(A)) :- determiner(D)@1, adjective(A)@2, noun(N)@3.
+}
+
+np -> dt jj jj nn {
+  % object(noun(logic),determiner(a),conjunct(adjective(brown),adjective(formal))).
+  object(noun(N),determiner(D),conjunct(adjective(A1),adjective(A2))) :- determiner(D)@1, adjective(A1)@2, adjective(A2)@3, noun(N)@4.
+}
+
+vp -> vb np {
+  % verb(be,past).
+  verb(N,T) :- verb(N,T)@1.
+
+  % object(noun(logic),determiner(a),0).
+  % object(0,conjunct(adjective(brown),adjective(formal))).
+  % object(noun(logic),determiner(a),conjunct(adjective(brown),adjective(formal))).
+  object(N,D,A) :- object(N,D,A)@2.
+}
+
+nnp -> "Matthew " {
+  proper(matthew).
+}
+
+nn -> "logic " {
+  noun(logic).
+}
+
+dt -> "the " {
+  determiner(the).
+}
+
+dt -> "a " {
+  determiner(a).
+}
+
+jj -> "logical " {
+  adjective(logical).
+}
+
+jj -> "brown " {
+  adjective(brown).
+}
+
+jj -> "formal " {
+  adjective(formal).
+}
+
+vb -> "was " {
+  verb(be,past).
+}
