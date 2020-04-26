@@ -1,11 +1,9 @@
 import functools
+import itertools
 import operator
-import re
 import os
-import select
+import re
 import shutil
-import subprocess
-import shlex
 
 from parse_core_nlp import ParseCoreNLP
 
@@ -31,10 +29,10 @@ FIND_BACKGROUND_REGEX = '#background *{[^}]*}'
 
 
 class TextToSummary:
-    def __init__(self, text, pos_summaries, neg_summaries):
-        self.text = text
-        self.pos_summaries = pos_summaries or ''
-        self.neg_summaries = neg_summaries or ''
+    def __init__(self, text, pos_summaries, neg_summaries, proper_nouns):
+        self.text = self._decapitalise(text, proper_nouns)
+        self.pos_summaries = self._decapitalise(pos_summaries, proper_nouns)
+        self.neg_summaries = self._decapitalise(neg_summaries, proper_nouns)
 
         self.text_parser = ParseCoreNLP(self.text, True)
         self.summaries_parser = ParseCoreNLP(self.pos_summaries + ' ' + self.neg_summaries, True)
@@ -47,7 +45,6 @@ class TextToSummary:
         print('Generating positive examples from original text...')
         tokens = self._text_to_tokens(self.text)
         examples = self._gen_asg_examples(tokens)
-        raise Exception('TODO downcase all but proper nouns')
 
         print('Parsing text to create context-specific ASG and ILASP constants...')
         context_specific_asg, ilasp_constants = self.text_parser.parse_text()
@@ -77,11 +74,20 @@ class TextToSummary:
         self._run_learn_summaries()
 
         print('Listing learned summaries...')
-        summaries = self._run_print_summaries()  # TODO
+        self._run_print_summaries()
+
+    @staticmethod
+    def _decapitalise(text, proper_nouns):
+        if not text:
+            return ''
+        text = text.lower()
+        for proper_noun in proper_nouns:
+            text = text.replace(proper_noun.lower(), proper_noun)
+        return text
 
     @staticmethod
     def _text_to_tokens(text):
-        text = text.lower().split('.')  # TODO allow other types of punctuation (ex: !)
+        text = text.split('.')  # TODO allow other types of punctuation (ex: !)
         tokens = [list(filter(lambda s: len(s) > 0, re.split(REMOVE_SPACES_REGEX, sentence))) for sentence in text]
         tokens = list(filter(lambda s: len(s) > 0, tokens))
         return [sentence + ['.'] for sentence in tokens]

@@ -1,4 +1,5 @@
 import argparse
+import itertools
 import math
 import pprint as pp
 import re
@@ -17,6 +18,7 @@ from parse_concept_net import ParseConceptNet
 
 warnings.filterwarnings("ignore")
 
+PROPER = 'NNP'
 IGNORE_POS = ['DT', '.']
 SAME_WORD_POS = ['NN', 'NNS', 'NNP', 'NNPS']
 SAME_WORD_SIMILARITY = 5
@@ -27,9 +29,10 @@ MIN_NUM_SENT_FOR_PRUNE = 3
 
 
 class Preprocessor:
-    def __init__(self, story, print_results=True):
+    def __init__(self, story, print_results=True, proper_nouns=False):
         self.story = story.strip().replace('\n', ' ')
         self.print_results = print_results
+        self.proper_nouns = proper_nouns
 
         self.helper = Helper()
         self.pcn = ParseConceptNet(False)
@@ -75,6 +78,9 @@ class Preprocessor:
             print('\nHomogenizing story using synonyms...')
             pp.pprint(homogenized_story)
 
+        if self.proper_nouns:
+            proper_nouns = {token[0] for token in itertools.chain(*tokenized) if token[1].startswith(PROPER)}
+            return homogenized_story, proper_nouns
         return homogenized_story
 
     def _process_similarity(self, tokenized):

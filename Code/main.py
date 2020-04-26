@@ -45,8 +45,9 @@ if __name__ == '__main__':
     args = parse_args()
     processed_args = process_args(args)
 
-    preprocessor = Preprocessor(processed_args[0], False)
-    homogenized_story = preprocessor.preprocess()
+    preprocessor = Preprocessor(processed_args[0], print_results=False, proper_nouns=True)
+    homogenized_story, proper_nouns = preprocessor.preprocess()
 
-    text_to_summary = TextToSummary(homogenized_story, *processed_args[1:])
+    text_to_summary = TextToSummary(homogenized_story, *processed_args[1:], proper_nouns)
     text_to_summary.gen_summary()
+    # TODO recapitalize sentences in output
