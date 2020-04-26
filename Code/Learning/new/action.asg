@@ -113,6 +113,7 @@ vb -> "was " {
 #constant(adj_or_adv,formal).
 
 #modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))))):[4].
 
 + ["Matthew ", "was ", "a ", "logic ", ". "]
 + ["the ", "logical ", "logic ", "was ", "brown ", "and ", "formal ", ". "]

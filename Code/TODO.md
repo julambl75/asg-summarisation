@@ -33,5 +33,5 @@ object(NOUN, DET, ADJ_OR_ADV)
 [proper(NAME)] -> noun(NAME)    # can be used to rule out summaries with DT before NNP/NNPS
 adj_or_adv(NAME)
 det(...)
-conjunct(FIRST, SECOND)
-disjunct(FIRST, SECOND)
+conjunct(FIRST, SECOND)         # learn both
+disjunct(FIRST, SECOND)         # use choice rule
