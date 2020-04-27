@@ -1,8 +1,18 @@
 ## To speak about with Alessandra
 
-- OpenNMT NN
+- bAbI (very short but need to write summary)
+- GigaWord (longer)
+
+1. Randomize action(...) to generate summary(...) on trained ASG
+2. Train NN to generate same summary(...)
+3. Show framework is sane and expandable (computationally tractable)
+
+- OpenNMT NN (in between current and complicated semantic)
 - Trickier training examples
 - New ASG format
+
+1. Cut summary(...) down to have fewer variables
+2. Try learning with summaries
 
 ## TODO
 
@@ -11,6 +21,9 @@
 - Recognize start and end of process -> do not talk about intermediate steps
 
 - Start to collect results for report (may take time)
+- Think about initial motivation
+- Maybe formalize mathematically task of summarization (with CFG, BK, E+, E-)
+- For report think about how to formalize task of summarization in ASG (how thought evolve)
 - Final goal: take story-specific ASG and general rules to generate summaries, then use top 5/10
 
 ## Representation
