@@ -1,5 +1,8 @@
 ## Datasets
 
+https://analyticsindiamag.com/10-question-answering-datasets-to-build-robust-chatbot-systems/
+
+- SQuAD
 - bAbI (very short but need to write summary)
 - GigaWord (longer)
 
@@ -18,6 +21,8 @@
 - Think about initial motivation
 - Maybe formalize mathematically task of summarization (with CFG, BK, E+, E-)
 - For report think about how to formalize task of summarization in ASG (how thought evolve)
+- Compute Rouge score (PyRouge) on ASG and NN
+
 - Final goal: take story-specific ASG and general rules to generate summaries, then use top 5/10
 
 ## Representation
