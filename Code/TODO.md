@@ -1,24 +1,18 @@
-## To speak about with Alessandra
+## Datasets
 
 - bAbI (very short but need to write summary)
 - GigaWord (longer)
 
-1. Randomize action(...) to generate summary(...) on trained ASG
-2. Train NN to generate same summary(...)
-3. Show framework is sane and expandable (computationally tractable)
-
-- OpenNMT NN (in between current and complicated semantic)
-- Trickier training examples
-- New ASG format
-
-1. Cut summary(...) down to have fewer variables
-2. Try learning with summaries
-
 ## TODO
 
-- More complicated story/summary pairs (for NN and ASG)
-
-- Recognize start and end of process -> do not talk about intermediate steps
+- Automate ASG file creation
+- Experiment with new format
+    1. Cut summary(...) down to have fewer variables
+    2. Try learning with summaries
+- Compare with NN
+    1. Randomize action(...) to generate summary(...) on trained ASG
+    2. Train NN to generate same summary(...)
+    3. Show framework is sane and expandable (computationally tractable)
 
 - Start to collect results for report (may take time)
 - Think about initial motivation
