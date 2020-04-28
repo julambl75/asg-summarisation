@@ -1,0 +1,126 @@
+start -> s_group {
+   :- count(X)@1, X > 2.
+   :- count(X)@1, X = 0.
+}
+
+s_group -> {
+  count(0).
+}
+
+s_group -> s ". " s_group {
+  count(X+1) :- count(X)@3.
+}
+
+s -> np vp {
+  % Matthew was a logic.
+  action(verb(be,past), subject(matthew,0,0), object(logic,a,0)).
+
+  % The logical logic was brown and formal.
+  action(verb(be,past), subject(logic,the,logical), object(0,0,conjunct(brown,formal))).
+
+  % Matthew was a formal brown logic.
+  % summary(verb(be,past), subject(matthew,0,0), object(logic,a,conjunct(brown,formal))).
+
+  % summary(verb(be,T), S, object(N,D1,conjunct(A2,A3))) :- action(verb(be,T), S, object(N,D1,0)), action(verb(be,T), subject(N,D2,A1), object(0,0,conjunct(A2,A3))).
+
+  :- not summary(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), verb(V_N,V_T)@2, subject(S_N,S_D,S_A)@1, object(O_N,O_D,O_A)@2.
+
+  %:- summary(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), not verb(V_N,V_T)@2.
+  %:- summary(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), not subject(S_N,S_D,S_A)@1.
+  %:- summary(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), not object(O_N,O_D,O_A)@2.
+}
+
+vp -> vb np {
+  % verb(be,past).
+  verb(N,T) :- verb(N,T)@1.
+
+  % object(logic,a,0).
+  % object(0,conjunct(brown,formal)).
+  % object(logic,a,conjunct(brown,formal)).
+  object(N,D,A) :- object(N,D,A)@2.
+}
+
+np -> nnp {
+  % subject(matthew,0,0).
+  subject(N,0,0) :- noun(N)@1.
+  object(N,0,0) :- noun(N)@1.
+}
+
+np -> dt nn {
+  % object(logic,a,0).
+  subject(N,D,0) :- det(D)@1, noun(N)@2.
+  object(N,D,0) :- det(D)@1, noun(N)@2.
+}
+
+np -> jj {
+  object(0,0,A) :- adj_or_adv(A)@1.
+}
+
+np -> jj "and " jj {
+  % conjunct(brown,formal).
+  object(0,0,conjunct(A1,A2)) :- adj_or_adv(A1)@1, adj_or_adv(A2)@3.
+}
+
+np -> dt jj nn {
+  % subject(logic,the,logical).
+  subject(N,D,A) :- det(D)@1, adj_or_adv(A)@2, noun(N)@3.
+  object(N,D,A) :- det(D)@1, adj_or_adv(A)@2, noun(N)@3.
+}
+
+np -> dt jj jj nn {
+  % object(logic,a,conjunct(brown,formal)).
+  subject(N,D,conjunct(A1,A2)) :- det(D)@1, adj_or_adv(A1)@2, adj_or_adv(A2)@3, noun(N)@4.
+  object(N,D,conjunct(A1,A2)) :- det(D)@1, adj_or_adv(A1)@2, adj_or_adv(A2)@3, noun(N)@4.
+}
+
+nnp -> "Matthew " {
+  proper(matthew).
+}
+
+nn -> "logic " {
+  noun(logic).
+}
+
+dt -> "the " {
+  det(the).
+}
+
+dt -> "a " {
+  det(a).
+}
+
+jj -> "logical " {
+  adj_or_adv(logical).
+}
+
+jj -> "brown " {
+  adj_or_adv(brown).
+}
+
+jj -> "formal " {
+  adj_or_adv(formal).
+}
+
+vb -> "was " {
+  verb(be,past).
+}
+
+#background {
+  noun(N) :- proper(N).
+
+  var_tense(past).
+  var_name(matthew).
+  var_name(logic).
+  var_adj(brown).
+  var_adj(formal).
+  var_adj(logical).
+  var_adj(conjunct(var(var_adj),var(var_adj))).
+}
+
+#modeh(summary(verb(be,past), subject(var(var_name),0,0), object(var(var_name),a,var(var_adj)))):[4].
+#modeba(action(verb(be,past), subject(var(var_name),0,0), object(var(var_name),a,0))):[4].
+#modeba(action(verb(be,past), subject(var(var_name),the,var(var_adj)), object(0,0,var(var_adj)))):[4].
+
+#maxv(5).
+
++ ["Matthew ", "was ", "a ", "brown ", "formal ", "logic ", ". "]

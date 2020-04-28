@@ -1,6 +1,8 @@
 ## Datasets
 
 https://analyticsindiamag.com/10-question-answering-datasets-to-build-robust-chatbot-systems/
+http://nlpprogress.com/english/summarization.html
+https://paperswithcode.com/sota/text-summarization-on-gigaword
 
 - SQuAD
 - bAbI (very short but need to write summary)
@@ -21,7 +23,7 @@ https://analyticsindiamag.com/10-question-answering-datasets-to-build-robust-cha
 - Think about initial motivation
 - Maybe formalize mathematically task of summarization (with CFG, BK, E+, E-)
 - For report think about how to formalize task of summarization in ASG (how thought evolve)
-- Compute Rouge score (PyRouge) on ASG and NN
+- Compute Rouge score (PyRouge, must clone repo into project) on ASG and NN
 
 - Final goal: take story-specific ASG and general rules to generate summaries, then use top 5/10
 
