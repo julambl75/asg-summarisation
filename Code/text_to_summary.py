@@ -78,9 +78,9 @@ class TextToSummary:
 
         print('Generating summaries...')
         summaries = self._gen_summaries()
+        summaries = self._correct_summaries(summaries)
 
-        return set(map(self.language_checker.correct, summaries))
-
+        return summaries
 
     @staticmethod
     def _read_file(filename):
@@ -122,11 +122,6 @@ class TextToSummary:
     def _create_actions_asg():
         language_asg = TextToSummary._read_file(LANGUAGE_ASG)
         action_bias = TextToSummary._read_file(LEARN_ACTIONS_BIAS)
-        action_constraints = TextToSummary._read_file(LEARN_ACTIONS_CONSTRAINTS)
-        # Insert the sentence rule/derivation with the adequate constraints at the right spot to avoid infinite loop
-        language_asg_rules = language_asg.split(ACTION_RULE_SPLIT_STR)
-        language_asg_rules.insert(SENTENCE_RULE_IDX, action_constraints)
-        language_asg = ACTION_RULE_SPLIT_STR.join(language_asg_rules)
         with open(ACTION_ASG, 'w') as file:
             file.write(language_asg)
             file.write(action_bias)
@@ -174,3 +169,6 @@ class TextToSummary:
         os.system(GEN_SUMMARIES_CMD)
         with open(RESULTS_FILE, 'r') as file:
             return list(filter(lambda l: len(l) > 0, file.read().split('\n')))
+
+    def _correct_summaries(self, summaries):
+        return set(map(self.language_checker.correct, summaries))

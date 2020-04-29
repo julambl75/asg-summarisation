@@ -87,7 +87,6 @@ class ParseCoreNLP:
             if word in self.lemmas.keys() and tag in POS_CATEGORIES.keys():
                 category = POS_CATEGORIES[tag]
                 lemma = self.lemmas[word].lower()
-                predicates = self.helper.get_base_predicates(tag, lemma)
 
                 self.constants.add((category, lemma))
                 if tag in TENSES.keys():
@@ -95,7 +94,7 @@ class ParseCoreNLP:
                     self.constants.add(('verb_form', TENSES[tag]))
                 else:
                     predicates = f'{category}({lemma}). '
-                asg_leaves.append(f'{tag} -> "{word} " {{{predicates}}}')
+                asg_leaves.append(f'{tag} -> "{word} " {{ {predicates}}}')
         return asg_leaves
 
     # Takes as argument a string format with placeholders (category, lemma)

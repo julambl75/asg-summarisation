@@ -18,9 +18,12 @@ from parse_concept_net import ParseConceptNet
 
 warnings.filterwarnings("ignore")
 
+SUBSTITUTIONS = {'an': 'a'}
+
 PROPER = 'NNP'
 IGNORE_POS = ['DT', '.']
 SAME_WORD_POS = ['NN', 'NNS', 'NNP', 'NNPS']
+
 SAME_WORD_SIMILARITY = 5
 WEIGHT_SCALE = 10
 MIN_SYNONYM_SIMILARITY = 2
@@ -40,6 +43,7 @@ class Preprocessor:
     def preprocess(self):
         if self.print_results:
             pp.pprint(self.story)
+        self._substitute_determiners()
 
         tokenized = self.helper.tokenize_text(self.story)
         if self.print_results:
@@ -82,6 +86,10 @@ class Preprocessor:
             proper_nouns = {token[0] for token in itertools.chain(*tokenized) if token[1].startswith(PROPER)}
             return homogenized_story, proper_nouns
         return homogenized_story
+
+    def _substitute_determiners(self):
+        for key, value in SUBSTITUTIONS.items():
+            self.story = re.sub(r"\b{}\b".format(key), value, self.story)
 
     def _process_similarity(self, tokenized):
         similar_words = defaultdict(lambda: defaultdict(lambda: 0))
