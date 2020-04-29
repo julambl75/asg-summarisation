@@ -16,7 +16,26 @@ vp -> vbd np {
   object(N,D,A) :- object(N,D,A)@2.
 }
 
+vp -> vbp np {
+  verb(N,T) :- verb(N,T)@1.
+  object(N,D,A) :- object(N,D,A)@2.
+}
+
+vp -> vbz np {
+  verb(N,T) :- verb(N,T)@1.
+  object(N,D,A) :- object(N,D,A)@2.
+}
+
 np -> nnp {
+  subject(N,0,0) :- noun(N)@1.
+  object(N,0,0) :- noun(N)@1.
+}
+
+np -> nn {
+  object(N,0,0) :- noun(N)@1.
+}
+
+np -> prp {
   subject(N,0,0) :- noun(N)@1.
   object(N,0,0) :- noun(N)@1.
 }
@@ -24,6 +43,10 @@ np -> nnp {
 np -> dt nn {
   subject(N,D,0) :- det(D)@1, noun(N)@2.
   object(N,D,0) :- det(D)@1, noun(N)@2.
+}
+
+np -> jj {
+  object(0,0,A) :- adj_or_adv(A)@1.
 }
 
 np -> jj "and " jj {
