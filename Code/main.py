@@ -1,4 +1,5 @@
 import argparse
+import pprint as pp
 
 from preprocessor import Preprocessor
 from score_summary import SummaryScorer
@@ -54,4 +55,6 @@ if __name__ == '__main__':
     summaries = text_to_summary.gen_summary()
 
     summary_scorer = SummaryScorer()
-    scores = summary_scorer.asg_score(story, summaries)
+    scored_summaries = summary_scorer.asg_score(story, summaries)
+
+    pp.pprint(scored_summaries)
