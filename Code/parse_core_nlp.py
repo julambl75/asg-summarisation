@@ -14,6 +14,7 @@ with open(PARSE_CONSTANTS_JSON) as f:
     constants = json.load(f)
     PUNCTUATION = constants['punctuation']
     POS_CATEGORIES = constants['pos_categories']
+    TENSES = constants['tenses']
 
 CONSTANTS_FORMAT = '#constant({},{}).'
 VARIABLES_FORMAT = 'var_{}({}).'
@@ -55,8 +56,8 @@ class ParseCoreNLP:
     def _map_words_to_lemmas(self, core_nlp_json):
         for sentence in core_nlp_json['sentences']:
             for token in sentence['tokens']:
-                word = token['originalText'].lower()
-                lemma = token['lemma'].lower()
+                word = token['originalText']
+                lemma = token['lemma']
                 if word in self.lemmas.keys():
                     assert self.lemmas[word] == lemma, "Multiple lemmas {} and {} for word {}".format(self.lemmas[word], lemma, word)
                 else:
@@ -82,17 +83,19 @@ class ParseCoreNLP:
             [self._tree_to_asg(subtree, asg_leaves) for subtree in tree]
         else:
             tag = tree.label().lower()
-            word = tree[0].lower()
-            predicates = ''
+            word = tree[0]
             if word in self.lemmas.keys() and tag in POS_CATEGORIES.keys():
-                categories = POS_CATEGORIES[tag]
-                lemma = self.lemmas[word]
+                category = POS_CATEGORIES[tag]
+                lemma = self.lemmas[word].lower()
                 predicates = self.helper.get_base_predicates(tag, lemma)
 
-                for category in categories:
-                    self.constants.add((category, lemma))
-                    predicates += "{}({}). ".format(category, lemma)
-            asg_leaves.append("{} -> \"{} \" {{{}}}".format(tag, word, predicates))
+                self.constants.add((category, lemma))
+                if tag in TENSES.keys():
+                    predicates = f'verb({lemma},{TENSES[tag]}). '
+                    self.constants.add(('verb_form', TENSES[tag]))
+                else:
+                    predicates = f'{category}({lemma}). '
+                asg_leaves.append(f'{tag} -> "{word} " {{{predicates}}}')
         return asg_leaves
 
     # Takes as argument a string format with placeholders (category, lemma)

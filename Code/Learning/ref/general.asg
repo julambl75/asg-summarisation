@@ -1,0 +1,42 @@
+start -> s_group {
+   :- count(X)@1, X > 2.
+   :- count(X)@1, X = 0.
+}
+
+s_group -> {
+  count(0).
+}
+
+s_group -> s ". " s_group {
+  count(X+1) :- count(X)@3.
+}
+
+vp -> vbd np {
+  verb(N,T) :- verb(N,T)@1.
+  object(N,D,A) :- object(N,D,A)@2.
+}
+
+np -> nnp {
+  subject(N,0,0) :- noun(N)@1.
+  object(N,0,0) :- noun(N)@1.
+}
+
+np -> dt nn {
+  subject(N,D,0) :- det(D)@1, noun(N)@2.
+  object(N,D,0) :- det(D)@1, noun(N)@2.
+}
+
+np -> jj "and " jj {
+  object(0,0,conjunct(A1,A2)) :- adj_or_adv(A1)@1, adj_or_adv(A2)@3.
+}
+
+np -> dt jj nn {
+  subject(N,D,A) :- det(D)@1, adj_or_adv(A)@2, noun(N)@3.
+  object(N,D,A) :- det(D)@1, adj_or_adv(A)@2, noun(N)@3.
+}
+
+np -> dt jj jj nn {
+  subject(N,D,conjunct(A1,A2)) :- det(D)@1, adj_or_adv(A1)@2, adj_or_adv(A2)@3, noun(N)@4.
+  object(N,D,conjunct(A1,A2)) :- det(D)@1, adj_or_adv(A1)@2, adj_or_adv(A2)@3, noun(N)@4.
+}
+

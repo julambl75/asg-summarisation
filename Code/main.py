@@ -1,6 +1,7 @@
 import argparse
 
 from preprocessor import Preprocessor
+from score_summary import SummaryScorer
 from text_to_summary import TextToSummary
 
 FORMAT = 'txt'
@@ -44,10 +45,13 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     processed_args = process_args(args)
+    story = processed_args[0]
 
-    preprocessor = Preprocessor(processed_args[0], print_results=False, proper_nouns=True)
+    preprocessor = Preprocessor(story, print_results=False, proper_nouns=True)
     homogenized_story, proper_nouns = preprocessor.preprocess()
 
     text_to_summary = TextToSummary(homogenized_story, *processed_args[1:], proper_nouns)
-    text_to_summary.gen_summary()
-    # TODO recapitalize sentences in output
+    summaries = text_to_summary.gen_summary()
+
+    summary_scorer = SummaryScorer()
+    scores = summary_scorer.asg_score(story, summaries)

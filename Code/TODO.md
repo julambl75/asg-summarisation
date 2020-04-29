@@ -10,10 +10,8 @@ https://paperswithcode.com/sota/text-summarization-on-gigaword
 
 ## TODO
 
-- Automate ASG file creation
-- Experiment with new format
-    1. Cut summary(...) down to have fewer variables
-    2. Try learning with summaries
+- Expand language derivations
+- Expand summary rules
 - Compare with NN
     1. Randomize action(...) to generate summary(...) on trained ASG
     2. Train NN to generate same summary(...)
@@ -44,7 +42,7 @@ summary(VERB, SUBJECT, OBJECT)
 verb(INDICATIVE_FORM, TENSE)
 subject(NOUN, DET, ADJ_OR_ADV)
 object(NOUN, DET, ADJ_OR_ADV)
-[proper(NAME)] -> noun(NAME)    # can be used to rule out summaries with DT before NNP/NNPS
+noun(NAME)
 adj_or_adv(NAME)
 det(...)
 conjunct(FIRST, SECOND)         # learn both

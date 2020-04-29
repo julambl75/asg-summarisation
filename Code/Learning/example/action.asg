@@ -21,7 +21,7 @@ s -> np vp {
   :- not action(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), verb(V_N,V_T)@2, subject(S_N,S_D,S_A)@1, object(O_N,O_D,O_A)@2.
 }
 
-vp -> vb np {
+vp -> vbd np {
   % verb(be,past).
   verb(N,T) :- verb(N,T)@1.
 
@@ -61,7 +61,7 @@ np -> dt jj jj nn {
 }
 
 nnp -> "Matthew " {
-  proper(matthew).
+  noun(matthew).
 }
 
 nn -> "logic " {
@@ -88,12 +88,8 @@ jj -> "formal " {
   adj_or_adv(formal).
 }
 
-vb -> "was " {
+vbd -> "was " {
   verb(be,past).
-}
-
-#background {
-  noun(N) :- proper(N).
 }
 
 #constant(verb_name,be).
