@@ -138,16 +138,16 @@ class TextToSummary:
     def _update_constraints_summary():
         summary_constraints = TextToSummary._read_file(LEARN_SUMMARIES_CONSTRAINTS)
         with open(SUMMARY_ASG, 'r') as file:
-            language_asg = file.read()
+            lang_asg = file.read()
         # Replace action detection detection constraint with summary generation constraints
-        language_asg_rules = language_asg.split(SUMMARY_RULE_SPLIT_STR)
-        language_asg_sentence_rule_lines = language_asg_rules[SENTENCE_RULE_IDX].split('\n')
-        language_asg_sentence_rule_lines = list(filter(lambda l: ':- not action(' not in l, language_asg_sentence_rule_lines))
-        language_asg_sentence_rule_lines.append(summary_constraints)
-        language_asg_rules[SENTENCE_RULE_IDX] = '\n'.join(language_asg_sentence_rule_lines)
-        language_asg = SUMMARY_RULE_SPLIT_STR.join(language_asg_rules)
+        lang_asg_rules = lang_asg.split(SUMMARY_RULE_SPLIT_STR)
+        lang_asg_sent_rule_lines = lang_asg_rules[SENTENCE_RULE_IDX].split('\n')
+        lang_asg_sent_rule_lines.pop(1)  # Remove constraint for learning actions
+        lang_asg_sent_rule_lines.append(summary_constraints)
+        lang_asg_rules[SENTENCE_RULE_IDX] = '\n'.join(lang_asg_sent_rule_lines)
+        lang_asg = SUMMARY_RULE_SPLIT_STR.join(lang_asg_rules)
         with open(SUMMARY_ASG, 'w') as file:
-            file.write(language_asg)
+            file.write(lang_asg)
 
     @staticmethod
     def _update_background(filename, variables):
