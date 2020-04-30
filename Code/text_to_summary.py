@@ -142,7 +142,7 @@ class TextToSummary:
         # Replace action detection detection constraint with summary generation constraints
         language_asg_rules = language_asg.split(SUMMARY_RULE_SPLIT_STR)
         language_asg_sentence_rule_lines = language_asg_rules[SENTENCE_RULE_IDX].split('\n')
-        language_asg_sentence_rule_lines = list(filter(lambda l: ':-' not in l, language_asg_sentence_rule_lines))
+        language_asg_sentence_rule_lines = list(filter(lambda l: ':- not action(' not in l, language_asg_sentence_rule_lines))
         language_asg_sentence_rule_lines.append(summary_constraints)
         language_asg_rules[SENTENCE_RULE_IDX] = '\n'.join(language_asg_sentence_rule_lines)
         language_asg = SUMMARY_RULE_SPLIT_STR.join(language_asg_rules)
