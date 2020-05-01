@@ -21,6 +21,7 @@
     "nnps": "noun",
     "prp": "noun",
     "rb": "adj_or_adv",
+    "rp": "adj_or_adv",
     "vb": "verb_name",
     "vbd": "verb_name",
     "vbg": "verb_name",

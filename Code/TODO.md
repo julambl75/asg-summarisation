@@ -1,3 +1,10 @@
+## To talk about
+
+- Expansion of derivations for learning examples
+- Expansion of summary rules for learning examples
+- Parsing sentence by sentence then combining for ss reduction
+- Action creator
+
 ## Datasets
 
 https://analyticsindiamag.com/10-question-answering-datasets-to-build-robust-chatbot-systems/
@@ -45,5 +52,6 @@ object(NOUN, DET, ADJ_OR_ADV)
 noun(NAME)
 adj_or_adv(NAME)
 det(...)
+compound(FIRST, SECOND)         # for verbs
 conjunct(FIRST, SECOND)         # learn both
 disjunct(FIRST, SECOND)         # use choice rule

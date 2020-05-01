@@ -43,21 +43,27 @@ class TextToSummary:
         self.language_checker = language_check.LanguageTool('en-GB')
         # self.summaries_parser = ParseCoreNLP(self.pos_summaries + ' ' + self.neg_summaries, True)
 
+        # Define basic ASG for learning actions for each sentence separately (reduces search space)
+        language_asg = TextToSummary._read_file(LANGUAGE_ASG)
+        action_bias = TextToSummary._read_file(LEARN_ACTIONS_BIAS)
+        self.base_action_asg = language_asg + action_bias
+
     def gen_summary(self):
         print('---\nStep 1\n---')
-        print('Generating positive examples from original text...')
-        tokens = self._text_to_tokens(self.text)
-        examples = self._gen_asg_examples(tokens)
+        print('Creating context-specific ASG and learning actions from text...')
+        learned_actions = []
+        parsed_text = self.text_parser.parse_text(by_sentence=True)
 
-        print('Parsing text to create context-specific ASG and ILASP constants...')
-        context_specific_asg, ilasp_constants = self.text_parser.parse_text()
+        for context_specific_asg, ilasp_constants, sentence in parsed_text:
+            tokens = self._text_to_tokens(sentence)
+            examples = self._gen_asg_examples(tokens)
 
-        print('Completing basic ASG with context-specific information...')
-        self._create_actions_asg()
-        self._append_to_asg(ACTION_ASG, (context_specific_asg, ilasp_constants, examples))
+            self._create_actions_asg()
+            self._append_to_asg(ACTION_ASG, (context_specific_asg, ilasp_constants, examples))
+            learned_actions.extend(self._run_learn_actions())
 
-        print('Learning actions...')
-        self._run_learn_actions()
+        for action in learned_actions:
+            print(action.strip())
 
         print('\n---\nStep 2\n---')
         # print('Generating positive and negative examples from reference summaries...')
@@ -69,7 +75,9 @@ class TextToSummary:
         # context_specific_asg, ilasp_variables = self.summaries_parser.parse_text(True)
 
         print('Updating ASG constraints...')
-        self._update_constraints_summary()
+        context_specific_asg, ilasp_constants = tuple(zip(*parsed_text))[:2]
+        self._create_summary_asg(learned_actions)
+        self._append_to_asg(SUMMARY_ASG, (*context_specific_asg, *ilasp_constants))
         # self._append_to_asg(SUMMARY_ASG, (context_specific_asg, examples))
         # self._update_background(SUMMARY_ASG, ilasp_variables)
 
@@ -118,13 +126,9 @@ class TextToSummary:
     def _gen_asg_examples_prefix(tokens, prefix):
         return [prefix + ' [' + ', '.join(["\"{} \"".format(token) for token in sentence]) + ']' for sentence in tokens]
 
-    @staticmethod
-    def _create_actions_asg():
-        language_asg = TextToSummary._read_file(LANGUAGE_ASG)
-        action_bias = TextToSummary._read_file(LEARN_ACTIONS_BIAS)
-        with open(ACTION_ASG, 'w') as file:
-            file.write(language_asg)
-            file.write(action_bias)
+    def _create_actions_asg(self, filename=ACTION_ASG):
+        with open(filename, 'w') as file:
+            file.write(self.base_action_asg)
 
     @staticmethod
     def _append_to_asg(filename, rule_sets):
@@ -134,17 +138,19 @@ class TextToSummary:
                     file.write(rule + '\n')
                 file.write('\n')
 
-    @staticmethod
-    def _update_constraints_summary():
+    def _create_summary_asg(self, learned_actions):
+        self._create_actions_asg(SUMMARY_ASG)
         summary_constraints = TextToSummary._read_file(LEARN_SUMMARIES_CONSTRAINTS)
         with open(SUMMARY_ASG, 'r') as file:
             lang_asg = file.read()
         # Replace action detection detection constraint with summary generation constraints
         lang_asg_rules = lang_asg.split(SUMMARY_RULE_SPLIT_STR)
         lang_asg_sent_rule_lines = lang_asg_rules[SENTENCE_RULE_IDX].split('\n')
-        lang_asg_sent_rule_lines.pop(1)  # Remove constraint for learning actions
+        lang_asg_sent_rule_lines = list(filter(lambda l: ':- not action' not in l, lang_asg_sent_rule_lines))
         lang_asg_sent_rule_lines.append(summary_constraints)
-        lang_asg_rules[SENTENCE_RULE_IDX] = '\n'.join(lang_asg_sent_rule_lines)
+        lang_asg_sent_rule_lines.extend(learned_actions)
+
+        lang_asg_rules[SENTENCE_RULE_IDX] = '\n'.join(lang_asg_sent_rule_lines) + '\n'
         lang_asg = SUMMARY_RULE_SPLIT_STR.join(lang_asg_rules)
         with open(SUMMARY_ASG, 'w') as file:
             file.write(lang_asg)
@@ -163,6 +169,11 @@ class TextToSummary:
     @staticmethod
     def _run_learn_actions():
         os.system(LEARN_ACTIONS_CMD)
+        with open(SUMMARY_ASG, 'r') as file:
+            lang_asg = file.read()
+        lang_asg_rules = lang_asg.split(SUMMARY_RULE_SPLIT_STR)
+        lang_asg_sent_rule_lines = lang_asg_rules[SENTENCE_RULE_IDX].split('\n')
+        return list(filter(lambda r: '  action(' in r, lang_asg_sent_rule_lines))
 
     @staticmethod
     def _gen_summaries():
@@ -171,4 +182,4 @@ class TextToSummary:
             return list(filter(lambda l: len(l) > 0, file.read().split('\n')))
 
     def _correct_summaries(self, summaries):
-        return set(map(self.language_checker.correct, summaries))
+        return set(map(lambda s: s.strip(), map(self.language_checker.correct, summaries)))

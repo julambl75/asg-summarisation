@@ -33,10 +33,13 @@ class ParseCoreNLP:
         self.helper = Helper()
 
     # Returns a pair ([context_specific_asg], [ilasp_constants]) or ([context_specific_asg], [ilasp_background_vars])
-    def parse_text(self, background_variables=False):
+    # If by_sentence is True, the output will be a list of pairs (one list item per sentence)
+    def parse_text(self, by_sentence=False, background_vars=False):
         self._text_to_tree()
         self._remove_punctuation_nodes(self.tree)
-        return self._format_results(background_variables)
+        if self.print_results:
+            self.tree.pretty_print()
+        return self._format_results(by_sentence=by_sentence, background_vars=background_vars)
 
     def _text_to_tree(self):
         output = self.nlp.annotate(self.text, properties={
@@ -78,9 +81,11 @@ class ParseCoreNLP:
                 ParseCoreNLP._remove_punctuation_nodes(self, node)
                 i += 1
 
-    def _tree_to_asg(self, tree, asg_leaves=[]):
+    def _tree_to_asg(self, tree):
+        asg_leaves = []
         if isinstance(tree[0], nltk.Tree):  # non-leaf node
-            [self._tree_to_asg(subtree, asg_leaves) for subtree in tree]
+            for subtree in tree:
+                asg_leaves.extend(self._tree_to_asg(subtree))
         else:
             tag = tree.label().lower()
             word = tree[0]
@@ -101,15 +106,20 @@ class ParseCoreNLP:
     def _lemmas_to_format(self, lemma_format):
         return [lemma_format.format(category, lemma) for category, lemma in self.constants]
 
-    def _format_results(self, background_variables=False):
-        context_specific_asg = sorted(set(self._tree_to_asg(self.tree)))
-        if background_variables:
+    def _format_results(self, tree=None, by_sentence=False, background_vars=False):
+        if by_sentence:
+            results = []
+            for sent_tree in self.tree:
+                context_specific_asg, ilasp_part = self._format_results(tree=sent_tree, background_vars=background_vars)
+                sentence = str(sent_tree.flatten())[2:-1].strip()  # Remove brackets and node label from flattened tree
+                results.append((context_specific_asg, ilasp_part, sentence))
+                self.constants = set()
+            return results
+
+        tree = tree or self.tree
+        context_specific_asg = sorted(set(self._tree_to_asg(tree)))
+        if background_vars:
             ilasp_part = sorted(self._lemmas_to_format(VARIABLES_FORMAT))
         else:
             ilasp_part = sorted(self._lemmas_to_format(CONSTANTS_FORMAT))
-
-        if self.print_results:
-            self.tree.pretty_print()
-            print(context_specific_asg)
-            print(ilasp_part)
         return context_specific_asg, ilasp_part

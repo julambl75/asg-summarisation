@@ -28,14 +28,29 @@ vp -> vbd np {
   object(N,D,A) :- object(N,D,A)@2.
 }
 
+vp -> vbd vbg np {
+  verb(comp(N1,N2),comp(T1,gerund)) :- verb(N1,T1)@1, verb(N2,gerund)@2.
+  object(N,D,A) :- object(N,D,A)@3.
+}
+
 vp -> vbp np {
   verb(N,T) :- verb(N,T)@1.
   object(N,D,A) :- object(N,D,A)@2.
 }
 
+vp -> vbp vbg np {
+  verb(comp(N1,N2),comp(T1,gerund)) :- verb(N1,T1)@1, verb(N2,gerund)@2.
+  object(N,D,A) :- object(N,D,A)@3.
+}
+
 vp -> vbz np {
   verb(N,T) :- verb(N,T)@1.
   object(N,D,A) :- object(N,D,A)@2.
+}
+
+vp -> vbz vbg np {
+  verb(comp(N1,N2),comp(T1,gerund)) :- verb(N1,T1)@1, verb(N2,gerund)@2.
+  object(N,D,A) :- object(N,D,A)@3.
 }
 
 np -> nnp {
@@ -50,6 +65,16 @@ np -> nn {
 np -> prp {
   subject(N,0,0) :- noun(N)@1.
   object(N,0,0) :- noun(N)@1.
+}
+
+np -> rb {
+  subject(0,0,A) :- adj_or_adv(A)@1.
+  object(0,0,A) :- adj_or_adv(A)@1.
+}
+
+np -> rp {
+  subject(0,0,A) :- adj_or_adv(A)@1.
+  object(0,0,A) :- adj_or_adv(A)@1.
 }
 
 np -> prp "and " nnp {
