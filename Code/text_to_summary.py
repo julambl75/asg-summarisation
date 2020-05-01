@@ -44,9 +44,8 @@ class TextToSummary:
         # self.summaries_parser = ParseCoreNLP(self.pos_summaries + ' ' + self.neg_summaries, True)
 
         # Define basic ASG for learning actions for each sentence separately (reduces search space)
-        language_asg = TextToSummary._read_file(LANGUAGE_ASG)
-        action_bias = TextToSummary._read_file(LEARN_ACTIONS_BIAS)
-        self.base_action_asg = language_asg + action_bias
+        self.language_asg = TextToSummary._read_file(LANGUAGE_ASG)
+        self.base_action_asg = self.language_asg + TextToSummary._read_file(LEARN_ACTIONS_BIAS)
 
     def gen_summary(self):
         print('---\nStep 1\n---')
@@ -128,8 +127,8 @@ class TextToSummary:
     def _gen_asg_examples_prefix(tokens, prefix):
         return [prefix + ' [' + ', '.join(["\"{} \"".format(token) for token in sentence]) + ']' for sentence in tokens]
 
-    def _create_actions_asg(self, filename=ACTION_ASG):
-        with open(filename, 'w') as file:
+    def _create_actions_asg(self):
+        with open(ACTION_ASG, 'w') as file:
             file.write(self.base_action_asg)
 
     @staticmethod
@@ -141,7 +140,8 @@ class TextToSummary:
                 file.write('\n')
 
     def _create_summary_asg(self, learned_actions):
-        self._create_actions_asg(SUMMARY_ASG)
+        with open(SUMMARY_ASG, 'w') as file:
+            file.write(self.base_action_asg)
         summary_constraints = TextToSummary._read_file(LEARN_SUMMARIES_CONSTRAINTS)
         with open(SUMMARY_ASG, 'r') as file:
             lang_asg = file.read()

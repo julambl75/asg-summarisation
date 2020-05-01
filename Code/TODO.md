@@ -26,8 +26,14 @@ https://paperswithcode.com/sota/text-summarization-on-gigaword
 
 - Start to collect results for report (may take time)
 - Think about initial motivation
+    1. NNs need lots of data and time to summarize
+    2. ASG can give results with short list of rules, pre/post-processing and carefully constructed structure
 - Maybe formalize mathematically task of summarization (with CFG, BK, E+, E-)
+    1. CFG is language, BK is leaf nodes, result is actions
+    2. CFG is language, BK is leaf nodes, E is actions, result is summaries
 - For report think about how to formalize task of summarization in ASG (how thought evolve)
+    1. Originally just create summaries from actions
+    2. Now preprocess to prune and homogenize, produce and score summaries, take best and fix grammar
 - Compute Rouge score (PyRouge, must clone repo into project) on ASG and NN
 
 - Final goal: take story-specific ASG and general rules to generate summaries, then use top 5/10

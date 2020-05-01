@@ -69,12 +69,12 @@ class GenData:
 
     @staticmethod
     def read_names():
-        with open(f'{PATH}/words/names.txt', encoding='utf-8') as names_file:
+        with open(f'{PATH}/.../words/names.txt', encoding='utf-8') as names_file:
             return names_file.read().strip().split('\n')
 
     @staticmethod
     def read_words():
-        with open(f'{PATH}/words/words.csv') as words_csv:
+        with open(f'{PATH}/.../words/words.csv') as words_csv:
             reader = csv.reader(words_csv, delimiter=',')
             return [tuple(row) for row in reader]
 
