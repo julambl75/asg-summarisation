@@ -97,6 +97,13 @@ np -> prp "and " prp {
   :- subject(conjunct(N,N),0,0).
 }
 
+np -> rb "and " rb {
+  subject(0,0,conjunct(A1,A2)) :- adj_or_adv(A1)@1, adj_or_adv(A2)@3.
+  object(0,0,conjunct(A1,A2)) :- adj_or_adv(A1)@1, adj_or_adv(A2)@3.
+  :- subject(0,0,conjunct(A,A)).
+  :- object(0,0,conjunct(A,A)).
+}
+
 np -> dt nn {
   subject(N,D,0) :- det(D)@1, noun(N)@2.
   object(N,D,0) :- det(D)@1, noun(N)@2.
