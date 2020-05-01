@@ -62,6 +62,8 @@ class TextToSummary:
             self._append_to_asg(ACTION_ASG, (context_specific_asg, ilasp_constants, examples))
             learned_actions.extend(self._run_learn_actions())
 
+        # Add indices to keep track of chronology of events
+        learned_actions = [action.replace('action(', f'action({i}, ') for i, action in enumerate(learned_actions)]
         for action in learned_actions:
             print(action.strip())
 

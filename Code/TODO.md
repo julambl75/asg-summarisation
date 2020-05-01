@@ -43,7 +43,7 @@ Ideas:
 - keep rules as restricted as possible, when concept implemented over time add missing rules
 - to avoid having to add grammar constraints try and rely on grammar of input
 
-action(VERB, SUBJECT, OBJECT)
+action(INDEX, VERB, SUBJECT, OBJECT)
 summary(VERB, SUBJECT, OBJECT)
 
 verb(INDICATIVE_FORM, TENSE)
