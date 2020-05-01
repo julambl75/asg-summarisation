@@ -4,8 +4,8 @@ import random
 from operator import itemgetter
 
 from datamuse import datamuse
-from pattern.en import conjugate, referenced, lemma
-from pattern.en import PRESENT, PAST, GERUND
+from pattern.en import conjugate, lemma
+from pattern.en import SG, PL, PRESENT
 
 # Format:
 # - 2-3 sentence story
@@ -24,11 +24,21 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 WORDS_PATH = os.path.dirname(PATH)
 
 DETERMINERS = ['a', 'the']
-PRONOUNS = ['I', 'you', 'he', 'she', 'it', 'we', 'they']
-TENSES = ['present', 'present_third', 'past', 'gerund']
+PRONOUNS = {('I', 1, SG), ('you', 2, SG), ('he', 3, SG), ('she', 3, SG), ('it', 3, SG),
+            ('we', 1, PL), ('you', 2, PL), ('they', 3, PL)}
+TENSES = ['present', 'past']
+TENSE_THIRD_POSTFIX = '_third'
 
-MIN_ADJ, MAX_ADJ = (0, 2)
+PROB_PERSON = 0.5
 PROB_PRONOUN = 0.5
+MIN_ADJ, MAX_ADJ = (0, 2)
+MIN_PEOPLE, MAX_PEOPLE = (1, 2)
+
+EMPTY_TOKEN = '0'
+CONJUNCT_TOKEN = 'conjunct'
+VERB_TOKEN = 'verb'
+SUBJECT_TOKEN = 'subject'
+OBJECT_TOKEN = 'object'
 
 
 class GenActions:
@@ -41,7 +51,7 @@ class GenActions:
         self.adjectives = self.get_words_of_type('j')
 
         self.datamuse_api = datamuse.Datamuse()
-        # # There is a bug with Python 3.7 causing the first call to Pattern to crash due to a StopIteration
+        # There is a bug with Python 3.7 causing the first call to Pattern to crash due to a StopIteration
         try:
             lemma('eight')
         except:
@@ -61,36 +71,56 @@ class GenActions:
     def get_words_of_type(self, word_type):
         return list(map(itemgetter(0), filter(lambda e: e[1] == word_type, self.words)))
 
-    def get_random_subject(self, person=False):
-        if person:
-            noun = random.choice(PRONOUNS if random.random() < PROB_PRONOUN else self.names)
+    @staticmethod
+    def _list_to_conjunct(tokens):
+        if len(tokens) == 0:
+            return EMPTY_TOKEN
+        elif len(tokens) == 1:
+            return tokens[0]
+        return f'{CONJUNCT_TOKEN}({", ".join(tokens)})'
+
+    def get_random_subject_object(self, subject_or_object):
+        if random.random() < PROB_PERSON:
+            nouns = []
+            for _ in random.randint(MIN_PEOPLE, MAX_PEOPLE):
+                if random.random() < PROB_PRONOUN:
+                    pronoun, person, number = random.choice(PRONOUNS)
+                    nouns.append(pronoun)
+                else:
+                    name = random.choice(self.names)
+            noun = self._list_to_conjunct(nouns)
+            determiner = EMPTY_TOKEN
+            adjective_part = EMPTY_TOKEN
         else:
             determiner = random.choice(DETERMINERS)
             noun = random.choice(self.nouns)
-            num_adj = random.randint(MIN_ADJ, MAX_ADJ)
-            adjectives = [random.choice(self.adjectives) for _ in range(num_adj)]
-        pass
+            num_adjectives = random.randint(MIN_ADJ, MAX_ADJ)
+            adjectives = [random.choice(self.adjectives) for _ in range(num_adjectives)]
+            adjective_part = self._list_to_conjunct(adjectives)
+        return f'{subject_or_object}({noun}, {determiner}, {adjective_part})'
 
-    def get_random_verb(self, third_person=True):
-        verb = random.choice(self.verb)
-
-    def get_random_object(self, person=False):
-        pass
+    def get_random_verb(self, person, number):
+        verb = random.choice(self.verbs)
+        tense = random.choice(TENSES)
+        conjugated = conjugate(verb, person, tense=tense, number=number)
+        if tense == PRESENT and person == 3:
+            tense += TENSE_THIRD_POSTFIX
+        return f'verb({verb}, {tense})'
 
     def generate_action(self, index):
-        subject = self.get_random_subject()
+        subject = self.get_random_subject_object(SUBJECT_TOKEN)
         verb = self.get_random_verb()
-        object = self.get_random_object()
-        return None
+        object = self.get_random_subject_object(OBJECT_TOKEN)
+        return f'action({index}, {verb}, {subject}, {object})'
 
     def generate_stories(self, story_length, num_stories):
-        stories = []
+        story_actions = []
         for _ in range(num_stories):
-            stories.append([self.generate_action(i) for i in range(story_length)])
-        return
+            story_actions.append([self.generate_action(i) for i in range(story_length)])
+        return story_actions
 
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(2, 100)
+    stories = gen_actions.generate_stories(2, 5)
     raise Exception('TOOD generate leaf nodes for ASG')
