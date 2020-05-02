@@ -1,5 +1,6 @@
 ## To talk about
 
+- Notes for report
 - Expansion of derivations for learning examples
 - Expansion of summary rules for learning examples
 - Parsing sentence by sentence then combining for ss reduction
