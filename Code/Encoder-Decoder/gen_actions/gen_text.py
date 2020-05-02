@@ -49,9 +49,11 @@ CONJUNCT_TOKEN = 'conjunct'
 
 TENSES = ['present', 'past']
 TENSE_THIRD_POSTFIX = '_third'
+VERB_PREDICATE = 'verb'
 NOUN_PREDICATE = 'noun'
 DETERMINER_PREDICATE = 'det'
 ADJECTIVE_PREDICATE = 'adj_or_adv'
+PRONOUN_PREDICATE = 'prp'
 
 
 class GenActions:
@@ -147,6 +149,7 @@ class GenActions:
         else:
             noun, determiner, adjective_part, person, number = self._get_random_common_noun()
         self.last_nouns[token_type].append((noun, determiner, adjective_part, person, number))
+        self.create_asg_leaf()
         token = f'{token_type}({noun}, {determiner}, {adjective_part})'
         if token_type == SUBJECT_TOKEN:
             return token, person, number
@@ -163,8 +166,16 @@ class GenActions:
             tense += TENSE_THIRD_POSTFIX
         return f'verb({verb}, {tense})'
     
-    def create_asg_leaf(self, lemma, value, leaf_predicate):
-        pass
+    @staticmethod
+    def create_asg_leaf(pos_tag, value, predicate):
+        if predicate == VERB_PREDICATE:
+            verb_name = None
+            verb_form = None
+            lemma = f'{verb_name}, {verb_form}'
+        else:
+            name = None
+            lemma = name.lower()
+        return f'{pos_tag} -> "{value} " {{ {predicate}({value}). }}'
 
     def generate_action(self, index):
         subject, person, number = self.get_random_subject_object(SUBJECT_TOKEN)
