@@ -3,22 +3,8 @@ import os
 import random
 from operator import itemgetter
 
-from datamuse import datamuse
-from pattern.en import conjugate, lemma
 from pattern.en import SG, PL, PRESENT
-
-# Format:
-# - 3 sentence story
-#   1. Random verb/tense #1
-#   2. Random verb/tense #2 (same for each with probability 0.5)
-#   3. Random verb/tense #3 (same for each with probability 0.5)
-#   4. Random subject/object #1
-#   5. Random linked subject/object #2
-#   6. Random linked subject/object #3
-# - 1-2 sentence summary
-
-# action(0, verb(be, past), subject(matthew, 0, 0), object(logic, a, 0)).
-# action(1, verb(be, past), subject(logic, the, logical), object(0, 0, conjunct(brown, formal))).
+from pattern.en import conjugate, lemma
 
 PATH = os.path.dirname(os.path.abspath(__file__))
 WORDS_PATH = os.path.dirname(PATH)
@@ -30,6 +16,7 @@ PRONOUNS_SUBJECT = [('I', 1, SG), ('you', 2, SG), ('he', 3, SG), ('she', 3, SG),
 SUBJECT_TO_OBJECT = {'I': 'me', 'he': 'him', 'she': 'her', 'we': 'us', 'they': 'them'}
 OBJECT_TO_SUBJECT = {v: k for k, v in SUBJECT_TO_OBJECT.items()}
 DEFAULT_VERB = 'be'
+PUNCTUATION = '.'
 
 PROB_PERSON = 0.5
 PROB_PRONOUN = 0.5
@@ -73,7 +60,6 @@ class GenActions:
 
         self._reset_for_new_story()
 
-        self.datamuse_api = datamuse.Datamuse()
         # There is a bug with Python 3.7 causing the first call to Pattern to crash due to a StopIteration
         try:
             lemma('eight')
@@ -105,6 +91,7 @@ class GenActions:
     def _reset_for_new_story(self):
         self.last_nouns = {OBJECT_TOKEN: [], SUBJECT_TOKEN: []}
         self.leaf_nodes = set()
+        self.curr_story_tokens = ''
 
     def _get_random_last_noun(self, token_type):
         noun, determiner, adjective_part, person, number = random.choice(self.last_nouns[token_type])
@@ -145,7 +132,7 @@ class GenActions:
         num_adjectives = random.randint(MIN_ADJ, MAX_ADJ)
         determiner = random.choice(DETERMINERS)
         noun = random.choice(self.nouns)
-        adjectives = [random.choice(self.adjectives) for _ in range(num_adjectives)]
+        adjectives = [random.choice(self.adjectives).lower() for _ in range(num_adjectives)]
         adjective_part = self._list_to_conjunct(adjectives)
         self.create_asg_leaf(COMMON_NOUN_POS, noun, NOUN_PREDICATE)
         self.create_asg_leaf(DETERMINER_POS, determiner, DETERMINER_PREDICATE)
@@ -182,31 +169,36 @@ class GenActions:
         if predicate == VERB_PREDICATE:
             lemma = f'{verb_name}, {verb_form}'
         else:
-            if pos_tag != PROPER_NOUN_POS:
-                value = value.lower()
             lemma = value.lower()
-        leaf_node = f'{pos_tag} -> "{value} " {{ {predicate}({lemma}). }}'
+        leaf_node = f'{pos_tag} -> "{value} " {{ {predicate}({lemma}). }}'.replace('-', '_')
         self.leaf_nodes.add(leaf_node)
 
     def generate_action(self, index):
         subject, person, number = self.get_random_subject_object(SUBJECT_TOKEN)
         verb = self.get_random_verb(person, number)
         object = self.get_random_subject_object(OBJECT_TOKEN)
-        return f'action({index}, {verb}, {subject}, {object})'
+        return f'action({index}, {verb}, {subject}, {object})'.replace('-', '_')
+
+    def format_story(self):
+        asg_story = ' '.join(self.curr_story_tokens)
+        return ' '.join(list(map(lambda s: s.capitalize() + '.', asg_story.split('.'))))
 
     def generate_stories(self, story_length, num_stories):
-        story_actions = []
+        actions = []
         story_leaf_nodes = []
+        story_strings = []
         for _ in range(num_stories):
-            story_actions.append([self.generate_action(i) for i in range(story_length)])
+            actions.append([self.generate_action(i) for i in range(story_length)])
             story_leaf_nodes.append(sorted(self.leaf_nodes))
+            story_strings.append(self.format_story())
             self._reset_for_new_story()
-        return story_actions, story_leaf_nodes
+        return actions, story_leaf_nodes, story_strings
 
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    stories, asg_leaves = gen_actions.generate_stories(3, 5)
-    for story, asg_leaf_nodes in zip(stories, asg_leaves):
-        print('\n'.join(story) + '\n')
-        print('\n'.join(asg_leaf_nodes) + '\n\n')
+    actions, leaf_nodes, stories = gen_actions.generate_stories(3, 5)
+    for action_set, leaf_node_set, story in zip(actions, leaf_nodes, stories):
+        print('\n'.join(action_set) + '\n')
+        print('\n'.join(leaf_node_set) + '\n')
+        print(story + '\n\n')
