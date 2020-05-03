@@ -76,9 +76,10 @@ class TextToSummary:
         # context_specific_asg, ilasp_variables = self.summaries_parser.parse_text(True)
 
         print('Updating ASG constraints...')
-        context_specific_asg, ilasp_constants = tuple(zip(*parsed_text))[:2]
+        context_specific_asg = tuple(map(operator.itemgetter(0), parsed_text))
         self._create_summary_asg(learned_actions)
-        self._append_to_asg(SUMMARY_ASG, (*context_specific_asg, *ilasp_constants))
+        self._append_to_asg(SUMMARY_ASG, context_specific_asg)
+        # self._append_to_asg(SUMMARY_ASG, (*context_specific_asg, *ilasp_constants))
         # self._append_to_asg(SUMMARY_ASG, (context_specific_asg, examples))
         # self._update_background(SUMMARY_ASG, ilasp_variables)
 
@@ -90,6 +91,12 @@ class TextToSummary:
         summaries = self._correct_summaries(summaries)
 
         return summaries
+
+    def learn_actions(self, parsed_text):
+        pass
+
+    def generate_summaries(self, learned_actions, context_specific_asg):
+        pass
 
     @staticmethod
     def _read_file(filename):
