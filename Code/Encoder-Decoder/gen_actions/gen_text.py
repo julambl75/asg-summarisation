@@ -11,6 +11,7 @@ WORDS_PATH = os.path.dirname(PATH)
 
 DETERMINERS = ['a', 'the']
 DETERMINER_REOCCUR = 'the'
+CONJUNCT_KEYWORD = 'and'
 PRONOUNS_SUBJECT = [('I', 1, SG), ('you', 2, SG), ('he', 3, SG), ('she', 3, SG), ('it', 3, SG),
                     ('we', 1, PL), ('you', 2, PL), ('they', 3, PL)]
 SUBJECT_TO_OBJECT = {'I': 'me', 'he': 'him', 'she': 'her', 'we': 'us', 'they': 'them'}
@@ -91,7 +92,7 @@ class GenActions:
     def _reset_for_new_story(self):
         self.last_nouns = {OBJECT_TOKEN: [], SUBJECT_TOKEN: []}
         self.leaf_nodes = set()
-        self.curr_story_tokens = ''
+        self.curr_story_tokens = []
 
     def _get_random_last_noun(self, token_type):
         noun, determiner, adjective_part, person, number = random.choice(self.last_nouns[token_type])
@@ -140,6 +141,18 @@ class GenActions:
             self.create_asg_leaf(ADJECTIVE_POS, adjective, ADJECTIVE_PREDICATE)
         return noun, determiner, adjective_part, person, number
 
+    def _subject_object_to_story_tokens(self, noun, determiner, adjective_part):
+        for clause_part in [determiner, adjective_part, noun]:
+            inner_token_idx = clause_part.find('(') + 1
+            if inner_token_idx > 0:
+                inner_tokens = clause_part[inner_token_idx:-1].split(',')
+                for i, inner_token in enumerate(inner_tokens):
+                    if i > 0:
+                        self.curr_story_tokens.append(CONJUNCT_KEYWORD)
+                    self.curr_story_tokens.append(inner_token.strip())
+            elif clause_part != EMPTY_TOKEN:
+                self.curr_story_tokens.append(clause_part)
+
     def get_random_subject_object(self, token_type):
         if self.last_nouns[token_type] and random.random() < PROB_LAST_NOUN:
             noun, determiner, adjective_part, person, number = self._get_random_last_noun(token_type)
@@ -148,6 +161,7 @@ class GenActions:
         else:
             noun, determiner, adjective_part, person, number = self._get_random_common_noun()
         self.last_nouns[token_type].append((noun, determiner, adjective_part, person, number))
+        self._subject_object_to_story_tokens(noun, determiner, adjective_part)
         token = f'{token_type}({noun}, {determiner}, {adjective_part})'
         if token_type == SUBJECT_TOKEN:
             return token, person, number
@@ -159,40 +173,47 @@ class GenActions:
         else:
             verb = DEFAULT_VERB
         tense = random.choice(TENSES)
-        conjugated = conjugate(verb, person, tense=tense, number=number)
+        conjugated = conjugate(verb, person=person, tense=tense, number=number)
         if tense == PRESENT and person == 3:
             tense += TENSE_THIRD_POSTFIX
         self.create_asg_leaf(TENSE_TO_POS_TAG[tense], conjugated, VERB_PREDICATE, verb, tense)
+        self.curr_story_tokens.append(conjugated)
         return f'verb({verb}, {tense})'
     
     def create_asg_leaf(self, pos_tag, value, predicate, verb_name=None, verb_form=None):
         if predicate == VERB_PREDICATE:
             lemma = f'{verb_name}, {verb_form}'
         else:
-            lemma = value.lower()
-        leaf_node = f'{pos_tag} -> "{value} " {{ {predicate}({lemma}). }}'.replace('-', '_')
+            lemma = value.lower().replace('-', '_')
+        leaf_node = f'{pos_tag} -> "{value} " {{ {predicate}({lemma}). }}'
         self.leaf_nodes.add(leaf_node)
 
     def generate_action(self, index):
         subject, person, number = self.get_random_subject_object(SUBJECT_TOKEN)
         verb = self.get_random_verb(person, number)
         object = self.get_random_subject_object(OBJECT_TOKEN)
+        self.curr_story_tokens.append(PUNCTUATION)
         return f'action({index}, {verb}, {subject}, {object})'.replace('-', '_')
 
     def format_story(self):
-        asg_story = ' '.join(self.curr_story_tokens)
-        return ' '.join(list(map(lambda s: s.capitalize() + '.', asg_story.split('.'))))
+        joined_tokens = ' '.join(self.curr_story_tokens)
+        sentences = []
+        for sentence in joined_tokens.split(PUNCTUATION):
+            sentence = sentence.strip()
+            if sentence:
+                sentences.append(sentence[0].upper() + sentence[1:] + PUNCTUATION)
+        return ' '.join(sentences)
 
     def generate_stories(self, story_length, num_stories):
-        actions = []
+        story_actions = []
         story_leaf_nodes = []
         story_strings = []
         for _ in range(num_stories):
-            actions.append([self.generate_action(i) for i in range(story_length)])
+            story_actions.append([self.generate_action(i) for i in range(story_length)])
             story_leaf_nodes.append(sorted(self.leaf_nodes))
             story_strings.append(self.format_story())
             self._reset_for_new_story()
-        return actions, story_leaf_nodes, story_strings
+        return story_actions, story_leaf_nodes, story_strings
 
 
 if __name__ == '__main__':
@@ -201,4 +222,4 @@ if __name__ == '__main__':
     for action_set, leaf_node_set, story in zip(actions, leaf_nodes, stories):
         print('\n'.join(action_set) + '\n')
         print('\n'.join(leaf_node_set) + '\n')
-        print(story + '\n\n')
+        print(story + '\n---\n')
