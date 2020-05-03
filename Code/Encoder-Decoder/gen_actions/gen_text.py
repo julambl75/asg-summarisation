@@ -53,7 +53,13 @@ VERB_PREDICATE = 'verb'
 NOUN_PREDICATE = 'noun'
 DETERMINER_PREDICATE = 'det'
 ADJECTIVE_PREDICATE = 'adj_or_adv'
-PRONOUN_PREDICATE = 'prp'
+
+COMMON_NOUN_POS = 'nn'
+PROPER_NOUN_POS = 'nnp'
+PRONOUN_POS = 'prp'
+DETERMINER_POS = 'dt'
+ADJECTIVE_POS = 'jj'
+TENSE_TO_POS_TAG = {'present': 'vbp', 'present_third': 'vbz', 'past': 'vbd'}
 
 
 class GenActions:
@@ -65,8 +71,7 @@ class GenActions:
         self.nouns = self.get_words_of_type('n')
         self.adjectives = self.get_words_of_type('j')
 
-        self._reset_last_nouns()
-        self.leaf_nodes = set()
+        self._reset_for_new_story()
 
         self.datamuse_api = datamuse.Datamuse()
         # There is a bug with Python 3.7 causing the first call to Pattern to crash due to a StopIteration
@@ -97,8 +102,9 @@ class GenActions:
             return tokens[0]
         return f'{CONJUNCT_TOKEN}({", ".join(tokens)})'
 
-    def _reset_last_nouns(self):
+    def _reset_for_new_story(self):
         self.last_nouns = {OBJECT_TOKEN: [], SUBJECT_TOKEN: []}
+        self.leaf_nodes = set()
 
     def _get_random_last_noun(self, token_type):
         noun, determiner, adjective_part, person, number = random.choice(self.last_nouns[token_type])
@@ -121,10 +127,12 @@ class GenActions:
                 if token_type == OBJECT_TOKEN and pronoun in SUBJECT_TO_OBJECT.keys():
                     pronoun = SUBJECT_TO_OBJECT[pronoun]
                 nouns.append(pronoun)
+                self.create_asg_leaf(PRONOUN_POS, pronoun, NOUN_PREDICATE)
             else:
                 name = random.choice(self.names)
                 person, number = CONJUGATION_INDIVIDUAL
                 nouns.append(name)
+                self.create_asg_leaf(PROPER_NOUN_POS, name, NOUN_PREDICATE)
         if num_people > 1:
             person, number = CONJUGATION_GROUP
         noun = self._list_to_conjunct(nouns)
@@ -139,6 +147,10 @@ class GenActions:
         noun = random.choice(self.nouns)
         adjectives = [random.choice(self.adjectives) for _ in range(num_adjectives)]
         adjective_part = self._list_to_conjunct(adjectives)
+        self.create_asg_leaf(COMMON_NOUN_POS, noun, NOUN_PREDICATE)
+        self.create_asg_leaf(DETERMINER_POS, determiner, DETERMINER_PREDICATE)
+        for adjective in adjectives:
+            self.create_asg_leaf(ADJECTIVE_POS, adjective, ADJECTIVE_PREDICATE)
         return noun, determiner, adjective_part, person, number
 
     def get_random_subject_object(self, token_type):
@@ -149,7 +161,6 @@ class GenActions:
         else:
             noun, determiner, adjective_part, person, number = self._get_random_common_noun()
         self.last_nouns[token_type].append((noun, determiner, adjective_part, person, number))
-        self.create_asg_leaf()
         token = f'{token_type}({noun}, {determiner}, {adjective_part})'
         if token_type == SUBJECT_TOKEN:
             return token, person, number
@@ -164,18 +175,18 @@ class GenActions:
         conjugated = conjugate(verb, person, tense=tense, number=number)
         if tense == PRESENT and person == 3:
             tense += TENSE_THIRD_POSTFIX
+        self.create_asg_leaf(TENSE_TO_POS_TAG[tense], conjugated, VERB_PREDICATE, verb, tense)
         return f'verb({verb}, {tense})'
     
-    @staticmethod
-    def create_asg_leaf(pos_tag, value, predicate):
+    def create_asg_leaf(self, pos_tag, value, predicate, verb_name=None, verb_form=None):
         if predicate == VERB_PREDICATE:
-            verb_name = None
-            verb_form = None
             lemma = f'{verb_name}, {verb_form}'
         else:
-            name = None
-            lemma = name.lower()
-        return f'{pos_tag} -> "{value} " {{ {predicate}({value}). }}'
+            if pos_tag != PROPER_NOUN_POS:
+                value = value.lower()
+            lemma = value.lower()
+        leaf_node = f'{pos_tag} -> "{value} " {{ {predicate}({lemma}). }}'
+        self.leaf_nodes.add(leaf_node)
 
     def generate_action(self, index):
         subject, person, number = self.get_random_subject_object(SUBJECT_TOKEN)
@@ -184,15 +195,18 @@ class GenActions:
         return f'action({index}, {verb}, {subject}, {object})'
 
     def generate_stories(self, story_length, num_stories):
-        self.leaf_nodes = set()
         story_actions = []
+        story_leaf_nodes = []
         for _ in range(num_stories):
             story_actions.append([self.generate_action(i) for i in range(story_length)])
-            self._reset_last_nouns()
-        return story_actions, self.leaf_nodes
+            story_leaf_nodes.append(sorted(self.leaf_nodes))
+            self._reset_for_new_story()
+        return story_actions, story_leaf_nodes
 
 
 if __name__ == '__main__':
     gen_actions = GenActions()
     stories, asg_leaves = gen_actions.generate_stories(3, 5)
-    raise Exception('TOOD generate leaf nodes for ASG')
+    for story, asg_leaf_nodes in zip(stories, asg_leaves):
+        print('\n'.join(story) + '\n')
+        print('\n'.join(asg_leaf_nodes) + '\n\n')

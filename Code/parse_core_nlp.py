@@ -91,7 +91,7 @@ class ParseCoreNLP:
             word = tree[0]
             if word in self.lemmas.keys() and tag in POS_CATEGORIES.keys():
                 category = POS_CATEGORIES[tag]
-                lemma = self.lemmas[word].lower()
+                lemma = self.lemmas[word].lower().replace('-', '_')
 
                 self.constants.add((category, lemma))
                 if tag in TENSES.keys():

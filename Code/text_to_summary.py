@@ -29,7 +29,7 @@ DEPTH = 10
 LEARN_ACTIONS_CMD = f'asg {ACTION_ASG} --mode=learn --depth={DEPTH} > {SUMMARY_ASG}'
 GEN_SUMMARIES_CMD = f'asg {SUMMARY_ASG} --mode=run --depth={DEPTH} > {RESULTS_FILE}'
 
-REMOVE_SPACES_REGEX = '[^a-zA-Z0-9]+'
+REMOVE_SPACES_REGEX = '[^a-zA-Z0-9-]+'
 FIND_BACKGROUND_REGEX = '#background *{[^}]*}'
 
 
@@ -184,4 +184,4 @@ class TextToSummary:
             return list(filter(lambda l: len(l) > 0, file.read().split('\n')))
 
     def _correct_summaries(self, summaries):
-        return set(map(lambda s: s.strip(), map(self.language_checker.correct, summaries)))
+        return set(map(lambda s: s.strip().replace('_', '-'), map(self.language_checker.correct, summaries)))
