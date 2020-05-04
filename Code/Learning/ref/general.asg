@@ -10,8 +10,8 @@ s_group -> {
 s_group -> s ". " s_group {
   count(X+1) :- count(X)@3.
 
-  summary(V,O,S) :- summary(V,O,S)@1.
-  :- summary(V,O,S), summary(V,O,S)@3.
+  output(V,O,S) :- output(V,O,S)@1.
+  :- output(V,O,S), output(V,O,S)@3.
 }
 
 s -> np vp {

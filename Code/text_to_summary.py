@@ -88,7 +88,9 @@ class TextToSummary:
 
         print('Generating summaries...')
         summaries = self._gen_summaries()
-        summaries = self._correct_summaries(summaries)
+
+        print('Post-processing summaries...')
+        # summaries = self._correct_summaries(summaries)
 
         return summaries
 

@@ -1,10 +1,30 @@
-## To talk about
+## TODO
 
-- Notes for report
-- Expansion of derivations for learning examples
-- Expansion of summary rules for learning examples
-- Parsing sentence by sentence then combining for ss reduction
-- Action creator
+- Use weak constraints for eliminating bad summaries
+- Fix summary scorer
+- Support puzzle.txt
+- Train NN on random stories
+
+## For report
+
+- Start to collect results for report (may take time)
+- Describe action predicates as high level semantic descriptor of all possible actions that can happen in sentences
+- Think about initial motivation (have definition of what is summary, NN does not)
+    1. NNs need lots of data and time to summarize
+    2. ASG can give results with short list of rules, pre/post-processing and carefully constructed structure
+- Maybe formalize mathematically task of summarization (with CFG, BK, E+, E-)
+    1. CFG is language, BK is leaf nodes, result is actions
+    2. CFG is language, BK is leaf nodes, E is actions, result is summaries
+- For report think about how to formalize task of summarization in ASG (how thought evolve)
+    1. Originally just create summaries from actions
+    2. Now preprocess to prune and homogenize, produce and score summaries, take best and fix grammar
+- Compare with NN
+    1. Randomize action(...) to generate summary(...) on trained ASG
+    2. Train NN to generate same summary(...)
+    3. Show framework is sane and expandable (computationally tractable)
+    4. Compute Rouge score (PyRouge, must clone repo into project) on ASG and NN
+
+- Final goal: take story-specific ASG and general rules to generate summaries, then use top 5/10
 
 ## Datasets
 
@@ -15,29 +35,6 @@ https://paperswithcode.com/sota/text-summarization-on-gigaword
 - SQuAD
 - bAbI (very short but need to write summary)
 - GigaWord (longer)
-
-## TODO
-
-- Expand language derivations
-- Expand summary rules
-- Compare with NN
-    1. Randomize action(...) to generate summary(...) on trained ASG
-    2. Train NN to generate same summary(...)
-    3. Show framework is sane and expandable (computationally tractable)
-
-- Start to collect results for report (may take time)
-- Think about initial motivation
-    1. NNs need lots of data and time to summarize
-    2. ASG can give results with short list of rules, pre/post-processing and carefully constructed structure
-- Maybe formalize mathematically task of summarization (with CFG, BK, E+, E-)
-    1. CFG is language, BK is leaf nodes, result is actions
-    2. CFG is language, BK is leaf nodes, E is actions, result is summaries
-- For report think about how to formalize task of summarization in ASG (how thought evolve)
-    1. Originally just create summaries from actions
-    2. Now preprocess to prune and homogenize, produce and score summaries, take best and fix grammar
-- Compute Rouge score (PyRouge, must clone repo into project) on ASG and NN
-
-- Final goal: take story-specific ASG and general rules to generate summaries, then use top 5/10
 
 ## Representation
 
