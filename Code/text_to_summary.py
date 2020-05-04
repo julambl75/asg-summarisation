@@ -90,7 +90,7 @@ class TextToSummary:
         summaries = self._gen_summaries()
 
         print('Post-processing summaries...')
-        # summaries = self._correct_summaries(summaries)
+        summaries = self._correct_summaries(summaries)
 
         return summaries
 

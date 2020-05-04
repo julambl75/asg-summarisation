@@ -1,13 +1,10 @@
 ## TODO
 
-- Use weak constraints for eliminating bad summaries
-- Fix summary scorer
 - Support puzzle.txt
 - Train NN on random stories
 
 ## For report
 
-- Start to collect results for report (may take time)
 - Describe action predicates as high level semantic descriptor of all possible actions that can happen in sentences
 - Think about initial motivation (have definition of what is summary, NN does not)
     1. NNs need lots of data and time to summarize
@@ -46,6 +43,7 @@ Ideas:
 - use lots of simple/precise rules rather than complicated/general ones to minimize ss
 - keep rules as restricted as possible, when concept implemented over time add missing rules
 - to avoid having to add grammar constraints try and rely on grammar of input
+- pick best summary according to TTR*
 
 action(INDEX, VERB, SUBJECT, OBJECT)
 summary(VERB, SUBJECT, OBJECT)
@@ -59,3 +57,5 @@ det(...)
 compound(FIRST, SECOND)         # for verbs
 conjunct(FIRST, SECOND)         # learn both
 disjunct(FIRST, SECOND)         # use choice rule
+
+* Type-Token Ratio (TTR): The basic idea behind that measure is that if the text is more complex, the author uses a more varied vocabulary so there’s a larger number of types (unique words). This logic is explicit in the TTR’s formula, which calculates the number of types divided by the number of tokens. As a result, the higher the TTR, the higher the lexical complexity.

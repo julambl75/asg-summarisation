@@ -8,28 +8,29 @@ from text_to_summary import TextToSummary
 FORMAT = 'txt'
 POS_SUMMARIES_EXT = '_summaries_pos'
 NEG_SUMMARIES_EXT = '_summaries_neg'
+NEWLINE = '\n'
 
 
 def process_args(args):
-    pos_summaries = None
-    neg_summaries = None
+    pos = None
+    neg = None
     if args.pos_summaries:
-        pos_summaries = open(args.pos_summaries).read()
+        pos = open(args.pos_summaries).read()
     if args.neg_summaries:
-        neg_summaries = open(args.neg_summaries).read()
+        neg = open(args.neg_summaries).read()
     if args.text:
-        return args.text, pos_summaries, neg_summaries
+        return args.text, pos, neg
     if args.file:
-        return open(args.file).read(), pos_summaries, neg_summaries
+        return open(args.file).read(), pos, neg
     if args.all_files:
         path = '{}/{}'.format(args.all_files, args.all_files)
         text = open('{}.{}'.format(path, FORMAT)).read()
-        pos_summaries = open('{}{}.{}'.format(path, POS_SUMMARIES_EXT, FORMAT)).read()
+        pos = open('{}{}.{}'.format(path, POS_SUMMARIES_EXT, FORMAT)).read().split(NEWLINE)
         try:
-            neg_summaries = open('{}{}.{}'.format(path, NEG_SUMMARIES_EXT, FORMAT)).read()
+            neg = open('{}{}.{}'.format(path, NEG_SUMMARIES_EXT, FORMAT)).read().split(NEWLINE)
         except IOError:
-            neg_summaries = ''
-        return text, pos_summaries, neg_summaries
+            neg = ''
+        return text, pos, neg
 
 
 def parse_args():
@@ -45,16 +46,15 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    processed_args = process_args(args)
-    story = processed_args[0]
+    story, pos_summaries, neg_summaries = process_args(args)
 
     preprocessor = Preprocessor(story, print_results=False, proper_nouns=True)
     homogenized_story, proper_nouns = preprocessor.preprocess()
 
-    text_to_summary = TextToSummary(homogenized_story, *processed_args[1:], proper_nouns)
+    text_to_summary = TextToSummary(homogenized_story, pos_summaries, neg_summaries, proper_nouns)
     summaries = text_to_summary.gen_summary()
 
     summary_scorer = SummaryScorer()
-    scored_summaries = summary_scorer.asg_score(story, summaries)
+    scored_summaries = summary_scorer.asg_score(summaries, references=pos_summaries)
 
     pp.pprint(scored_summaries)

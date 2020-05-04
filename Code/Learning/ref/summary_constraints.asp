@@ -8,7 +8,7 @@
 
   summary(5, verb(be,T), S, object(N,D1,conjunct(A2,A3))) :- action(_, verb(be,T), S, object(N,D1,_)), action(_, verb(be,T), subject(N,D2,A1), object(_,_,conjunct(A2,A3))).
 
-  0{output(I,V,S,O)}1 :- summary(I,V,S,O).
+  complex_summary :- summary(I,V,S,O), I != 0.
   0{output(I,V,S,O)}1 :- summary(I,V,S,O).
   :- not output(_,_,_,_).
 

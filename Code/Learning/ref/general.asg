@@ -1,5 +1,5 @@
 start -> s_group {
-   :- count(X)@1, X > 2.
+   :- count(X)@1, X > 3.
    :- count(X)@1, X = 0.
 }
 
@@ -10,8 +10,13 @@ s_group -> {
 s_group -> s ". " s_group {
   count(X+1) :- count(X)@3.
 
-  output(V,O,S) :- output(V,O,S)@1.
-  :- output(V,O,S), output(V,O,S)@3.
+  % Reject output summaries with duplicate sentences
+  sentence(X,V,O,S) :- output(_,V,O,S)@1, count(X).
+  sentence(X,V,O,S) :- sentence(X,V,O,S)@3.
+  :- sentence(X1,V,O,S), sentence(X2,V,O,S), X1 != X2.
+
+  % Always use a complex summary (formed from multiple actions) as the last sentence if there is one
+  :- output(I,V,O,S)@1, count(0)@3, I = 0, complex_summary@1.
 }
 
 s -> np vp {
