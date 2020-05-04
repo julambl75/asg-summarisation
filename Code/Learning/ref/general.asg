@@ -84,22 +84,30 @@ np -> rp {
 
 np -> prp "and " nnp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
+  :- object(conjunct(N,N),0,0).
 }
 
 np -> nnp "and " prp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
+  :- object(conjunct(N,N),0,0).
 }
 
 np -> nnp "and " nnp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
+  :- object(conjunct(N,N),0,0).
 }
 
 np -> prp "and " prp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
+  :- object(conjunct(N,N),0,0).
 }
 
 np -> rb "and " rb {

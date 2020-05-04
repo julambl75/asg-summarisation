@@ -41,7 +41,7 @@ class SummaryScorer:
                     bleu_score = self.helper.bleu_score(reference, top_summary)
                     best_bleu = max(best_bleu, bleu_score)
                     best.append((bleu_score, reference, top_summary))
-            print(best)
+            print(sorted(best))
             assert best_bleu > SIMILAR_BLEU
         return sorted_scores
 
