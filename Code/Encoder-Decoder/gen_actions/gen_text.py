@@ -201,7 +201,7 @@ class GenActions:
         verb = self.get_random_verb(person, number)
         object = self.get_random_subject_object(OBJECT_TOKEN)
         self.curr_story_tokens.append(PUNCTUATION)
-        return f'action({index}, {verb}, {subject}, {object})'.replace('-', '_')
+        return f'action({index}, {verb}, {subject}, {object}).'.replace('-', '_').lower()
 
     def format_story(self):
         joined_tokens = ' '.join(self.curr_story_tokens)
@@ -246,7 +246,7 @@ if __name__ == '__main__':
         print(story + '\n---\n')
 
         text_to_summary = TextToSummary(story, gen_actions.proper_nouns, print_results=False)
-        summaries = text_to_summary.generate_summaries(action_set, leaf_node_set)
+        summaries = text_to_summary.generate_summaries(action_set, (leaf_node_set,))
 
         best_summary, _ = summary_scorer.asg_score(story, summaries, best_only=True)
         training_pairs.append((story, best_summary))
