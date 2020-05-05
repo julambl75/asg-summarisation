@@ -46,12 +46,12 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    story, pos_summaries, neg_summaries = process_args(args)
+    story, pos_summaries, _ = process_args(args)
 
     preprocessor = Preprocessor(story, print_results=False, proper_nouns=True)
     homogenized_story, proper_nouns = preprocessor.preprocess()
 
-    text_to_summary = TextToSummary(homogenized_story, pos_summaries, neg_summaries, proper_nouns)
+    text_to_summary = TextToSummary(homogenized_story, proper_nouns)
     summaries = text_to_summary.gen_summary()
 
     summary_scorer = SummaryScorer()

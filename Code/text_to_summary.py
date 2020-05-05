@@ -34,71 +34,51 @@ FIND_BACKGROUND_REGEX = '#background *{[^}]*}'
 
 
 class TextToSummary:
-    def __init__(self, text, pos_summaries, neg_summaries, proper_nouns):
+    def __init__(self, text, proper_nouns, print_results=True):
         self.text = self._decapitalise(text, proper_nouns)
-        # self.pos_summaries = self._decapitalise(pos_summaries, proper_nouns)
-        # self.neg_summaries = self._decapitalise(neg_summaries, proper_nouns)
+        self.print_results = print_results
 
         self.text_parser = ParseCoreNLP(self.text, True)
         self.language_checker = language_check.LanguageTool('en-GB')
-        # self.summaries_parser = ParseCoreNLP(self.pos_summaries + ' ' + self.neg_summaries, True)
 
         # Define basic ASG for learning actions for each sentence separately (reduces search space)
         self.language_asg = TextToSummary._read_file(LANGUAGE_ASG)
         self.base_action_asg = self.language_asg + TextToSummary._read_file(LEARN_ACTIONS_BIAS)
 
     def gen_summary(self):
-        print('---\nStep 1\n---')
-        print('Creating context-specific ASG and learning actions from text...')
-        learned_actions = []
+        if self.print_results:
+            print('---\nStep 1\n---')
+            print('Creating context-specific ASG and learning actions from text...')
         parsed_text = self.text_parser.parse_text(by_sentence=True)
+        learned_actions = self.learn_actions(parsed_text)
 
-        for context_specific_asg, ilasp_constants, sentence in parsed_text:
-            tokens = self._text_to_tokens(sentence)
-            examples = self._gen_asg_examples(tokens)
-
-            self._create_actions_asg()
-            self._append_to_asg(ACTION_ASG, (context_specific_asg, ilasp_constants, examples))
-            learned_actions.extend(self._run_learn_actions())
-
-        # Add indices to keep track of chronology of events
-        learned_actions = [action.replace('action(', f'action({i}, ') for i, action in enumerate(learned_actions)]
-        for action in learned_actions:
-            print(action.strip())
-
-        print('\n---\nStep 2\n---')
-        # print('Generating positive and negative examples from reference summaries...')
-        # pos_tokens = self._text_to_tokens_keep_batch(self.pos_summaries)
-        # neg_tokens = self._text_to_tokens_keep_batch(self.neg_summaries)
-        # examples = self._gen_asg_examples(pos_tokens, neg_tokens)
-
-        # print('Parsing summaries to create context-specific ASG and ILASP constants...')
-        # context_specific_asg, ilasp_variables = self.summaries_parser.parse_text(True)
-
-        print('Updating ASG constraints...')
+        if self.print_results:
+            for action in learned_actions:
+                print(action.strip())
+            print('\n---\nStep 2\n---')
+            print('Updating ASG constraints, generating summaries and post-processing summaries...')
         context_specific_asg = tuple(map(operator.itemgetter(0), parsed_text))
-        self._create_summary_asg(learned_actions)
-        self._append_to_asg(SUMMARY_ASG, context_specific_asg)
-        # self._append_to_asg(SUMMARY_ASG, (*context_specific_asg, *ilasp_constants))
-        # self._append_to_asg(SUMMARY_ASG, (context_specific_asg, examples))
-        # self._update_background(SUMMARY_ASG, ilasp_variables)
-
-        # print('Learning summaries...')
-        # self._run_learn_summaries()
-
-        print('Generating summaries...')
-        summaries = self._gen_summaries()
-
-        print('Post-processing summaries...')
-        summaries = self._correct_summaries(summaries)
-
+        summaries = self.generate_summaries(learned_actions, context_specific_asg)
         return summaries
 
     def learn_actions(self, parsed_text):
-        pass
+        learned_actions = []
+        for context_specific_asg, ilasp_constants, sentence in parsed_text:
+            tokens = self._text_to_tokens(sentence)
+            examples = self._gen_asg_examples(tokens)
+            self._create_actions_asg()
+            self._append_to_asg(ACTION_ASG, (context_specific_asg, ilasp_constants, examples))
+            learned_actions.extend(self._run_learn_actions())
+        # Add indices to keep track of chronology of events
+        learned_actions = [action.replace('action(', f'action({i}, ') for i, action in enumerate(learned_actions)]
+        return learned_actions
 
     def generate_summaries(self, learned_actions, context_specific_asg):
-        pass
+        self._create_summary_asg(learned_actions)
+        self._append_to_asg(SUMMARY_ASG, context_specific_asg)
+        summaries = self._gen_summaries()
+        summaries = self._correct_summaries(summaries)
+        return summaries
 
     @staticmethod
     def _read_file(filename):

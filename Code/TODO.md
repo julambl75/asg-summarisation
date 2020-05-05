@@ -1,3 +1,9 @@
+## To show Alessandra
+
+- Improved language support
+- Constraints for multi-sentence summaries
+- TTR for scoring
+
 ## TODO
 
 - Support puzzle.txt
