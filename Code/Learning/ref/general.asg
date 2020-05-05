@@ -82,6 +82,10 @@ np -> rp {
   object(0,0,A) :- adj_or_adv(A)@1.
 }
 
+np -> ex {
+  subject(T,0,0) :- ex(T)@1.
+}
+
 np -> prp "and " nnp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.

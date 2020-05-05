@@ -32,6 +32,10 @@ GEN_SUMMARIES_CMD = f'asg {SUMMARY_ASG} --mode=run --depth={DEPTH} > {RESULTS_FI
 REMOVE_SPACES_REGEX = '[^a-zA-Z0-9-]+'
 FIND_BACKGROUND_REGEX = '#background *{[^}]*}'
 
+# https://stackoverflow.com/q/35544325/
+DECAPITALISE_REGEX = r'\b(?<!`)(\w+)(?!`)\b'
+DECAPITALISE_QUOTE = '`'
+
 
 class TextToSummary:
     def __init__(self, text, proper_nouns, print_results=True):
@@ -91,9 +95,11 @@ class TextToSummary:
     def _decapitalise(text, proper_nouns):
         if not text:
             return ''
-        text = text.lower()
         for proper_noun in proper_nouns:
-            text = text.replace(proper_noun.lower(), proper_noun)
+            text = text.replace(proper_noun, f'{DECAPITALISE_QUOTE}{proper_noun}{DECAPITALISE_QUOTE}')
+        text = re.sub(DECAPITALISE_REGEX, lambda m: m.group(1).lower(), text)
+        for proper_noun in proper_nouns:
+            text = text.replace(f'{DECAPITALISE_QUOTE}{proper_noun}{DECAPITALISE_QUOTE}', proper_noun)
         return text
 
     @staticmethod

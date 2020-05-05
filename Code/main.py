@@ -25,10 +25,12 @@ def process_args(args):
     if args.all_files:
         path = '{}/{}'.format(args.all_files, args.all_files)
         text = open('{}.{}'.format(path, FORMAT)).read()
-        pos = open('{}{}.{}'.format(path, POS_SUMMARIES_EXT, FORMAT)).read().split(NEWLINE)
         try:
+            pos = open('{}{}.{}'.format(path, POS_SUMMARIES_EXT, FORMAT)).read().split(NEWLINE)
             neg = open('{}{}.{}'.format(path, NEG_SUMMARIES_EXT, FORMAT)).read().split(NEWLINE)
         except IOError:
+            if not pos:
+                pos = ''
             neg = ''
         return text, pos, neg
 

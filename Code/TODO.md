@@ -3,11 +3,13 @@
 - Improved language support
 - Constraints for multi-sentence summaries
 - TTR for scoring
+- Summary generation for NN training examples
 
 ## TODO
 
-- Support puzzle.txt
+- Fix Preprocessor so simplify complex sentences and filter less out
 - Support peter_little.txt
+- Support puzzle.txt
 - Train NN on random stories
 
 ## For report

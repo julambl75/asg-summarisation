@@ -20,9 +20,12 @@ warnings.filterwarnings("ignore")
 
 SUBSTITUTIONS = {'an': 'a'}
 
-PROPER = 'NNP'
+VERB_POS = 'VB'
+PROPER_POS = 'NNP'
 IGNORE_POS = ['DT', '.']
 SAME_WORD_POS = ['NN', 'NNS', 'NNP', 'NNPS']
+COMPLEX_CLAUSE_AUX_VERB_POS = 'VBN'
+COMPLEX_CLAUSE_SPLIT_VERBS = [('was', 'VBD'), ('is', 'VBZ')]
 
 SAME_WORD_SIMILARITY = 5
 WEIGHT_SCALE = 10
@@ -46,6 +49,7 @@ class Preprocessor:
         self._substitute_determiners()
 
         tokenized = self.helper.tokenize_text(self.story)
+        self._expand_complex_clauses(tokenized)
         if self.print_results:
             print('\nGenerating POS tags...')
             pp.pprint(tokenized)
@@ -83,13 +87,22 @@ class Preprocessor:
             pp.pprint(homogenized_story)
 
         if self.proper_nouns:
-            proper_nouns = {token[0] for token in itertools.chain(*tokenized) if token[1].startswith(PROPER)}
+            proper_nouns = {token[0] for token in itertools.chain(*tokenized) if token[1].startswith(PROPER_POS)}
             return homogenized_story, proper_nouns
         return homogenized_story
 
     def _substitute_determiners(self):
         for key, value in SUBSTITUTIONS.items():
             self.story = re.sub(r"\b{}\b".format(key), value, self.story)
+
+    def _expand_complex_clauses(self, tokenized):
+        for i, sentence in enumerate(tokenized):
+            pos_tags = list(map(itemgetter(1), sentence))
+            verb_tags = list(filter(lambda pos: pos.startswith(VERB_POS), pos_tags))
+            if len(verb_tags) > 1 and verb_tags.index(COMPLEX_CLAUSE_AUX_VERB_POS) > 0:
+                # There [was] a boy [called] Peter.
+            print(pos_tags)
+            pass
 
     def _process_similarity(self, tokenized):
         similar_words = defaultdict(lambda: defaultdict(lambda: 0))
