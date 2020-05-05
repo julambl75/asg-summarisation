@@ -35,10 +35,10 @@ FIND_BACKGROUND_REGEX = '#background *{[^}]*}'
 
 class TextToSummary:
     def __init__(self, text, proper_nouns, print_results=True):
-        self.text = self._decapitalise(text, proper_nouns)
+        self.text = text
+        self.proper_nouns = proper_nouns
         self.print_results = print_results
 
-        self.text_parser = ParseCoreNLP(self.text, True)
         self.language_checker = language_check.LanguageTool('en-GB')
 
         # Define basic ASG for learning actions for each sentence separately (reduces search space)
@@ -46,10 +46,13 @@ class TextToSummary:
         self.base_action_asg = self.language_asg + TextToSummary._read_file(LEARN_ACTIONS_BIAS)
 
     def gen_summary(self):
+        text = self._decapitalise(self.text, self.proper_nouns)
+        text_parser = ParseCoreNLP(text, True)
+
         if self.print_results:
             print('---\nStep 1\n---')
-            print('Creating context-specific ASG and learning actions from text...')
-        parsed_text = self.text_parser.parse_text(by_sentence=True)
+            print('Creating context-specific ASGs and learning actions from text...')
+        parsed_text = text_parser.parse_text(by_sentence=True)
         learned_actions = self.learn_actions(parsed_text)
 
         if self.print_results:

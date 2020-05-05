@@ -1,5 +1,4 @@
 import collections
-import math
 import string
 from operator import itemgetter
 
@@ -24,7 +23,7 @@ class SummaryScorer:
         self.helper = Helper()
         self.language_checker = language_check.LanguageTool('en-GB')
 
-    def asg_score(self, story, summaries, references=None):
+    def asg_score(self, story, summaries, references=None, best_only=False):
         sorted_scores = []
         for summary in summaries:
             score = self.ttr_score(story, summary)
@@ -41,9 +40,11 @@ class SummaryScorer:
                     bleu_score = self.helper.bleu_score(reference, top_summary)
                     best_bleu = max(best_bleu, bleu_score)
             assert best_bleu > SIMILAR_BLEU
-        return sorted_scores
+
+        return sorted_scores[0] if best_only else sorted_scores
 
     # Computes a score based on type-token ratio, a measure of lexical density
+    # Here the goal is to maximise the density of unique words (TTR), minimising summary length
     @staticmethod
     def ttr_score(story, summary):
         for punctuation in string.punctuation:

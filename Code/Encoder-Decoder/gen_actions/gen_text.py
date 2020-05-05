@@ -3,8 +3,12 @@ import os
 import random
 from operator import itemgetter
 
+import language_check
 from pattern.en import SG, PL, PRESENT
 from pattern.en import conjugate, lemma
+
+from score_summary import SummaryScorer
+from text_to_summary import TextToSummary
 
 PATH = os.path.dirname(os.path.abspath(__file__))
 WORDS_PATH = os.path.dirname(PATH)
@@ -59,7 +63,10 @@ class GenActions:
         self.nouns = self.get_words_of_type('n')
         self.adjectives = self.get_words_of_type('j')
 
+        self.proper_nouns = set()
         self._reset_for_new_story()
+
+        self.language_checker = language_check.LanguageTool('en-GB')
 
         # There is a bug with Python 3.7 causing the first call to Pattern to crash due to a StopIteration
         try:
@@ -120,6 +127,7 @@ class GenActions:
                 name = random.choice(self.names)
                 person, number = CONJUGATION_INDIVIDUAL
                 nouns.append(name)
+                self.proper_nouns.add(name)
                 self.create_asg_leaf(PROPER_NOUN_POS, name, NOUN_PREDICATE)
         if num_people > 1:
             person, number = CONJUGATION_GROUP
@@ -197,12 +205,7 @@ class GenActions:
 
     def format_story(self):
         joined_tokens = ' '.join(self.curr_story_tokens)
-        sentences = []
-        for sentence in joined_tokens.split(PUNCTUATION):
-            sentence = sentence.strip()
-            if sentence:
-                sentences.append(sentence[0].upper() + sentence[1:] + PUNCTUATION)
-        return ' '.join(sentences)
+        return self.language_checker.correct(joined_tokens)
 
     def generate_stories(self, story_length, num_stories):
         story_actions = []
@@ -216,10 +219,36 @@ class GenActions:
         return story_actions, story_leaf_nodes, story_strings
 
 
+# def get_export_file(data_type, nn_step):
+#     return f'{EXPORT_PATH}/{data_type}_{nn_step}.txt'
+
+# def write():
+#     print(f'[{i}/{n}] Writing story/summary pairs to files...')
+#     mkpath(EXPORT_PATH)
+#     stories_dest = self.get_export_file('stories', nn_step)
+#     summaries_dest = self.get_export_file('summaries', nn_step)
+#     with open(stories_dest, 'w') as stories_file:
+#         stories_file.writelines(stories)
+#     with open(summaries_dest, 'w') as summaries_file:
+#         summaries_file.writelines(summaries)
+
+
 if __name__ == '__main__':
     gen_actions = GenActions()
     actions, leaf_nodes, stories = gen_actions.generate_stories(3, 5)
+
+    summary_scorer = SummaryScorer()
+    training_pairs = []
+
     for action_set, leaf_node_set, story in zip(actions, leaf_nodes, stories):
         print('\n'.join(action_set) + '\n')
         print('\n'.join(leaf_node_set) + '\n')
         print(story + '\n---\n')
+
+        text_to_summary = TextToSummary(story, gen_actions.proper_nouns, print_results=False)
+        summaries = text_to_summary.generate_summaries(action_set, leaf_node_set)
+
+        best_summary, _ = summary_scorer.asg_score(story, summaries, best_only=True)
+        training_pairs.append((story, best_summary))
+
+    pass

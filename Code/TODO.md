@@ -7,7 +7,7 @@
 ## TODO
 
 - Support puzzle.txt
-- Support peter_little_full.txt
+- Support peter_little.txt
 - Train NN on random stories
 
 ## For report
@@ -50,6 +50,8 @@ Ideas:
 - use lots of simple/precise rules rather than complicated/general ones to minimize ss
 - keep rules as restricted as possible, when concept implemented over time add missing rules
 - to avoid having to add grammar constraints try and rely on grammar of input
+
+- for learning actions do one sentence at a time to minimize ss
 - pick best summary according to TTR*
 
 action(INDEX, VERB, SUBJECT, OBJECT)
