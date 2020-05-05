@@ -251,4 +251,4 @@ if __name__ == '__main__':
         best_summary, _ = summary_scorer.asg_score(story, summaries, best_only=True)
         training_pairs.append((story, best_summary))
 
-    pass
+    print(training_pairs)
