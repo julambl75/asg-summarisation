@@ -55,6 +55,6 @@ if __name__ == '__main__':
     summaries = text_to_summary.gen_summary()
 
     summary_scorer = SummaryScorer()
-    scored_summaries = summary_scorer.asg_score(summaries, references=pos_summaries)
+    scored_summaries = summary_scorer.asg_score(story, summaries, references=pos_summaries)
 
     pp.pprint(scored_summaries)

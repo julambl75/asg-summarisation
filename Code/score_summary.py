@@ -1,4 +1,5 @@
 import collections
+import math
 import string
 from operator import itemgetter
 
@@ -14,7 +15,7 @@ from parse_concept_net import ParseConceptNet
 # - Compare NN prediction with ASG summary: reference BLEUs
 
 SIMILAR_BLEU = 0.75
-SCORE_COEFFICIENT = 100
+SCORE_COEFFICIENT = 500
 
 
 class SummaryScorer:
@@ -23,10 +24,10 @@ class SummaryScorer:
         self.helper = Helper()
         self.language_checker = language_check.LanguageTool('en-GB')
 
-    def asg_score(self, summaries, references=None):
+    def asg_score(self, story, summaries, references=None):
         sorted_scores = []
         for summary in summaries:
-            score = self.ttr(summary)
+            score = self.ttr_score(story, summary)
             score = int(score * SCORE_COEFFICIENT)
             sorted_scores.append((summary, score))
         sorted_scores.sort(key=itemgetter(1), reverse=True)
@@ -35,19 +36,20 @@ class SummaryScorer:
         if references:
             top_5 = list(map(itemgetter(0), sorted_scores[:5]))
             best_bleu = 0
-            best = []
             for reference in references:
                 for top_summary in top_5:
                     bleu_score = self.helper.bleu_score(reference, top_summary)
                     best_bleu = max(best_bleu, bleu_score)
-                    best.append((bleu_score, reference, top_summary))
-            print(sorted(best))
             assert best_bleu > SIMILAR_BLEU
         return sorted_scores
 
-    # Computes the type-token ratio, a measure of word complexity
+    # Computes a score based on type-token ratio, a measure of lexical density
     @staticmethod
-    def ttr(summary):
-        words = [word.lower() for word in summary.split() if word not in string.punctuation]
-        word_counts = collections.Counter(words)
-        return len(word_counts) / len(words)
+    def ttr_score(story, summary):
+        for punctuation in string.punctuation:
+            story = story.replace(punctuation, '')
+            summary = summary.replace(punctuation, '')
+        story_words = [word.lower() for word in story.split()]
+        summary_words = [word.lower() for word in summary.split()]
+        word_counts = collections.Counter(summary_words)
+        return len(word_counts) / (len(story_words) * len(summary_words))

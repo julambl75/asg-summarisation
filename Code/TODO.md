@@ -1,6 +1,7 @@
 ## TODO
 
 - Support puzzle.txt
+- Support peter_little_full.txt
 - Train NN on random stories
 
 ## For report
