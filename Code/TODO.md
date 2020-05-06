@@ -1,13 +1,14 @@
 ## To show Alessandra
 
 - Improved language support
-- Constraints for multi-sentence summaries
+    - More ASG rules
+    - Sentence simplification
+- ASG constraints for multi-sentence summaries
 - TTR for scoring
 - Summary generation for NN training examples
 
 ## TODO
 
-- Fix Preprocessor so simplify complex sentences and filter less out
 - Support peter_little.txt
 - Support puzzle.txt
 - Train NN on random stories
@@ -24,6 +25,7 @@
 - For report think about how to formalize task of summarization in ASG (how thought evolve)
     1. Originally just create summaries from actions
     2. Now preprocess to prune and homogenize, produce and score summaries, take best and fix grammar
+    3. Use example of Peter Little to showcase pipeline
 - Compare with NN
     1. Randomize action(...) to generate summary(...) on trained ASG
     2. Train NN to generate same summary(...)
@@ -44,11 +46,15 @@ https://paperswithcode.com/sota/text-summarization-on-gigaword
 
 ## Sentence simplification
 
-- Multiple clauses: split into multiple sentences
 - Punctuation
     - [?]: remove clause
     - [!|,|;]: transform into "."
     - [—]: delete inner part
+- Multiple clauses (conjunctive or main+auxiliary): split into multiple sentences
+- Adverbs: move to end
+
+- Contractions
+- Lists
 
 ## Representation
 
