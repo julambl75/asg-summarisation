@@ -20,10 +20,12 @@ warnings.filterwarnings("ignore")
 
 SUBSTITUTIONS = {'an': 'a'}
 
-VERB_POS = 'VB'
 PROPER_POS = 'NNP'
 IGNORE_POS = ['DT', '.']
 SAME_WORD_POS = ['NN', 'NNS', 'NNP', 'NNPS']
+
+CONJUNCTIVE_POS = 'CC'
+VERB_POS = 'VB'
 COMPLEX_CLAUSE_AUX_VERB_POS = 'VBN'
 COMPLEX_CLAUSE_SPLIT_VERBS = [('was', 'VBD'), ('is', 'VBZ')]
 COMPLEX_CLAUSE_SUBSTITUTIONS = {'a': 'The'}
@@ -107,9 +109,16 @@ class Preprocessor:
         # !,; -> .
         pass
 
+    # Ex: They were happy and they played a game.
+    #  -> They were happy. They played a game.
+    def _split_conjunctive_clauses(self, tokenized):
+        print('TODO')
+        return tokenized
+
     # Ex: There was a boy named Peter.
-    #  -> There was a boy. The boy was named Peter..
-    def _expand_complex_clauses(self, tokenized):
+    #  -> There was a boy. The boy was named Peter.
+    @staticmethod
+    def _expand_complex_clauses(tokenized):
         i = 0
         while i < len(tokenized):
             sentence = tokenized[i]
@@ -142,10 +151,6 @@ class Preprocessor:
                 tokenized[i] = main_clause + [EOS_TOKENIZED]
                 tokenized.insert(i+1, aux_clause)
             i += 1
-        return tokenized
-
-    def _split_conjunctive_clauses(self, tokenized):
-        print('TODO')
         return tokenized
 
     def _replace_story_new_tokenized(self, tokenized):

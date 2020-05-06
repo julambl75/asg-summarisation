@@ -52,9 +52,9 @@ class ParseCoreNLP:
         self.tree = sentences[0]
 
         # Combine trees
-        itersentences = iter(sentences)
-        next(itersentences)
-        [self.tree.insert(len(self.tree[0]), sentence[0]) for sentence in itersentences]
+        for sentence in sentences[1:]:
+            self.tree.append(sentence[0])
+            self.tree.pretty_print()
 
     def _map_words_to_lemmas(self, core_nlp_json):
         for sentence in core_nlp_json['sentences']:
