@@ -24,9 +24,9 @@ SUMMARY_ASG = DIR + 'summary.asg'
 RESULTS_FILE = DIR + 'output.txt'
 
 DEPTH = 10
+AVOID_CONSTRAINTS = "--ILASP-ss-options='-nc'"
 
-# TODO command to learn summary rules using "--ILASP-ss-options='-nc'"
-LEARN_ACTIONS_CMD = f'asg {ACTION_ASG} --mode=learn --depth={DEPTH} > {SUMMARY_ASG}'
+LEARN_ACTIONS_CMD = f'asg {ACTION_ASG} --mode=learn --depth={DEPTH} {AVOID_CONSTRAINTS} > {SUMMARY_ASG}'
 GEN_SUMMARIES_CMD = f'asg {SUMMARY_ASG} --mode=run --depth={DEPTH} > {RESULTS_FILE}'
 
 REMOVE_SPACES_REGEX = '[^a-zA-Z0-9-]+'
@@ -104,7 +104,7 @@ class TextToSummary:
 
     @staticmethod
     def _text_to_tokens(text):
-        text = text.split('.')  # TODO allow other types of punctuation (ex: !)
+        text = text.split('.')
         tokens = [list(filter(lambda s: len(s) > 0, re.split(REMOVE_SPACES_REGEX, sentence))) for sentence in text]
         tokens = list(filter(lambda s: len(s) > 0, tokens))
         return [sentence + ['.'] for sentence in tokens]

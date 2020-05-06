@@ -26,6 +26,8 @@ IGNORE_POS = ['DT', '.']
 SAME_WORD_POS = ['NN', 'NNS', 'NNP', 'NNPS']
 COMPLEX_CLAUSE_AUX_VERB_POS = 'VBN'
 COMPLEX_CLAUSE_SPLIT_VERBS = [('was', 'VBD'), ('is', 'VBZ')]
+COMPLEX_CLAUSE_SUBSTITUTIONS = {'a': 'The'}
+EOS_TOKENIZED = ('.', '.')
 
 SAME_WORD_SIMILARITY = 5
 WEIGHT_SCALE = 10
@@ -49,7 +51,10 @@ class Preprocessor:
         self._substitute_determiners()
 
         tokenized = self.helper.tokenize_text(self.story)
-        self._expand_complex_clauses(tokenized)
+        tokenized = self._expand_complex_clauses(tokenized)
+        tokenized = self._split_conjunctive_clauses(tokenized)
+        self._replace_story_new_tokenized(tokenized)
+
         if self.print_results:
             print('\nGenerating POS tags...')
             pp.pprint(tokenized)
@@ -95,14 +100,57 @@ class Preprocessor:
         for key, value in SUBSTITUTIONS.items():
             self.story = re.sub(r"\b{}\b".format(key), value, self.story)
 
+    # TODO
+    def _replace_punctuation(self):
+        print('TODO')
+        # ?–— -> X
+        # !,; -> .
+        pass
+
+    # Ex: There was a boy named Peter.
+    #  -> There was a boy. The boy was named Peter..
     def _expand_complex_clauses(self, tokenized):
-        for i, sentence in enumerate(tokenized):
+        i = 0
+        while i < len(tokenized):
+            sentence = tokenized[i]
             pos_tags = list(map(itemgetter(1), sentence))
-            verb_tags = list(filter(lambda pos: pos.startswith(VERB_POS), pos_tags))
-            if len(verb_tags) > 1 and verb_tags.index(COMPLEX_CLAUSE_AUX_VERB_POS) > 0:
-                # There [was] a boy [called] Peter.
-            print(pos_tags)
-            pass
+            if COMPLEX_CLAUSE_AUX_VERB_POS in pos_tags:
+                aux_clause_idx = pos_tags.index(COMPLEX_CLAUSE_AUX_VERB_POS)
+            else:
+                aux_clause_idx = -1
+
+            # If there is an auxiliary clause (starting with a VBN that does not follow a verb)
+            if aux_clause_idx > 0 and not pos_tags[aux_clause_idx-1].startswith(VERB_POS):
+                main_clause = sentence[:aux_clause_idx]
+                aux_clause_obj = sentence[aux_clause_idx:]
+
+                # Prepend to the auxiliary clause everything in the main clause after its last verb
+                #   i.e., use the main clause's object as the subject of the auxiliary clause
+                pos_tags_main = pos_tags[:aux_clause_idx]
+                main_clause_verbs = list(filter(lambda t: t[1].startswith(VERB_POS), main_clause))
+                main_clause_obj_idx = len(main_clause) - pos_tags_main[::-1].index(main_clause_verbs[-1][1])
+                main_clause_obj = main_clause[main_clause_obj_idx:]
+
+                # Change 'a' to 'the' at start of subject of the auxiliary sentence
+                first_aux_word, first_aux_pos = main_clause_obj[0]
+                if first_aux_word in COMPLEX_CLAUSE_SUBSTITUTIONS.keys():
+                    first_aux_word = COMPLEX_CLAUSE_SUBSTITUTIONS[first_aux_word]
+                    main_clause_obj[0] = (first_aux_word, first_aux_pos)
+                aux_clause = main_clause_obj + main_clause_verbs + aux_clause_obj
+
+                # Replace tokenized sentence with two tokenized sentences and check auxiliary clause next
+                tokenized[i] = main_clause + [EOS_TOKENIZED]
+                tokenized.insert(i+1, aux_clause)
+            i += 1
+        return tokenized
+
+    def _split_conjunctive_clauses(self, tokenized):
+        print('TODO')
+        return tokenized
+
+    def _replace_story_new_tokenized(self, tokenized):
+        tokenized_words = list(map(itemgetter(0), itertools.chain.from_iterable(tokenized)))
+        self.story = ' '.join(tokenized_words).replace(' .', '.')
 
     def _process_similarity(self, tokenized):
         similar_words = defaultdict(lambda: defaultdict(lambda: 0))
