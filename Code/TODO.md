@@ -42,6 +42,14 @@ https://paperswithcode.com/sota/text-summarization-on-gigaword
 - bAbI (very short but need to write summary)
 - GigaWord (longer)
 
+## Sentence simplification
+
+- Multiple clauses: split into multiple sentences
+- Punctuation
+    - [?]: remove clause
+    - [!|,|;]: transform into "."
+    - [—]: delete inner part
+
 ## Representation
 
 http://universalteacher.org.uk/lang/engstruct.htm
