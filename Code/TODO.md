@@ -59,6 +59,7 @@ Choice:
 - Possessive pronouns and interjections: remove
 - Prepositions: remove when at start of sentence
 - Contractions: expand
+- Acronyms: remove punctuation
 
 - Dependant clauses
 - Proper nouns with '.'

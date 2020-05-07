@@ -37,8 +37,9 @@ class TextSimplifier:
         self._replace_punctuation()
 
         tokenized = self.helper.tokenize_text(self.text)
-        tokenized = self._move_adverbs_to_end(tokenized)
+        tokenized = self._remove_punctuated_acronyms(tokenized)
         tokenized = self._remove_dependant_clauses(tokenized)
+        tokenized = self._move_adverbs_to_end(tokenized)
         tokenized = self._split_conjunctive_clauses(tokenized)
         tokenized = self._expand_complex_clauses(tokenized)
         tokenized = self._remove_superfluous_words(tokenized)
@@ -51,7 +52,7 @@ class TextSimplifier:
 
     # Ex: It's a lot of fun. We're here. -> It is a lot of fun. We are here.
     def _expand_contractions(self):
-        self.text = contractions.fix(self.text)
+        self.text = contractions.fix(self.text, leftovers=False, slang=False)
 
     # Ex: Why are you doing this? He liked her; she liked him.
     #  -> He liked her. she liked him.
@@ -83,6 +84,17 @@ class TextSimplifier:
                 self.text = self.text[:sentence_start] + self.text[punctuation_idx+1:]
         if self.text[0] == ' ':
             self.text = self.text[1:]
+
+    # Ex: Mrs.  -> Mrs
+    # Ex: U.S.A -> USA
+    @staticmethod
+    def _remove_punctuated_acronyms(tokenized):
+        for sentence in tokenized:
+            for i, (word, pos) in enumerate(sentence):
+                if (word, pos) != EOS_TOKENIZED:
+                    word = word.replace(EOS, '')
+                    sentence[i] = (word, pos)
+        return tokenized
 
     # TODO -t "I want to be President when I grow up. When I grow up, I want to be a firefighter. Because she is afraid of the dark, she sleeps with a night light. She never walks alone after sunset because she is afraid of the dark."
     def _remove_dependant_clauses(self, tokenized):
