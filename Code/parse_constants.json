@@ -12,6 +12,18 @@
     "``",
     "-"
   ],
+  "subordinating_conjunctions": [
+    "after",
+    "although",
+    "because",
+    "before",
+    "if",
+    "since",
+    "till",
+    "unless",
+    "until",
+    "whereas"
+  ],
   "pos_categories": {
     "dt": "det",
     "ex": "noun",

@@ -5,6 +5,10 @@ from operator import itemgetter
 import contractions
 
 from helper import Helper
+from parse_core_nlp import SUBORDINATING_CONJUNCTIONS
+
+SUBORDINATING_CONJUNCTIONS_JOINED = '|'.join(SUBORDINATING_CONJUNCTIONS)
+SUBORDINATING_CONJUNCTIONS_REGEX = f'(?i) ?({SUBORDINATING_CONJUNCTIONS_JOINED})'
 
 SUBSTITUTIONS = {'an': 'a'}
 EOS_REPLACE = ['!', ',', ';', ':']
@@ -24,10 +28,10 @@ EOS_TOKENIZED = ('.', '.')
 
 SUPERFLUOUS_POS = ['PRP$', 'UH']  # Possessive pronouns and interjections
 DEPENDENT_CLAUSE_POS = 'WRB'  # When, where, which...
+SUBJECT_POS = ['NN', 'NNS', 'NNP', 'NNPS', 'EX', 'PRP']
 
 
 class TextSimplifier:
-    # Takes a list of sentences, each of the form [(word, pos_tag)]
     def __init__(self, text):
         self.text = text
         self.helper = Helper()
@@ -36,16 +40,19 @@ class TextSimplifier:
         self._substitute_determiners()
         self._expand_contractions()
         self._replace_punctuation()
+        self._remove_subordinating_conjunctions()
 
         tokenized = self.helper.tokenize_text(self.text)
         tokenized = self._remove_punctuated_acronyms(tokenized)
         tokenized = self._move_adverbs_to_end(tokenized)
         tokenized = self._split_conjunctive_clauses(tokenized)
         tokenized = self._expand_complex_clauses(tokenized)
-        tokenized = self._separate_dependant_clauses(tokenized)
         tokenized = self._remove_superfluous_words(tokenized)
+        tokenized = self._separate_dependant_clauses(tokenized)
+        tokenized = self._remove_verbless_sentences(tokenized)
 
-        return tokenized, self._replace_story_new_tokenized(tokenized)
+        self._replace_story_new_tokenized(tokenized)
+        return tokenized, self.text
 
     def _substitute_determiners(self):
         for key, value in SUBSTITUTIONS.items():
@@ -71,8 +78,8 @@ class TextSimplifier:
                 clause_end = self.text[clause_start:].index(EOS) + clause_start
                 # Check if clause ends with another dash or with full stop
                 if punctuation in self.text[clause_start+1:clause_end]:
-                    clause_end = self.text[clause_start+1:clause_end].index(punctuation) + clause_start + 1
-                self.text = self.text[:clause_start] + self.text[clause_end + 2:]
+                    clause_end = self.text[clause_start+1:clause_end].index(punctuation) + clause_start+1
+                self.text = self.text[:clause_start] + self.text[clause_end+2:]
 
         # Remove sentence clauses
         for punctuation in EOS_REMOVE:
@@ -85,6 +92,11 @@ class TextSimplifier:
                 self.text = self.text[:sentence_start] + self.text[punctuation_idx+1:]
         if self.text[0] == ' ':
             self.text = self.text[1:]
+
+    # Ex: She never walks alone after sunset because she is afraid of the dark.
+    #  -> She never walks alone. sunset. she is afraid of the dark.
+    def _remove_subordinating_conjunctions(self):
+        self.text = re.sub(SUBORDINATING_CONJUNCTIONS_REGEX, EOS, self.text)
 
     # Ex: Mrs.   -> Mrs
     # Ex: U.S.A. -> USA
@@ -130,7 +142,7 @@ class TextSimplifier:
             if CONJUNCTIVE_POS in pos_tags:
                 conjunct_idx = pos_tags.index(CONJUNCTIVE_POS)
                 first_clause = sentence[:conjunct_idx]
-                second_clause = sentence[conjunct_idx + 1:]
+                second_clause = sentence[conjunct_idx+1:]
 
                 # Subject has been omitted from second clause
                 if second_clause[0][1].startswith(VERB_POS):
@@ -143,7 +155,7 @@ class TextSimplifier:
                     i += 1
                     continue
                 tokenized[i] = first_clause + [EOS_TOKENIZED]
-                tokenized.insert(i + 1, second_clause)
+                tokenized.insert(i+1, second_clause)
             i += 1
         return tokenized
 
@@ -179,26 +191,7 @@ class TextSimplifier:
 
                 # Replace tokenized sentence with two tokenized sentences and check auxiliary clause next
                 tokenized[i] = main_clause + [EOS_TOKENIZED]
-                tokenized.insert(i + 1, aux_clause)
-            i += 1
-        return tokenized
-
-    # TODO -t "I want to be President when I grow up. When I grow up, I want to be a firefighter. Because she is afraid of the dark, she sleeps with a night light. She never walks alone after sunset because she is afraid of the dark."
-    def _separate_dependant_clauses(self, tokenized):
-        i = 0
-        while i < len(tokenized):
-            sentence = tokenized[i]
-            pos_tags = self._get_pos_tags(sentence)
-            if DEPENDENT_CLAUSE_POS in pos_tags:
-                if pos_tags[0] == DEPENDENT_CLAUSE_POS:
-                    pass  # TODO
-                dependant_idx = pos_tags.index(DEPENDENT_CLAUSE_POS)
-                main_clause = sentence[:dependant_idx]
-                dependant_clause = sentence[dependant_idx:]
-
-                tokenized[i] = main_clause + [EOS_TOKENIZED]
-                tokenized.insert(i+1, dependant_clause)
-                i += 1
+                tokenized.insert(i+1, aux_clause)
             i += 1
         return tokenized
 
@@ -213,6 +206,39 @@ class TextSimplifier:
                     pos_tags = self._get_pos_tags(sentence)
             if pos_tags[0] == PREPOSITION_POS:
                 sentence.pop(0)
+        return tokenized
+
+    # Ex: I want to be President when I grow up. -> I want to be President.
+    # Ex: When I grow up, I will have a garden. -> I will have a garden.
+    # Ex: When I grow tomatoes it will be a good moment. -> DELETED
+    def _separate_dependant_clauses(self, tokenized):
+        i = 0
+        while i < len(tokenized):
+            sentence = tokenized[i]
+            pos_tags = self._get_pos_tags(sentence)
+            if DEPENDENT_CLAUSE_POS in pos_tags:
+                # When the wh-adverb is at the start of a sentence, there is usually a comma after the dependant clause,
+                # Because we replace commas with full stops, the dependant clause will already be its own sentence.
+                if pos_tags[0] == DEPENDENT_CLAUSE_POS:
+                    tokenized.pop(i)
+                    continue
+                else:
+                    dependant_idx = pos_tags.index(DEPENDENT_CLAUSE_POS)
+                    main_clause = sentence[:dependant_idx]
+                    tokenized[i] = main_clause + [EOS_TOKENIZED]
+            i += 1
+        return tokenized
+
+    # Ex: Spectacular discovery. -> DELETED
+    def _remove_verbless_sentences(self, tokenized):
+        i = 0
+        while i < len(tokenized):
+            sentence = tokenized[i]
+            verbs = self._tokens_to_verb_pos(sentence)
+            if not verbs:
+                tokenized.pop(i)
+            else:
+                i += 1
         return tokenized
 
     def _replace_story_new_tokenized(self, tokenized):

@@ -60,11 +60,9 @@ Choice:
 - Prepositions: remove when at start of sentence
 - Contractions: expand
 - Acronyms: remove punctuation
-
-- Dependant clauses: split into separate sentence (remove if there is no verb)
-
-- Lists
-- Numbers
+- Dependant clauses: split into separate sentence (remove if there is no punctuation)
+- Verbless sentences: remove
+- Subordinating conjunctions: split into separate sentence
 
 ## Representation
 

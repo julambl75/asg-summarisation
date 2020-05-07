@@ -14,6 +14,7 @@ with open(PARSE_CONSTANTS_JSON) as f:
     constants = json.load(f)
     PUNCTUATION = constants['punctuation']
     POS_CATEGORIES = constants['pos_categories']
+    SUBORDINATING_CONJUNCTIONS = constants['subordinating_conjunctions']
     TENSES = constants['tenses']
 
 CONSTANTS_FORMAT = '#constant({},{}).'
