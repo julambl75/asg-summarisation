@@ -1,17 +1,14 @@
-contractions
-torchtext
-pattern
-torch
-matplotlib
-networkx
-numpy
-requests
-nltk
-pycorenlp
+pattern~=3.6
+matplotlib~=3.0.2
+networkx~=2.2
+numpy~=1.16.0
+requests~=2.22.0
+nltk~=3.4.5
+pycorenlp~=0.3.0
 inflect==0.2.5
 python-datamuse
 unidecode
-pytorch_pretrained_bert
+contractions
 language-check
 
 # When running this you might have an 'egginfo' installation error saying mysql_config is not found.

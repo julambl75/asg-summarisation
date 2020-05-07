@@ -52,8 +52,9 @@ https://paperswithcode.com/sota/text-summarization-on-gigaword
     - [—]: delete inner part
 - Multiple clauses (conjunctive or main+auxiliary): split into multiple sentences
 - Adverbs: move to end
-
+- Possessive pronouns and interjections: remove
 - Contractions
+
 - Lists
 
 ## Representation

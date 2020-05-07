@@ -15,18 +15,9 @@ from ordered_set import OrderedSet
 
 from helper import Helper
 from parse_concept_net import ParseConceptNet
+from simplify_tokenize_text import TextSimplifier
 
 warnings.filterwarnings("ignore")
-
-SUBSTITUTIONS = {'an': 'a'}
-
-ADVERB_POS = 'RB'
-CONJUNCTIVE_POS = 'CC'
-VERB_POS = 'VB'
-COMPLEX_CLAUSE_AUX_VERB_POS = 'VBN'
-COMPLEX_CLAUSE_SPLIT_VERBS = [('was', 'VBD'), ('is', 'VBZ')]
-COMPLEX_CLAUSE_SUBSTITUTIONS = {'a': 'the'}
-EOS_TOKENIZED = ('.', '.')
 
 PROPER_POS = 'NNP'
 IGNORE_POS = ['DT', '.']
@@ -46,24 +37,19 @@ class Preprocessor:
         self.print_results = print_results
         self.proper_nouns = proper_nouns
 
+        self.tokenizer = TextSimplifier(self.story)
         self.helper = Helper()
         self.pcn = ParseConceptNet(False)
 
     def preprocess(self):
         if self.print_results:
             pp.pprint(self.story)
-        self._substitute_determiners()
-        self._replace_punctuation()
-
-        tokenized = self.helper.tokenize_text(self.story)
-        tokenized = self._move_adverbs_to_end(tokenized)
-        tokenized = self._split_conjunctive_clauses(tokenized)
-        tokenized = self._expand_complex_clauses(tokenized)
-        self._replace_story_new_tokenized(tokenized)
+        tokenized, self.story = self.tokenizer.tokenize()
 
         if self.print_results:
-            print('\nGenerating POS tags...')
+            print('\nGenerating POS tags and simplifying story...')
             pp.pprint(tokenized)
+            pp.pprint(self.story)
         similar_words, similar_sentences, vocabulary = self._process_similarity(tokenized)
 
         if self.print_results:
@@ -101,112 +87,6 @@ class Preprocessor:
             proper_nouns = {token[0] for token in itertools.chain(*tokenized) if token[1].startswith(PROPER_POS)}
             return homogenized_story, proper_nouns
         return homogenized_story
-
-    def _substitute_determiners(self):
-        for key, value in SUBSTITUTIONS.items():
-            self.story = re.sub(r"\b{}\b".format(key), value, self.story)
-
-    # TODO
-    def _replace_punctuation(self):
-        print('TODO')
-        # ?–— -> X
-        # !,; -> . (unless list of things for ,)
-        pass
-
-    @staticmethod
-    def _tokens_to_verb_pos(tokens):
-        return list(filter(lambda t: t[1].startswith(VERB_POS), tokens))
-
-    # Ex: Sometimes it is easy.                   -> it is easy Sometimes.
-    # Ex: He always studied and did his homework. -> He studied always and did his homework.
-    # Ex: He studied and always did his homework. -> He studied and did his homework always.
-    def _move_adverbs_to_end(self, tokenized):
-        for i, sentence in enumerate(tokenized):
-            pos_tags = list(map(itemgetter(1), sentence))
-
-            if ADVERB_POS in pos_tags:
-                adverb_idx = pos_tags.index(ADVERB_POS)
-                # Adverb is already at the end
-                if adverb_idx == len(sentence) - 1:
-                    continue
-                adverb_new_idx = sentence.index(EOS_TOKENIZED) - 1
-                if CONJUNCTIVE_POS in pos_tags:
-                    conjunction_idx = pos_tags.index(CONJUNCTIVE_POS)
-                    # Adverb needs to be put right before conjunction
-                    if adverb_idx < conjunction_idx:
-                        adverb_new_idx = conjunction_idx - 1
-                adverb_token = sentence.pop(adverb_idx)
-                sentence.insert(adverb_new_idx, adverb_token)
-        return tokenized
-
-    # Ex: We looked left and they saw us. -> We looked left. they saw us.
-    # Ex: Cars have wheels and go fast.   -> Cars have wheels. Cars go fast.
-    def _split_conjunctive_clauses(self, tokenized):
-        i = 0
-        while i < len(tokenized):
-            sentence = tokenized[i]
-            pos_tags = list(map(itemgetter(1), sentence))
-
-            if CONJUNCTIVE_POS in pos_tags:
-                conjunct_idx = pos_tags.index(CONJUNCTIVE_POS)
-                first_clause = sentence[:conjunct_idx]
-                second_clause = sentence[conjunct_idx+1:]
-
-                # Subject has been omitted from second clause
-                if second_clause[0][1].startswith(VERB_POS):
-                    first_clause_verbs = self._tokens_to_verb_pos(first_clause)
-                    first_clause_verb_idx = first_clause.index(first_clause_verbs[0])
-                    first_clause_subject = first_clause[:first_clause_verb_idx]
-                    second_clause = first_clause_subject + second_clause
-                # Subject and verb have been omitted from second clause, keep object conjunction
-                elif not self._tokens_to_verb_pos(second_clause):
-                    i += 1
-                    continue
-                tokenized[i] = first_clause + [EOS_TOKENIZED]
-                tokenized.insert(i+1, second_clause)
-            i += 1
-        return tokenized
-
-    # Ex: There was a boy named Peter.
-    #  -> There was a boy. the boy was named Peter.
-    def _expand_complex_clauses(self, tokenized):
-        i = 0
-        while i < len(tokenized):
-            sentence = tokenized[i]
-            pos_tags = list(map(itemgetter(1), sentence))
-            if COMPLEX_CLAUSE_AUX_VERB_POS in pos_tags:
-                aux_clause_idx = pos_tags.index(COMPLEX_CLAUSE_AUX_VERB_POS)
-            else:
-                aux_clause_idx = -1
-
-            # If there is an auxiliary clause (starting with a VBN that does not follow a verb)
-            if aux_clause_idx > 0 and not pos_tags[aux_clause_idx-1].startswith(VERB_POS):
-                main_clause = sentence[:aux_clause_idx]
-                aux_clause_obj = sentence[aux_clause_idx:]
-
-                # Prepend to the auxiliary clause everything in the main clause after its last verb
-                #   i.e., use the main clause's object as the subject of the auxiliary clause
-                pos_tags_main = list(map(itemgetter(1), main_clause))
-                main_clause_verbs = self._tokens_to_verb_pos(main_clause)
-                main_clause_obj_idx = len(main_clause) - pos_tags_main[::-1].index(main_clause_verbs[-1][1])
-                main_clause_obj = main_clause[main_clause_obj_idx:]
-
-                # Change 'a' to 'the' at start of subject of the auxiliary sentence
-                first_aux_word, first_aux_pos = main_clause_obj[0]
-                if first_aux_word in COMPLEX_CLAUSE_SUBSTITUTIONS.keys():
-                    first_aux_word = COMPLEX_CLAUSE_SUBSTITUTIONS[first_aux_word]
-                    main_clause_obj[0] = (first_aux_word, first_aux_pos)
-                aux_clause = main_clause_obj + main_clause_verbs + aux_clause_obj
-
-                # Replace tokenized sentence with two tokenized sentences and check auxiliary clause next
-                tokenized[i] = main_clause + [EOS_TOKENIZED]
-                tokenized.insert(i+1, aux_clause)
-            i += 1
-        return tokenized
-
-    def _replace_story_new_tokenized(self, tokenized):
-        tokenized_words = list(map(itemgetter(0), itertools.chain.from_iterable(tokenized)))
-        self.story = ' '.join(tokenized_words).replace(' .', '.')
 
     def _process_similarity(self, tokenized):
         similar_words = defaultdict(lambda: defaultdict(lambda: 0))
