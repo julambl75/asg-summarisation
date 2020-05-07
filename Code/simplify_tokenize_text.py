@@ -7,10 +7,15 @@ import contractions
 from helper import Helper
 
 SUBSTITUTIONS = {'an': 'a'}
+EOS_REPLACE = ['!', ',', ';', ':']
+EOS_REMOVE = ['?']
+EOS_REMOVE_INNER = ['–', '—']
+EOS = '.'
 
 ADVERB_POS = 'RB'
 CONJUNCTIVE_POS = 'CC'
 VERB_POS = 'VB'
+PREPOSITION_POS = 'IN'
 
 COMPLEX_CLAUSE_AUX_VERB_POS = 'VBN'
 COMPLEX_CLAUSE_SPLIT_VERBS = [('was', 'VBD'), ('is', 'VBZ')]
@@ -33,6 +38,7 @@ class TextSimplifier:
 
         tokenized = self.helper.tokenize_text(self.text)
         tokenized = self._move_adverbs_to_end(tokenized)
+        tokenized = self._remove_dependant_clauses(tokenized)
         tokenized = self._split_conjunctive_clauses(tokenized)
         tokenized = self._expand_complex_clauses(tokenized)
         tokenized = self._remove_superfluous_words(tokenized)
@@ -47,12 +53,43 @@ class TextSimplifier:
     def _expand_contractions(self):
         self.text = contractions.fix(self.text)
 
-    # TODO
+    # Ex: Why are you doing this? He liked her; she liked him.
+    #  -> He liked her. she liked him.
+    # Ex: This is a tree, it is a big tree. The car – the long one – was green. It is convenient, is it not nice? Yay!
+    #  -> This is a tree. it is a big tree. The car was green. it is convenient. Yay.
     def _replace_punctuation(self):
-        print('TODO')
-        # ?–— -> X
-        # !,; -> . (unless list of things for ,)
-        pass
+        # Replace exclamation mark, comma, semi-colon and colon with full stop
+        for punctuation in EOS_REPLACE:
+            self.text = self.text.replace(punctuation, EOS)
+
+        # Remove independent clauses in between dashes
+        for punctuation in EOS_REMOVE_INNER:
+            while punctuation in self.text:
+                clause_start = self.text.index(punctuation)
+                clause_end = self.text[clause_start:].index(EOS) + clause_start
+                # Check if clause ends with another dash or with full stop
+                if punctuation in self.text[clause_start+1:clause_end]:
+                    clause_end = self.text[clause_start+1:clause_end].index(punctuation) + clause_start + 1
+                self.text = self.text[:clause_start] + self.text[clause_end + 2:]
+
+        # Remove sentence clauses
+        for punctuation in EOS_REMOVE:
+            while punctuation in self.text:
+                punctuation_idx = self.text.index(punctuation)
+                text_until_punctuation = self.text[:punctuation_idx]
+                sentence_start = 0
+                if EOS in text_until_punctuation:
+                    sentence_start = len(text_until_punctuation) - text_until_punctuation[::-1].index(EOS)
+                self.text = self.text[:sentence_start] + self.text[punctuation_idx+1:]
+        if self.text[0] == ' ':
+            self.text = self.text[1:]
+
+    # TODO -t "I want to be President when I grow up. When I grow up, I want to be a firefighter. Because she is afraid of the dark, she sleeps with a night light. She never walks alone after sunset because she is afraid of the dark."
+    def _remove_dependant_clauses(self, tokenized):
+        for i, sentence in enumerate(tokenized):
+            pos_tags = self._get_pos_tags(sentence)
+            pass
+        return tokenized
 
     # Ex: Sometimes it is easy.                   -> it is easy Sometimes.
     # Ex: He always studied and did his homework. -> He studied always and did his homework.
@@ -149,11 +186,13 @@ class TextSimplifier:
                     superfluous_idx = pos_tags.index(superfluous_tag)
                     sentence.pop(superfluous_idx)
                     pos_tags = self._get_pos_tags(sentence)
+            if pos_tags[0] == PREPOSITION_POS:
+                sentence.pop(0)
         return tokenized
 
     def _replace_story_new_tokenized(self, tokenized):
         tokenized_words = list(map(itemgetter(0), chain.from_iterable(tokenized)))
-        self.text = ' '.join(tokenized_words).replace('. .', '.').replace(' .', '.')
+        self.text = ' '.join(tokenized_words).replace('. .', EOS).replace(' .', EOS)
 
     @staticmethod
     def _tokens_to_verb_pos(tokens):

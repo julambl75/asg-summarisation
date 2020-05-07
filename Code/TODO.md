@@ -1,9 +1,9 @@
 ## To show Alessandra
 
+- ASG constraints for multi-sentence summaries
 - Improved language support
     - More ASG rules
     - Sentence simplification
-- ASG constraints for multi-sentence summaries
 - TTR for scoring
 - Summary generation for NN training examples
 
@@ -46,16 +46,24 @@ https://paperswithcode.com/sota/text-summarization-on-gigaword
 
 ## Sentence simplification
 
+Choice:
+1. Simplify using Python script (faster)
+2. Make ASG format more complex (new information probably lost in summary anyway)
+
 - Punctuation
-    - [?]: remove clause
-    - [!|,|;]: transform into "."
-    - [—]: delete inner part
+    - [?]: remove clause (helps avoid negation for rhetorical questions)
+    - [!|,|;|:]: transform into '.'
+    - [–|—]: delete inner part
 - Multiple clauses (conjunctive or main+auxiliary): split into multiple sentences
 - Adverbs: move to end
 - Possessive pronouns and interjections: remove
-- Contractions
+- Prepositions: remove when at start of sentence
+- Contractions: expand
 
+- Dependant clauses
+- Proper nouns with '.'
 - Lists
+- Numbers
 
 ## Representation
 
