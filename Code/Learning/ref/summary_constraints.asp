@@ -8,6 +8,13 @@
 
   summary(5, verb(be,T), S, object(N,D1,conjunct(A2,A3))) :- action(_, verb(be,T), S, object(N,D1,_)), action(_, verb(be,T), subject(N,D2,A1), object(_,_,conjunct(A2,A3))).
 
+  summary(I, V, S, object(conjunct(N1,N2),D,A)) :- summary(I, V, S, object(conjunct(conjunct(N1,N2),N3),D,A)).
+  summary(I, V, S, object(conjunct(N1,N2),D,A)) :- summary(I, V, S, object(conjunct(N1,conjunct(N2,N3)),D,A)).
+  summary(I, V, S, object(conjunct(N2,N3),D,A)) :- summary(I, V, S, object(conjunct(conjunct(N1,N2),N3),D,A)).
+  summary(I, V, S, object(conjunct(N2,N3),D,A)) :- summary(I, V, S, object(conjunct(N1,conjunct(N2,N3)),D,A)).
+  summary(I, V, S, object(conjunct(N1,N3),D,A)) :- summary(I, V, S, object(conjunct(conjunct(N1,N2),N3),D,A)).
+  summary(I, V, S, object(conjunct(N1,N3),D,A)) :- summary(I, V, S, object(conjunct(N1,conjunct(N2,N3)),D,A)).
+
   % Pick exactly one summary derivation for each sentence
   complex_summary :- summary(I,V,S,O), I > 0.
   0{output(I,V,S,O)}1 :- summary(I,V,S,O).

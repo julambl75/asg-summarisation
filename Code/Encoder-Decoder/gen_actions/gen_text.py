@@ -11,7 +11,11 @@ from score_summary import SummaryScorer
 from text_to_summary import TextToSummary
 
 PATH = os.path.dirname(os.path.abspath(__file__))
-WORDS_PATH = os.path.dirname(PATH)
+PARENT_DIR = os.path.dirname(PATH)
+
+EXPORT_PATH = f'{PARENT_DIR}/data'
+NAMES_FILE = f'{PARENT_DIR}/words/names.txt'
+WORDS_FILE = f'{PARENT_DIR}/words/words.csv'
 
 DETERMINERS = ['a', 'the']
 DETERMINER_REOCCUR = 'the'
@@ -53,6 +57,8 @@ DETERMINER_POS = 'dt'
 ADJECTIVE_POS = 'jj'
 TENSE_TO_POS_TAG = {'present': 'vbp', 'present_third': 'vbz', 'past': 'vbd'}
 
+PRINT_EVERY_ITERS = 50
+
 
 class GenActions:
     def __init__(self):
@@ -66,7 +72,13 @@ class GenActions:
         self.proper_nouns = set()
         self._reset_for_new_story()
 
+        self.story_actions = []
+        self.story_leaf_nodes = []
+        self.stories = []
+        self.training_pairs = []
+
         self.language_checker = language_check.LanguageTool('en-GB')
+        self.summary_scorer = SummaryScorer()
 
         # There is a bug with Python 3.7 causing the first call to Pattern to crash due to a StopIteration
         try:
@@ -76,12 +88,12 @@ class GenActions:
 
     @staticmethod
     def read_names():
-        with open(f'{WORDS_PATH}/words/names.txt', encoding='utf-8') as names_file:
+        with open(NAMES_FILE, encoding='utf-8') as names_file:
             return names_file.read().strip().split('\n')
 
     @staticmethod
     def read_words():
-        with open(f'{WORDS_PATH}/words/words.csv') as words_csv:
+        with open(WORDS_FILE) as words_csv:
             reader = csv.reader(words_csv, delimiter=',')
             return [tuple(row) for row in reader]
 
@@ -208,19 +220,32 @@ class GenActions:
         return self.language_checker.correct(joined_tokens)
 
     def generate_stories(self, story_length, num_stories):
-        story_actions = []
-        story_leaf_nodes = []
-        story_strings = []
-        for _ in range(num_stories):
-            story_actions.append([self.generate_action(i) for i in range(story_length)])
-            story_leaf_nodes.append(sorted(self.leaf_nodes))
-            story_strings.append(self.format_story())
+        for i in range(num_stories):
+            if i % PRINT_EVERY_ITERS == 0:
+                print(f'[{i}/{num_stories}]: Generating stories of length {story_length}...')
+            self.story_actions.append([self.generate_action(i) for i in range(story_length)])
+            self.story_leaf_nodes.append(sorted(self.leaf_nodes))
+            self.stories.append(self.format_story())
             self._reset_for_new_story()
-        return story_actions, story_leaf_nodes, story_strings
+        print(f'[{num_stories}/{num_stories}]: Generated stories of length {story_length}...')
+
+    def summarise_generated_stories(self):
+        num_stories = len(self.story_actions)
+
+        for action_set, leaf_node_set, story in zip(self.story_actions, self.story_leaf_nodes, self.stories):
+            if len(self.training_pairs) % PRINT_EVERY_ITERS == 0:
+                print(f'[{len(self.training_pairs)}/{num_stories}]: Summarising generated stories...')
+
+            text_to_summary = TextToSummary(story, gen_actions.proper_nouns, print_results=False)
+            summaries = text_to_summary.generate_summaries(action_set, (leaf_node_set,))
+
+            best_summary, _ = self.summary_scorer.asg_score(story, summaries, best_only=True)
+            self.training_pairs.append((story, best_summary))
+        print(f'[{num_stories}/{num_stories}]: Summarised generated stories...')
 
 
-# def get_export_file(data_type, nn_step):
-#     return f'{EXPORT_PATH}/{data_type}_{nn_step}.txt'
+def get_export_file(data_type, nn_step):
+    return f'{EXPORT_PATH}/{data_type}_{nn_step}.txt'
 
 # def write():
 #     print(f'[{i}/{n}] Writing story/summary pairs to files...')
@@ -235,20 +260,7 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    actions, leaf_nodes, stories = gen_actions.generate_stories(3, 5)
-
-    summary_scorer = SummaryScorer()
-    training_pairs = []
-
-    for action_set, leaf_node_set, story in zip(actions, leaf_nodes, stories):
-        print('\n'.join(action_set) + '\n')
-        print('\n'.join(leaf_node_set) + '\n')
-        print(story + '\n---\n')
-
-        text_to_summary = TextToSummary(story, gen_actions.proper_nouns, print_results=False)
-        summaries = text_to_summary.generate_summaries(action_set, (leaf_node_set,))
-
-        best_summary, _ = summary_scorer.asg_score(story, summaries, best_only=True)
-        training_pairs.append((story, best_summary))
-
-    print(training_pairs)
+    gen_actions.generate_stories(story_length=3, num_stories=100)
+    gen_actions.generate_stories(story_length=4, num_stories=50)
+    gen_actions.summarise_generated_stories()
+    gen_actions.write_training_data()
