@@ -11,11 +11,10 @@ DIR = os.path.dirname(os.path.realpath(__file__))
 PARSE_CONSTANTS_JSON = DIR + '/parse_constants.json'
 
 with open(PARSE_CONSTANTS_JSON) as f:
-    constants = json.load(f)
-    PUNCTUATION = constants['punctuation']
-    POS_CATEGORIES = constants['pos_categories']
-    SUBORDINATING_CONJUNCTIONS = constants['subordinating_conjunctions']
-    TENSES = constants['tenses']
+    CONSTANTS = json.load(f)
+    POS_CATEGORIES = CONSTANTS['pos_categories']
+    SUBORDINATING_CONJUNCTIONS = CONSTANTS['subordinating_conjunctions']
+    TENSES = CONSTANTS['tenses']
 
 CONSTANTS_FORMAT = '#constant({},{}).'
 VARIABLES_FORMAT = 'var_{}({}).'
@@ -37,7 +36,6 @@ class ParseCoreNLP:
     # If by_sentence is True, the output will be a list of pairs (one list item per sentence)
     def parse_text(self, by_sentence=False, background_vars=False):
         self._text_to_tree()
-        self._remove_punctuation_nodes(self.tree)
         if self.print_results:
             self.tree.pretty_print()
         return self._format_results(by_sentence=by_sentence, background_vars=background_vars)
@@ -66,21 +64,6 @@ class ParseCoreNLP:
                     assert self.lemmas[word] == lemma, "Multiple lemmas {} and {} for word {}".format(self.lemmas[word], lemma, word)
                 else:
                     self.lemmas[word] = lemma
-
-    # TODO improve efficiency
-    def _remove_punctuation_nodes(self, tree):
-        i = 0
-        tree_size = len(tree)
-        while i < tree_size:
-            node = tree[i]
-            if not isinstance(node, nltk.Tree):
-                return
-            if node.label() in PUNCTUATION:
-                del tree[i]
-                tree_size -= 1
-            else:
-                ParseCoreNLP._remove_punctuation_nodes(self, node)
-                i += 1
 
     def _tree_to_asg(self, tree):
         asg_leaves = []

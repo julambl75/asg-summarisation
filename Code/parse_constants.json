@@ -1,17 +1,4 @@
 {
-  "punctuation": [
-    ".",
-    ",",
-    ";",
-    ":",
-    "!",
-    "?",
-    "'",
-    "''",
-    "\"",
-    "``",
-    "-"
-  ],
   "subordinating_conjunctions": [
     "after",
     "although",
