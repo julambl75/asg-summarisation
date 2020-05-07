@@ -23,6 +23,7 @@ COMPLEX_CLAUSE_SUBSTITUTIONS = {'a': 'the'}
 EOS_TOKENIZED = ('.', '.')
 
 SUPERFLUOUS_POS = ['PRP$', 'UH']  # Possessive pronouns and interjections
+DEPENDENT_CLAUSE_POS = 'WRB'  # When, where, which...
 
 
 class TextSimplifier:
@@ -38,10 +39,10 @@ class TextSimplifier:
 
         tokenized = self.helper.tokenize_text(self.text)
         tokenized = self._remove_punctuated_acronyms(tokenized)
-        tokenized = self._remove_dependant_clauses(tokenized)
         tokenized = self._move_adverbs_to_end(tokenized)
         tokenized = self._split_conjunctive_clauses(tokenized)
         tokenized = self._expand_complex_clauses(tokenized)
+        tokenized = self._separate_dependant_clauses(tokenized)
         tokenized = self._remove_superfluous_words(tokenized)
 
         return tokenized, self._replace_story_new_tokenized(tokenized)
@@ -85,8 +86,8 @@ class TextSimplifier:
         if self.text[0] == ' ':
             self.text = self.text[1:]
 
-    # Ex: Mrs.  -> Mrs
-    # Ex: U.S.A -> USA
+    # Ex: Mrs.   -> Mrs
+    # Ex: U.S.A. -> USA
     @staticmethod
     def _remove_punctuated_acronyms(tokenized):
         for sentence in tokenized:
@@ -94,13 +95,6 @@ class TextSimplifier:
                 if (word, pos) != EOS_TOKENIZED:
                     word = word.replace(EOS, '')
                     sentence[i] = (word, pos)
-        return tokenized
-
-    # TODO -t "I want to be President when I grow up. When I grow up, I want to be a firefighter. Because she is afraid of the dark, she sleeps with a night light. She never walks alone after sunset because she is afraid of the dark."
-    def _remove_dependant_clauses(self, tokenized):
-        for i, sentence in enumerate(tokenized):
-            pos_tags = self._get_pos_tags(sentence)
-            pass
         return tokenized
 
     # Ex: Sometimes it is easy.                   -> it is easy Sometimes.
@@ -186,6 +180,25 @@ class TextSimplifier:
                 # Replace tokenized sentence with two tokenized sentences and check auxiliary clause next
                 tokenized[i] = main_clause + [EOS_TOKENIZED]
                 tokenized.insert(i + 1, aux_clause)
+            i += 1
+        return tokenized
+
+    # TODO -t "I want to be President when I grow up. When I grow up, I want to be a firefighter. Because she is afraid of the dark, she sleeps with a night light. She never walks alone after sunset because she is afraid of the dark."
+    def _separate_dependant_clauses(self, tokenized):
+        i = 0
+        while i < len(tokenized):
+            sentence = tokenized[i]
+            pos_tags = self._get_pos_tags(sentence)
+            if DEPENDENT_CLAUSE_POS in pos_tags:
+                if pos_tags[0] == DEPENDENT_CLAUSE_POS:
+                    pass  # TODO
+                dependant_idx = pos_tags.index(DEPENDENT_CLAUSE_POS)
+                main_clause = sentence[:dependant_idx]
+                dependant_clause = sentence[dependant_idx:]
+
+                tokenized[i] = main_clause + [EOS_TOKENIZED]
+                tokenized.insert(i+1, dependant_clause)
+                i += 1
             i += 1
         return tokenized
 

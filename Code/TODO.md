@@ -61,8 +61,8 @@ Choice:
 - Contractions: expand
 - Acronyms: remove punctuation
 
-- Dependant clauses
-- Proper nouns with '.'
+- Dependant clauses: split into separate sentence (remove if there is no verb)
+
 - Lists
 - Numbers
 
