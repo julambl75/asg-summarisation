@@ -9,6 +9,7 @@
 
 ## TODO
 
+- Maybe make "and" of nps
 - Support peter_little.txt
 - Support puzzle.txt
 - Train NN on random stories

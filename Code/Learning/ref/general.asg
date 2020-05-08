@@ -100,6 +100,34 @@ np -> nnp "and " prp {
   :- object(conjunct(N,N),0,0).
 }
 
+np -> dt nn "and " prp {
+  subject(conjunct(N1,N2),D,0) :- det(D)@1, noun(N1)@2, noun(N2)@4.
+  object(conjunct(N1,N2),D,0) :- det(D)@1, noun(N1)@2, noun(N2)@4.
+  :- subject(conjunct(N,N),_,0).
+  :- object(conjunct(N,N),_,0).
+}
+
+np -> prp "and " dt nn {
+  subject(conjunct(N1,N2),D,0) :- noun(N1)@1, det(D)@3, noun(N2)@4.
+  object(conjunct(N1,N2),D,0) :- noun(N1)@1, det(D)@3, noun(N2)@4.
+  :- subject(conjunct(N,N),_,0).
+  :- object(conjunct(N,N),_,0).
+}
+
+np -> dt nn "and " nnp {
+  subject(conjunct(N1,N2),D,0) :- det(D)@1, noun(N1)@2, noun(N2)@4.
+  object(conjunct(N1,N2),D,0) :- det(D)@1, noun(N1)@2, noun(N2)@4.
+  :- subject(conjunct(N,N),_,0).
+  :- object(conjunct(N,N),_,0).
+}
+
+np -> nnp "and " dt nn {
+  subject(conjunct(N1,N2),D,0) :- noun(N1)@1, det(D)@3, noun(N2)@4.
+  object(conjunct(N1,N2),D,0) :- noun(N1)@1, det(D)@3, noun(N2)@4.
+  :- subject(conjunct(N,N),_,0).
+  :- object(conjunct(N,N),_,0).
+}
+
 np -> nnp "and " nnp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.

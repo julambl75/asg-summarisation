@@ -1,6 +1,7 @@
 import csv
 import os
 import random
+from distutils.dir_util import mkpath
 from operator import itemgetter
 
 import language_check
@@ -16,6 +17,10 @@ PARENT_DIR = os.path.dirname(PATH)
 EXPORT_PATH = f'{PARENT_DIR}/data'
 NAMES_FILE = f'{PARENT_DIR}/words/names.txt'
 WORDS_FILE = f'{PARENT_DIR}/words/words.csv'
+
+TRAIN = 'train'
+TEST = 'test'
+EVAL = 'eval'
 
 DETERMINERS = ['a', 'the']
 DETERMINER_REOCCUR = 'the'
@@ -58,6 +63,7 @@ ADJECTIVE_POS = 'jj'
 TENSE_TO_POS_TAG = {'present': 'vbp', 'present_third': 'vbz', 'past': 'vbd'}
 
 PRINT_EVERY_ITERS = 50
+TEST_PROPORTION = 0.1
 
 
 class GenActions:
@@ -88,7 +94,7 @@ class GenActions:
 
     @staticmethod
     def read_names():
-        with open(NAMES_FILE, encoding='utf-8') as names_file:
+        with open(NAMES_FILE, encoding='utf-8-sig') as names_file:
             return names_file.read().strip().split('\n')
 
     @staticmethod
@@ -199,7 +205,7 @@ class GenActions:
         self.create_asg_leaf(TENSE_TO_POS_TAG[tense], conjugated, VERB_PREDICATE, verb, tense)
         self.curr_story_tokens.append(conjugated)
         return f'verb({verb}, {tense})'
-    
+
     def create_asg_leaf(self, pos_tag, value, predicate, verb_name=None, verb_form=None):
         if predicate == VERB_PREDICATE:
             lemma = f'{verb_name}, {verb_form}'
@@ -243,19 +249,33 @@ class GenActions:
             self.training_pairs.append((story, best_summary))
         print(f'[{num_stories}/{num_stories}]: Summarised generated stories...')
 
+    @staticmethod
+    def get_export_file(data_type, nn_step):
+        return f'{EXPORT_PATH}/{data_type}_{nn_step}.txt'
 
-def get_export_file(data_type, nn_step):
-    return f'{EXPORT_PATH}/{data_type}_{nn_step}.txt'
+    def _write_training_data(self, story_summary_pairs, nn_step):
+        print(f'Writing {len(story_summary_pairs)} story/summary pairs for {nn_step} data...')
+        stories = '\n'.join(list(map(itemgetter(0), gen_actions.training_pairs)))
+        summaries = '\n'.join(list(map(itemgetter(1), gen_actions.training_pairs)))
 
-# def write():
-#     print(f'[{i}/{n}] Writing story/summary pairs to files...')
-#     mkpath(EXPORT_PATH)
-#     stories_dest = self.get_export_file('stories', nn_step)
-#     summaries_dest = self.get_export_file('summaries', nn_step)
-#     with open(stories_dest, 'w') as stories_file:
-#         stories_file.writelines(stories)
-#     with open(summaries_dest, 'w') as summaries_file:
-#         summaries_file.writelines(summaries)
+        mkpath(EXPORT_PATH)
+        stories_dest = self.get_export_file('stories', nn_step)
+        summaries_dest = self.get_export_file('summaries', nn_step)
+        with open(stories_dest, 'w') as stories_file:
+            stories_file.write(stories)
+        with open(summaries_dest, 'w') as summaries_file:
+            summaries_file.write(summaries)
+
+    def write_training_data(self, proportion_of_test, shuffle=True):
+        assert 0 <= proportion_of_test < 1
+        num_test = int(proportion_of_test * len(self.training_pairs))
+        if shuffle:
+            print('Shuffling story/summary pairs...')
+            random.shuffle(self.training_pairs)
+        test_pairs = self.training_pairs[:num_test]
+        train_pairs = self.training_pairs[num_test:]
+        self._write_training_data(train_pairs, TRAIN)
+        self._write_training_data(test_pairs, TEST)
 
 
 if __name__ == '__main__':
@@ -263,4 +283,4 @@ if __name__ == '__main__':
     gen_actions.generate_stories(story_length=3, num_stories=100)
     gen_actions.generate_stories(story_length=4, num_stories=50)
     gen_actions.summarise_generated_stories()
-    gen_actions.write_training_data()
+    gen_actions.write_training_data(TEST_PROPORTION)
