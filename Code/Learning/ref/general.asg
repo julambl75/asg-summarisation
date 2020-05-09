@@ -195,3 +195,42 @@ np -> dt jj jj nn {
   :- object(N,D,conjunct(A,A)).
 }
 
+np -> jj in nn {
+  object(N,D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N)@3.
+}
+
+np -> jj in nn "and " nn {
+  object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
+}
+
+np -> jj in nns {
+  object(N,D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N)@3.
+}
+
+np -> jj in nns "and " nns {
+  object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
+}
+
+np -> jj in nnp {
+  object(N,D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N)@3.
+}
+
+np -> jj in nnp "and " nnp {
+  object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
+}
+
+np -> jj in prp {
+  object(N,D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N)@3.
+}
+
+np -> jj in prp "and " prp {
+  object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
+}
+
+np -> jj in nn "and " nns {
+  object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
+}
+
+np -> jj in nns "and " nn {
+  object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
+}

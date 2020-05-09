@@ -10,6 +10,8 @@
 ## TODO
 
 - Maybe make "and" of nps
+- #modeh(action(verb(comp(be -> const(verb_name)
+
 - Support peter_little.txt
 - Support puzzle.txt
 - Train NN on random stories
@@ -64,6 +66,7 @@ Choice:
 - Dependant clauses: split into separate sentence (remove if there is no punctuation)
 - Verbless sentences: remove
 - Subordinating conjunctions: split into separate sentence
+- Complex proper nouns: collapse into CamelCase
 
 ## Representation
 

@@ -14,6 +14,7 @@
   "pos_categories": {
     "dt": "det",
     "ex": "noun",
+    "in": "det",
     "jj": "adj_or_adv",
     "nn": "noun",
     "nns": "noun",
