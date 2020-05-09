@@ -26,7 +26,7 @@ RESULTS_FILE = DIR + 'output.txt'
 DEPTH = 10
 AVOID_CONSTRAINTS = "--ILASP-ss-options='-nc'"
 
-LEARN_ACTIONS_CMD = f'asg {ACTION_ASG} --mode=learn --depth={DEPTH} {AVOID_CONSTRAINTS} > {SUMMARY_ASG}'
+LEARN_ACTIONS_CMD = f'asg {ACTION_ASG} --mode=learn --depth={DEPTH} > {SUMMARY_ASG}'
 GEN_SUMMARIES_CMD = f'asg {SUMMARY_ASG} --mode=run --depth={DEPTH} > {RESULTS_FILE}'
 
 REMOVE_SPACES_REGEX = '[^a-zA-Z0-9-]+'
@@ -35,6 +35,8 @@ FIND_BACKGROUND_REGEX = '#background *{[^}]*}'
 # https://stackoverflow.com/q/35544325/
 DECAPITALISE_REGEX = r'\b(?<!`)(\w+)(?!`)\b'
 DECAPITALISE_QUOTE = '`'
+
+RESTORE_PROPER_NOUNS_REGEX = (r'([a-z])([A-Z])', r'\1 \2')
 
 
 class TextToSummary:
@@ -57,28 +59,31 @@ class TextToSummary:
             print('---\nStep 1\n---')
             print('Creating context-specific ASGs and learning actions from text...')
         parsed_text = text_parser.parse_text(by_sentence=True)
-        learned_actions = self.learn_actions(parsed_text)
+        story_actions = self.learn_actions(parsed_text)
 
         if self.print_results:
-            for action in learned_actions:
-                print(action.strip())
             print('\n---\nStep 2\n---')
-            print('Updating ASG constraints, generating summaries and post-processing summaries...')
+            print('Updating ASG constraints, generating summaries and post-processing them...')
         context_specific_asg = tuple(map(operator.itemgetter(0), parsed_text))
-        summaries = self.generate_summaries(learned_actions, context_specific_asg)
+        summaries = self.generate_summaries(story_actions, context_specific_asg)
         return summaries
 
     def learn_actions(self, parsed_text):
-        learned_actions = []
+        story_actions = []
         for context_specific_asg, ilasp_constants, sentence in parsed_text:
             tokens = self._text_to_tokens(sentence)
             examples = self._gen_asg_examples(tokens)
             self._create_actions_asg()
             self._append_to_asg(ACTION_ASG, (context_specific_asg, ilasp_constants, examples))
-            learned_actions.extend(self._run_learn_actions())
-        # Add indices to keep track of chronology of events
-        learned_actions = [action.replace('action(', f'action({i}, ') for i, action in enumerate(learned_actions)]
-        return learned_actions
+            learned_actions = self._run_learn_actions()
+
+            # Add indices to keep track of chronology of events
+            for i, action in enumerate(learned_actions):
+                learned_actions[i] = action.replace('action(', f'action({len(learned_actions) + i}, ')
+                if self.print_results:
+                    print(action.strip())
+            story_actions.extend(learned_actions)
+        return story_actions
 
     def generate_summaries(self, learned_actions, context_specific_asg):
         self._create_summary_asg(learned_actions)
@@ -182,4 +187,10 @@ class TextToSummary:
             return list(filter(lambda l: len(l) > 0, file.read().split('\n')))
 
     def _correct_summaries(self, summaries):
-        return set(map(lambda s: s.strip().replace('_', '-'), map(self.language_checker.correct, summaries)))
+        # Correct grammar
+        corrected_summaries = map(self.language_checker.correct, summaries)
+        # Restore complex proper nouns
+        corrected_summaries = map(lambda s: re.sub(*RESTORE_PROPER_NOUNS_REGEX, s), corrected_summaries)
+        # Restore punctuation
+        corrected_summaries = map(lambda s: s.strip().replace('_', '-'), corrected_summaries)
+        return set(corrected_summaries)

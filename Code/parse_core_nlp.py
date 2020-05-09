@@ -15,6 +15,8 @@ with open(PARSE_CONSTANTS_JSON) as f:
     POS_CATEGORIES = CONSTANTS['pos_categories']
     SUBORDINATING_CONJUNCTIONS = CONSTANTS['subordinating_conjunctions']
     TENSES = CONSTANTS['tenses']
+    MAIN_VERB_FORMS = CONSTANTS['main_verb_forms']
+    AUX_VERB_FORMS = CONSTANTS['aux_verb_forms']
 
 CONSTANTS_FORMAT = '#constant({},{}).'
 VARIABLES_FORMAT = 'var_{}({}).'
@@ -53,7 +55,6 @@ class ParseCoreNLP:
         # Combine trees
         for sentence in sentences[1:]:
             self.tree.append(sentence[0])
-            self.tree.pretty_print()
 
     def _map_words_to_lemmas(self, core_nlp_json):
         for sentence in core_nlp_json['sentences']:
@@ -88,6 +89,14 @@ class ParseCoreNLP:
 
     # Takes as argument a string format with placeholders (category, lemma)
     def _lemmas_to_format(self, lemma_format):
+        if lemma_format == CONSTANTS_FORMAT:
+            verb_forms = [value for key, value in self.constants if key == 'verb_form']
+            for verb_form in MAIN_VERB_FORMS:
+                if verb_form in verb_forms:
+                    self.constants.add(('main_verb', verb_form))
+            for verb_form in AUX_VERB_FORMS:
+                if verb_form in verb_forms:
+                    self.constants.add(('aux_verb', verb_form))
         return [lemma_format.format(category, lemma) for category, lemma in self.constants]
 
     def _format_results(self, tree=None, by_sentence=False, background_vars=False):

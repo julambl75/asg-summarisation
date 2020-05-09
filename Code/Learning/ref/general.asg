@@ -38,6 +38,11 @@ vp -> vbd vbg np {
   object(N,D,A) :- object(N,D,A)@3.
 }
 
+vp -> vbd vbn np {
+  verb(comp(N1,N2),comp(T1,past_part)) :- verb(N1,T1)@1, verb(N2,past_part)@2.
+  object(N,D,A) :- object(N,D,A)@3.
+}
+
 vp -> vbp np {
   verb(N,T) :- verb(N,T)@1.
   object(N,D,A) :- object(N,D,A)@2.
@@ -48,6 +53,11 @@ vp -> vbp vbg np {
   object(N,D,A) :- object(N,D,A)@3.
 }
 
+vp -> vbp vbn np {
+  verb(comp(N1,N2),comp(T1,past_part)) :- verb(N1,T1)@1, verb(N2,past_part)@2.
+  object(N,D,A) :- object(N,D,A)@3.
+}
+
 vp -> vbz np {
   verb(N,T) :- verb(N,T)@1.
   object(N,D,A) :- object(N,D,A)@2.
@@ -55,6 +65,11 @@ vp -> vbz np {
 
 vp -> vbz vbg np {
   verb(comp(N1,N2),comp(T1,gerund)) :- verb(N1,T1)@1, verb(N2,gerund)@2.
+  object(N,D,A) :- object(N,D,A)@3.
+}
+
+vp -> vbz vbn np {
+  verb(comp(N1,N2),comp(T1,past_part)) :- verb(N1,T1)@1, verb(N2,past_part)@2.
   object(N,D,A) :- object(N,D,A)@3.
 }
 
@@ -83,7 +98,7 @@ np -> rp {
 }
 
 np -> ex {
-  subject(T,0,0) :- ex(T)@1.
+  subject(N,0,0) :- noun(N)@1.
 }
 
 np -> prp "and " nnp {

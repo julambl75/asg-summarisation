@@ -20,6 +20,7 @@ ADVERB_POS = 'RB'
 CONJUNCTIVE_POS = 'CC'
 VERB_POS = 'VB'
 PREPOSITION_POS = 'IN'
+PROPER_NOUN_POS = 'NNP'
 
 COMPLEX_CLAUSE_AUX_VERB_POS = 'VBN'
 COMPLEX_CLAUSE_SPLIT_VERBS = [('was', 'VBD'), ('is', 'VBZ')]
@@ -44,6 +45,7 @@ class TextSimplifier:
 
         tokenized = self.helper.tokenize_text(self.text)
         tokenized = self._remove_punctuated_acronyms(tokenized)
+        tokenized = self._combine_complex_proper_nouns(tokenized)
         tokenized = self._move_adverbs_to_end(tokenized)
         tokenized = self._split_conjunctive_clauses(tokenized)
         tokenized = self._expand_complex_clauses(tokenized)
@@ -107,6 +109,23 @@ class TextSimplifier:
                 if (word, pos) != EOS_TOKENIZED:
                     word = word.replace(EOS, '')
                     sentence[i] = (word, pos)
+        return tokenized
+
+    # Ex: Peter Little -> PeterLittle
+    @staticmethod
+    def _combine_complex_proper_nouns(tokenized):
+        for sentence in tokenized:
+            i = 0
+            while i < len(sentence) - 1:
+                (word, pos) = sentence[i]
+                (next_word, next_pos) = sentence[i+1]
+                # Reduce ASG search space
+                if pos == next_pos == PROPER_NOUN_POS:
+                    new_word = word + next_word
+                    sentence[i] = (new_word, pos)
+                    sentence.pop(i+1)
+                else:
+                    i += 1
         return tokenized
 
     # Ex: Sometimes it is easy.                   -> it is easy Sometimes.
