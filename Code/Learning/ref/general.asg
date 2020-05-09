@@ -77,6 +77,11 @@ np -> np rb {
   object(N,D,A) :- object(N,D,0)@1, adj_or_adv(A)@2.
 }
 
+np -> np rb {
+  object(N,D,conjunct(A1,A2)) :- object(N,D,A1)@1, adj_or_adv(A2)@2.
+  :- object(N,D,conjunct(A,A)).
+}
+
 np -> nnp {
   subject(N,0,0) :- noun(N)@1.
   object(N,0,0) :- noun(N)@1.
