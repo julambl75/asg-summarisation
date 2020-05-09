@@ -73,6 +73,10 @@ vp -> vbz vbn np {
   object(N,D,A) :- object(N,D,A)@3.
 }
 
+np -> np rb {
+  object(N,D,A) :- object(N,D,0)@1, adj_or_adv(A)@2.
+}
+
 np -> nnp {
   subject(N,0,0) :- noun(N)@1.
   object(N,0,0) :- noun(N)@1.
@@ -234,3 +238,4 @@ np -> jj in nn "and " nns {
 np -> jj in nns "and " nn {
   object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
 }
+
