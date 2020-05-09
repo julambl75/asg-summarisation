@@ -9,10 +9,9 @@
 
 ## TODO
 
-- Maybe make "and" of nps
-- #modeh(action(verb(comp(be -> const(verb_name)
+- Character (proper noun recognition)
 
-- Support peter_little.txt
+- #modeh(action(verb(comp(be -> const(verb_name)
 - Support puzzle.txt
 - Train NN on random stories
 

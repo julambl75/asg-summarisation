@@ -23,7 +23,7 @@ ACTION_ASG = DIR + 'action.asg'
 SUMMARY_ASG = DIR + 'summary.asg'
 RESULTS_FILE = DIR + 'output.txt'
 
-DEPTH = 10
+DEPTH = 8
 AVOID_CONSTRAINTS = "--ILASP-ss-options='-nc'"
 
 LEARN_ACTIONS_CMD = f'asg {ACTION_ASG} --mode=learn --depth={DEPTH} > {SUMMARY_ASG}'
@@ -144,7 +144,7 @@ class TextToSummary:
 
     def _create_summary_asg(self, learned_actions):
         with open(SUMMARY_ASG, 'w') as file:
-            file.write(self.base_action_asg)
+            file.write(self.language_asg)
         summary_constraints = TextToSummary._read_file(LEARN_SUMMARIES_CONSTRAINTS)
         with open(SUMMARY_ASG, 'r') as file:
             lang_asg = file.read()
