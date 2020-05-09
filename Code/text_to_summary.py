@@ -79,9 +79,9 @@ class TextToSummary:
 
             # Add indices to keep track of chronology of events
             for i, action in enumerate(learned_actions):
-                learned_actions[i] = action.replace('action(', f'action({len(learned_actions) + i}, ')
+                learned_actions[i] = action.replace('action(', f'action({len(story_actions) + i}, ')
                 if self.print_results:
-                    print(action.strip())
+                    print(learned_actions[i].strip())
             story_actions.extend(learned_actions)
         return story_actions
 
