@@ -1,6 +1,7 @@
 ## To show Alessandra
 
 - ASG constraints for multi-sentence summaries
+- New summary rules with conjunct choosing
 - Improved language support
     - More ASG rules
     - Sentence simplification
@@ -8,8 +9,6 @@
 - Summary generation for NN training examples
 
 ## TODO
-
-- Character (proper noun recognition)
 
 - #modeh(action(verb(comp(be -> const(verb_name)
 - Support puzzle.txt
@@ -66,6 +65,7 @@ Choice:
 - Verbless sentences: remove
 - Subordinating conjunctions: split into separate sentence
 - Complex proper nouns: collapse into CamelCase
+- Proper nouns: replace occurrences of pronouns with relevant proper noun (idea: if they are used in the story then there should be little ambiguity)
 
 ## Representation
 

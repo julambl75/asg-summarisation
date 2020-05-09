@@ -20,7 +20,9 @@ ADVERB_POS = 'RB'
 CONJUNCTIVE_POS = 'CC'
 VERB_POS = 'VB'
 PREPOSITION_POS = 'IN'
+PRONOUN_POS = 'PRP'
 PROPER_NOUN_POS = 'NNP'
+PROPER_NOUN_POS_PL = 'NNPS'
 
 COMPLEX_CLAUSE_AUX_VERB_POS = 'VBN'
 COMPLEX_CLAUSE_SPLIT_VERBS = [('was', 'VBD'), ('is', 'VBZ')]
@@ -31,10 +33,15 @@ SUPERFLUOUS_POS = ['PRP$', 'UH']  # Possessive pronouns and interjections
 DEPENDENT_CLAUSE_POS = 'WRB'  # When, where, which...
 SUBJECT_POS = ['NN', 'NNS', 'NNP', 'NNPS', 'EX', 'PRP']
 
+PERSON_PRONOUNS_SG = ['he', 'she', 'they']
+PERSON_PRONOUNS_PL = ['they']
+
 
 class TextSimplifier:
     def __init__(self, text):
         self.text = text
+        self.proper_nouns = set()
+
         self.helper = Helper()
 
     def tokenize(self):
@@ -52,9 +59,10 @@ class TextSimplifier:
         tokenized = self._remove_superfluous_words(tokenized)
         tokenized = self._separate_dependant_clauses(tokenized)
         tokenized = self._remove_verbless_sentences(tokenized)
+        tokenized = self._substitute_pronouns_for_proper_nouns(tokenized)
 
         self._replace_story_new_tokenized(tokenized)
-        return tokenized, self.text
+        return tokenized, self.text, self.proper_nouns
 
     def _substitute_determiners(self):
         for key, value in SUBSTITUTIONS.items():
@@ -112,8 +120,7 @@ class TextSimplifier:
         return tokenized
 
     # Ex: Peter Little -> PeterLittle
-    @staticmethod
-    def _combine_complex_proper_nouns(tokenized):
+    def _combine_complex_proper_nouns(self, tokenized):
         for sentence in tokenized:
             i = 0
             while i < len(sentence) - 1:
@@ -165,12 +172,12 @@ class TextSimplifier:
 
                 # Subject has been omitted from second clause
                 if second_clause[0][1].startswith(VERB_POS):
-                    first_clause_verbs = self._tokens_to_verb_pos(first_clause)
+                    first_clause_verbs = self._tokens_to_pos(first_clause, VERB_POS)
                     first_clause_verb_idx = first_clause.index(first_clause_verbs[0])
                     first_clause_subject = first_clause[:first_clause_verb_idx]
                     second_clause = first_clause_subject + second_clause
                 # Subject and verb have been omitted from second clause, keep object conjunction
-                elif not self._tokens_to_verb_pos(second_clause):
+                elif not self._tokens_to_pos(second_clause, VERB_POS):
                     i += 1
                     continue
                 tokenized[i] = first_clause + [EOS_TOKENIZED]
@@ -197,7 +204,7 @@ class TextSimplifier:
                 # Prepend to the auxiliary clause everything in the main clause after its last verb
                 #   i.e., use the main clause's object as the subject of the auxiliary clause
                 pos_tags_main = self._get_pos_tags(main_clause)
-                main_clause_verbs = self._tokens_to_verb_pos(main_clause)
+                main_clause_verbs = self._tokens_to_pos(main_clause, VERB_POS)
                 main_clause_obj_idx = len(main_clause) - pos_tags_main[::-1].index(main_clause_verbs[-1][1])
                 main_clause_obj = main_clause[main_clause_obj_idx:]
 
@@ -253,11 +260,44 @@ class TextSimplifier:
         i = 0
         while i < len(tokenized):
             sentence = tokenized[i]
-            verbs = self._tokens_to_verb_pos(sentence)
+            verbs = self._tokens_to_pos(sentence, VERB_POS)
             if not verbs:
                 tokenized.pop(i)
             else:
                 i += 1
+        return tokenized
+
+    # Ex: Mary is drinking coffee. She is angry.
+    #  -> Mary is drinking coffee. Mary is angry.
+    # Ex: Antonio is a cheesemaker. He makes burrata. Puglians like pasta. They make it from semolina.
+    #  -> Antonio is a cheesemaker. Antonio makes burrata. Puglians like pasta. Puglians make it from semolina.
+    def _substitute_pronouns_for_proper_nouns(self, tokenized):
+        proper_nouns_sg = set()
+        proper_nouns_pl = set()
+        for sentence in tokenized:
+            for word, pos in sentence:
+                if pos == PROPER_NOUN_POS:
+                    proper_nouns_sg.add(word)
+                if pos == PROPER_NOUN_POS_PL:
+                    proper_nouns_pl.add(word)
+        self.proper_nouns.update(proper_nouns_sg)
+        self.proper_nouns.update(proper_nouns_pl)
+
+        # TODO use PERSON_PRONOUNS_SG
+
+        pronouns = self._tokens_to_pos(chain.from_iterable(tokenized), PRONOUN_POS)
+        pronouns_sg = [pronoun.lower() for pronoun, pos in pronouns if pos == PRONOUN_POS]
+        pronouns_pl = [pronoun.lower() for pronoun, pos in pronouns if pos == PROPER_NOUN_POS_PL]
+
+        pronouns_to_proper = {}
+        if len(proper_nouns_sg) == 1 and len(pronouns_sg) == 1:
+            pronouns_to_proper[proper_nouns_sg[0]] = pronouns_sg[0]
+        if len(proper_nouns_pl) == 1 and len(pronouns_pl) == 1:
+            pronouns_to_proper[proper_nouns_pl[0]] = pronouns_pl[0]
+        
+        for sentence in tokenized:
+            pos_tags = self._get_pos_tags(sentence)
+            pass
         return tokenized
 
     def _replace_story_new_tokenized(self, tokenized):
@@ -265,8 +305,8 @@ class TextSimplifier:
         self.text = ' '.join(tokenized_words).replace('. .', EOS).replace(' .', EOS)
 
     @staticmethod
-    def _tokens_to_verb_pos(tokens):
-        return list(filter(lambda t: t[1].startswith(VERB_POS), tokens))
+    def _tokens_to_pos(tokens, pos):
+        return list(filter(lambda t: t[1].startswith(pos), tokens))
 
     @staticmethod
     def _get_pos_tags(sentence):

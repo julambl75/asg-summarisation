@@ -1,5 +1,4 @@
 import argparse
-import itertools
 import math
 import pprint as pp
 import re
@@ -19,7 +18,6 @@ from simplify_tokenize_text import TextSimplifier
 
 warnings.filterwarnings("ignore")
 
-PROPER_POS = 'NNP'
 IGNORE_POS = ['DT', '.']
 SAME_WORD_POS = ['NN', 'NNS', 'NNP', 'NNPS']
 
@@ -44,7 +42,7 @@ class Preprocessor:
     def preprocess(self):
         if self.print_results:
             pp.pprint(self.story)
-        tokenized, self.story = self.tokenizer.tokenize()
+        tokenized, self.story, self.proper_nouns = self.tokenizer.tokenize()
 
         if self.print_results:
             print('\nGenerating POS tags and simplifying story...')
@@ -84,8 +82,7 @@ class Preprocessor:
             pp.pprint(homogenized_story)
 
         if self.proper_nouns:
-            proper_nouns = {token[0] for token in itertools.chain(*tokenized) if token[1].startswith(PROPER_POS)}
-            return homogenized_story, proper_nouns
+            return homogenized_story, self.proper_nouns
         return homogenized_story
 
     def _process_similarity(self, tokenized):
