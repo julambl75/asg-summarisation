@@ -10,6 +10,8 @@
 
 ## TODO
 
+- Generate all possible 1 sentence summaries and combine in all possible ways (score first using TTR then fix grammar)
+
 - #modeh(action(verb(comp(be -> const(verb_name)
 - Support puzzle.txt
 - Train NN on random stories
