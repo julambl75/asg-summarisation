@@ -33,7 +33,7 @@ SUPERFLUOUS_POS = ['PRP$', 'UH']  # Possessive pronouns and interjections
 DEPENDENT_CLAUSE_POS = 'WRB'  # When, where, which...
 SUBJECT_POS = ['NN', 'NNS', 'NNP', 'NNPS', 'EX', 'PRP']
 
-PERSON_PRONOUNS_SG = ['he', 'she', 'they']
+PERSON_PRONOUNS_SG = ['he', 'she']
 PERSON_PRONOUNS_PL = ['they']
 
 
@@ -269,8 +269,8 @@ class TextSimplifier:
 
     # Ex: Mary is drinking coffee. She is angry.
     #  -> Mary is drinking coffee. Mary is angry.
-    # Ex: Antonio is a cheesemaker. He makes burrata. Puglians like pasta. They make it from semolina.
-    #  -> Antonio is a cheesemaker. Antonio makes burrata. Puglians like pasta. Puglians make it from semolina.
+    # Ex: Antonio is a cheesemaker. He makes burrata. Italians eat pasta. They make it with egg sometimes.
+    #  -> Antonio is a cheesemaker. Antonio makes burrata. Italians eat pasta. Italians make it with egg sometimes.
     def _substitute_pronouns_for_proper_nouns(self, tokenized):
         proper_nouns_sg = set()
         proper_nouns_pl = set()
@@ -283,21 +283,23 @@ class TextSimplifier:
         self.proper_nouns.update(proper_nouns_sg)
         self.proper_nouns.update(proper_nouns_pl)
 
-        # TODO use PERSON_PRONOUNS_SG
-
         pronouns = self._tokens_to_pos(chain.from_iterable(tokenized), PRONOUN_POS)
-        pronouns_sg = [pronoun.lower() for pronoun, pos in pronouns if pos == PRONOUN_POS]
-        pronouns_pl = [pronoun.lower() for pronoun, pos in pronouns if pos == PROPER_NOUN_POS_PL]
+        pronouns_pl = {pronoun.lower() for pronoun, _ in pronouns if pronoun.lower() in PERSON_PRONOUNS_PL}
+        # Support singular pronoun 'they' when gender of person is unknown
+        if len(pronouns_pl) == 0:
+            PERSON_PRONOUNS_PL.extend(PERSON_PRONOUNS_SG)
+        pronouns_sg = {pronoun.lower() for pronoun, _ in pronouns if pronoun.lower() in PERSON_PRONOUNS_SG}
 
         pronouns_to_proper = {}
         if len(proper_nouns_sg) == 1 and len(pronouns_sg) == 1:
-            pronouns_to_proper[proper_nouns_sg[0]] = pronouns_sg[0]
+            pronouns_to_proper[self._get_first_elem(pronouns_sg)] = self._get_first_elem(proper_nouns_sg)
         if len(proper_nouns_pl) == 1 and len(pronouns_pl) == 1:
-            pronouns_to_proper[proper_nouns_pl[0]] = pronouns_pl[0]
-        
+            pronouns_to_proper[self._get_first_elem(pronouns_pl)] = self._get_first_elem(proper_nouns_pl)
         for sentence in tokenized:
-            pos_tags = self._get_pos_tags(sentence)
-            pass
+            for i, (word, pos) in enumerate(sentence):
+                word = word.lower()
+                if pos == PRONOUN_POS and word in pronouns_to_proper.keys():
+                    sentence[i] = (pronouns_to_proper[word], pos)
         return tokenized
 
     def _replace_story_new_tokenized(self, tokenized):
@@ -311,3 +313,8 @@ class TextSimplifier:
     @staticmethod
     def _get_pos_tags(sentence):
         return list(map(itemgetter(1), sentence))
+
+    @staticmethod
+    def _get_first_elem(values):
+        assert len(values) > 0
+        return next(iter(values))

@@ -6,7 +6,7 @@
     - More ASG rules
     - Sentence simplification
 - TTR for scoring
-- Summary generation for NN training examples
+- Summary generation for NN training examples (TODO)
 
 ## TODO
 
