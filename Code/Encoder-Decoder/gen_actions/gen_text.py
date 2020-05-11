@@ -245,8 +245,7 @@ class GenActions:
             text_to_summary = TextToSummary(story, gen_actions.proper_nouns, print_results=False)
             summaries = text_to_summary.generate_summaries(action_set, (leaf_node_set,))
 
-            best_summary, _ = self.summary_scorer.asg_score(story, summaries, best_only=True)
-            self.training_pairs.append((story, best_summary))
+            self.training_pairs.append((story, summaries[0][0]))
         print(f'[{num_stories}/{num_stories}]: Summarised generated stories...')
 
     @staticmethod
@@ -280,7 +279,7 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(story_length=3, num_stories=100)
-    gen_actions.generate_stories(story_length=4, num_stories=50)
+    gen_actions.generate_stories(story_length=5, num_stories=5)
+    # gen_actions.generate_stories(story_length=4, num_stories=50)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(TEST_PROPORTION)

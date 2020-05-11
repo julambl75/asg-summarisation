@@ -34,6 +34,9 @@ class SummaryScorer:
             sorted_scores.append((summary, score))
         sorted_scores.sort(key=itemgetter(1), reverse=True)
 
+        if not sorted_scores:
+            return [] if best_only else None
+
         third_quartile_score = np.percentile(list(map(itemgetter(1), sorted_scores)), TOP_HIT_PERCENTILE)
         sorted_scores = [(summary, score) for summary, score in sorted_scores if score >= third_quartile_score]
 

@@ -40,6 +40,11 @@ vp -> vbd vbn np {
   object(N,D,A) :- object(N,D,A)@3.
 }
 
+vp -> vbd "to " vb np {
+  verb(comp(N1,N2),comp(T1,base)) :- verb(N1,T1)@1, verb(N2,base)@3.
+  object(N,D,A) :- object(N,D,A)@4.
+}
+
 vp -> vbp np {
   verb(N,T) :- verb(N,T)@1.
   object(N,D,A) :- object(N,D,A)@2.
@@ -55,6 +60,11 @@ vp -> vbp vbn np {
   object(N,D,A) :- object(N,D,A)@3.
 }
 
+vp -> vbp "to " vb np {
+  verb(comp(N1,N2),comp(T1,base)) :- verb(N1,T1)@1, verb(N2,base)@3.
+  object(N,D,A) :- object(N,D,A)@4.
+}
+
 vp -> vbz np {
   verb(N,T) :- verb(N,T)@1.
   object(N,D,A) :- object(N,D,A)@2.
@@ -68,6 +78,11 @@ vp -> vbz vbg np {
 vp -> vbz vbn np {
   verb(comp(N1,N2),comp(T1,past_part)) :- verb(N1,T1)@1, verb(N2,past_part)@2.
   object(N,D,A) :- object(N,D,A)@3.
+}
+
+vp -> vbz "to " vb np {
+  verb(comp(N1,N2),comp(T1,base)) :- verb(N1,T1)@1, verb(N2,base)@3.
+  object(N,D,A) :- object(N,D,A)@4.
 }
 
 np -> np rb {

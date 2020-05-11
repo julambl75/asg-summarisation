@@ -1,21 +1,25 @@
-## To show Alessandra
-
-- ASG constraints for multi-sentence summaries (but  chose single sentence for speed)
-- New summary rules with conjunct choosing
-- Improved language support
-    - More ASG rules
-    - Sentence simplification
-- TTR for scoring
-- Summary generation for NN training examples (TODO)
-
 ## TODO
 
-- #modeh(action(verb(comp(be -> const(verb_name)
-- Support puzzle.txt
-- Train NN on random stories
+- birdhouse
+- car
+
+- Replace 2 words by superclass (W1 and W2 -> superclass(W1,W2); S V W1 - S V W2 -> S V superclass(W1,W2))
+- NN
+    - Experiments:
+        1. ASG rules
+        2. Sentences include summary cases from Preprocessor
+    - Steps
+        1. Improve quality of random stories (lexical fields + irrelevant sentences)
+        2. Use Preprocessor for generating training data summaries
+        3. Train NN
 
 ## For report
 
+- Do same as project (main core with acronym like SumASG, then SumASG* to fix/build on top of foundation)
+    - Use Peter Little examples
+    - Appendix with summary generation rules
+    - Talk about expandability (talk about mechanisms)
+    - Very nice to not be able to generate grammatically incorrect with ASG
 - Describe action predicates as high level semantic descriptor of all possible actions that can happen in sentences
 - Think about initial motivation (have definition of what is summary, NN does not)
     1. NNs need lots of data and time to summarize
@@ -32,7 +36,6 @@
     2. Train NN to generate same summary(...)
     3. Show framework is sane and expandable (computationally tractable)
     4. Compute Rouge score (PyRouge, must clone repo into project) on ASG and NN
-
 - Final goal: take story-specific ASG and general rules to generate summaries, then use top 5/10
 
 ## Datasets

@@ -87,9 +87,9 @@ class TextSimplifier:
                 clause_start = self.text.index(punctuation)
                 clause_end = self.text[clause_start:].index(EOS) + clause_start
                 # Check if clause ends with another dash or with full stop
-                if punctuation in self.text[clause_start+1:clause_end]:
-                    clause_end = self.text[clause_start+1:clause_end].index(punctuation) + clause_start+1
-                self.text = self.text[:clause_start] + self.text[clause_end+2:]
+                if punctuation in self.text[clause_start + 1:clause_end]:
+                    clause_end = self.text[clause_start + 1:clause_end].index(punctuation) + clause_start + 1
+                self.text = self.text[:clause_start] + self.text[clause_end + 2:]
 
         # Remove sentence clauses
         for punctuation in EOS_REMOVE:
@@ -99,7 +99,7 @@ class TextSimplifier:
                 sentence_start = 0
                 if EOS in text_until_punctuation:
                     sentence_start = len(text_until_punctuation) - text_until_punctuation[::-1].index(EOS)
-                self.text = self.text[:sentence_start] + self.text[punctuation_idx+1:]
+                self.text = self.text[:sentence_start] + self.text[punctuation_idx + 1:]
         if self.text[0] == ' ':
             self.text = self.text[1:]
 
@@ -120,17 +120,18 @@ class TextSimplifier:
         return tokenized
 
     # Ex: Peter Little -> PeterLittle
-    def _combine_complex_proper_nouns(self, tokenized):
+    @staticmethod
+    def _combine_complex_proper_nouns(tokenized):
         for sentence in tokenized:
             i = 0
             while i < len(sentence) - 1:
                 (word, pos) = sentence[i]
-                (next_word, next_pos) = sentence[i+1]
+                (next_word, next_pos) = sentence[i + 1]
                 # Reduce ASG search space
                 if pos == next_pos == PROPER_NOUN_POS:
                     new_word = word + next_word
                     sentence[i] = (new_word, pos)
-                    sentence.pop(i+1)
+                    sentence.pop(i + 1)
                 else:
                     i += 1
         return tokenized
@@ -168,11 +169,12 @@ class TextSimplifier:
             if CONJUNCTIVE_POS in pos_tags:
                 conjunct_idx = pos_tags.index(CONJUNCTIVE_POS)
                 first_clause = sentence[:conjunct_idx]
-                second_clause = sentence[conjunct_idx+1:]
+                second_clause = sentence[conjunct_idx + 1:]
+
+                first_clause_verbs = self._tokens_to_pos(first_clause, VERB_POS)
 
                 # Subject has been omitted from second clause
-                if second_clause[0][1].startswith(VERB_POS):
-                    first_clause_verbs = self._tokens_to_pos(first_clause, VERB_POS)
+                if first_clause_verbs and second_clause[0][1].startswith(VERB_POS):
                     first_clause_verb_idx = first_clause.index(first_clause_verbs[0])
                     first_clause_subject = first_clause[:first_clause_verb_idx]
                     second_clause = first_clause_subject + second_clause
@@ -181,7 +183,7 @@ class TextSimplifier:
                     i += 1
                     continue
                 tokenized[i] = first_clause + [EOS_TOKENIZED]
-                tokenized.insert(i+1, second_clause)
+                tokenized.insert(i + 1, second_clause)
             i += 1
         return tokenized
 
@@ -217,7 +219,7 @@ class TextSimplifier:
 
                 # Replace tokenized sentence with two tokenized sentences and check auxiliary clause next
                 tokenized[i] = main_clause + [EOS_TOKENIZED]
-                tokenized.insert(i+1, aux_clause)
+                tokenized.insert(i + 1, aux_clause)
             i += 1
         return tokenized
 
