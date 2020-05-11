@@ -3,6 +3,7 @@ import string
 from operator import itemgetter
 
 import language_check
+import numpy as np
 
 from helper import Helper
 from parse_concept_net import ParseConceptNet
@@ -13,8 +14,10 @@ from parse_concept_net import ParseConceptNet
 # - Score NN prediction: TTR, reference BLEU, story BLEU?
 # - Compare NN prediction with ASG summary: reference BLEUs
 
-SIMILAR_BLEU = 0.75
+SIMILAR_BLEU = 0.70
 SCORE_COEFFICIENT = 500
+
+TOP_HIT_PERCENTILE = 75
 
 
 class SummaryScorer:
@@ -31,12 +34,14 @@ class SummaryScorer:
             sorted_scores.append((summary, score))
         sorted_scores.sort(key=itemgetter(1), reverse=True)
 
-        # Check if reference summary is in top 5 (hit) of generated summaries
+        third_quartile_score = np.percentile(list(map(itemgetter(1), sorted_scores)), TOP_HIT_PERCENTILE)
+        sorted_scores = [(summary, score) for summary, score in sorted_scores if score >= third_quartile_score]
+
+        # Check if reference summary is in top quartile (according to score) of generated summaries
         if references:
-            top_5 = list(map(itemgetter(0), sorted_scores[:5]))
             best_bleu = 0
             for reference in references:
-                for top_summary in top_5:
+                for top_summary, _ in sorted_scores:
                     bleu_score = self.helper.bleu_score(reference, top_summary)
                     best_bleu = max(best_bleu, bleu_score)
             assert best_bleu > SIMILAR_BLEU

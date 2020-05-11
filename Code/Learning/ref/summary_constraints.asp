@@ -25,7 +25,6 @@
   summary(I, V, S, object(N,D,conjunct(A1,A3))) :- summary(I, V, S, object(N,D,conjunct(A1,conjunct(A2,A3)))).
 
   % Pick exactly one summary derivation for each sentence
-  complex_summary :- summary(I,V,S,O), I > 0.
   0{output(I,V,S,O)}1 :- summary(I,V,S,O).
   :- not output(_,_,_,_).
 

@@ -1,8 +1,6 @@
 import argparse
-import pprint as pp
 
 from preprocessor import Preprocessor
-from score_summary import SummaryScorer
 from text_to_summary import TextToSummary
 
 FORMAT = 'txt'
@@ -45,10 +43,5 @@ if __name__ == '__main__':
     preprocessor = Preprocessor(story, print_results=False, proper_nouns=True)
     homogenized_story, proper_nouns = preprocessor.preprocess()
 
-    text_to_summary = TextToSummary(homogenized_story, proper_nouns)
-    summaries = text_to_summary.gen_summary()
-
-    summary_scorer = SummaryScorer()
-    scored_summaries = summary_scorer.asg_score(story, summaries, references=pos_summaries)
-
-    pp.pprint(scored_summaries)
+    text_to_summary = TextToSummary(homogenized_story, proper_nouns, pos_summaries)
+    text_to_summary.gen_summary()

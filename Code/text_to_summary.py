@@ -1,11 +1,14 @@
 import functools
+import itertools
 import operator
 import os
 import re
+import pprint as pp
 
 import language_check
 
 from parse_core_nlp import ParseCoreNLP
+from score_summary import SummaryScorer
 
 DIR = os.path.dirname(os.path.realpath(__file__)) + '/Learning/'
 REF_DIR = DIR + '/ref/'
@@ -18,13 +21,15 @@ LEARN_ACTIONS_BIAS = REF_DIR + 'action_mode_bias.ilasp'
 SENTENCE_RULE_IDX = 3
 ACTION_RULE_SPLIT_STR = '\n\n'
 SUMMARY_RULE_SPLIT_STR = '}\n'
+SENTENCE_SEPARATOR = '.'
 
 ACTION_ASG = DIR + 'action.asg'
 SUMMARY_ASG = DIR + 'summary.asg'
 RESULTS_FILE = DIR + 'output.txt'
 
-DEPTH = 8
+DEPTH = 7
 AVOID_CONSTRAINTS = "--ILASP-ss-options='-nc'"
+ASG_UNSATISFIABLE = 'UNSATISFIABLE'
 
 LEARN_ACTIONS_CMD = f'asg {ACTION_ASG} --mode=learn --depth={DEPTH} > {SUMMARY_ASG}'
 GEN_SUMMARIES_CMD = f'asg {SUMMARY_ASG} --mode=run --depth={DEPTH} > {RESULTS_FILE}'
@@ -40,12 +45,14 @@ RESTORE_PROPER_NOUNS_REGEX = (r'([a-z])([A-Z])', r'\1 \2')
 
 
 class TextToSummary:
-    def __init__(self, text, proper_nouns, print_results=True):
+    def __init__(self, text, proper_nouns, pos_summaries=None, print_results=True):
         self.text = text
         self.proper_nouns = proper_nouns
+        self.pos_summaries = pos_summaries
         self.print_results = print_results
 
         self.language_checker = language_check.LanguageTool('en-GB')
+        self.summary_scorer = SummaryScorer()
 
         # Define basic ASG for learning actions for each sentence separately (reduces search space)
         self.language_asg = TextToSummary._read_file(LANGUAGE_ASG)
@@ -63,10 +70,13 @@ class TextToSummary:
 
         if self.print_results:
             print('\n---\nStep 2\n---')
-            print('Updating ASG constraints, generating summaries and post-processing them...')
+            print('Generating summaries, post-processing them and scoring them...')
         context_specific_asg = tuple(map(operator.itemgetter(0), parsed_text))
-        summaries = self.generate_summaries(story_actions, context_specific_asg)
-        return summaries
+        scored_summaries = self.generate_summaries(story_actions, context_specific_asg)
+
+        if self.print_results:
+            pp.pprint(scored_summaries, width=200)
+        return scored_summaries
 
     def learn_actions(self, parsed_text):
         story_actions = []
@@ -88,7 +98,7 @@ class TextToSummary:
     def generate_summaries(self, learned_actions, context_specific_asg):
         self._create_summary_asg(learned_actions)
         self._append_to_asg(SUMMARY_ASG, context_specific_asg)
-        summaries = self._gen_summaries()
+        summaries = self._gen_summary_sentences()
         summaries = self._correct_summaries(summaries)
         return summaries
 
@@ -177,20 +187,35 @@ class TextToSummary:
         with open(SUMMARY_ASG, 'r') as file:
             lang_asg = file.read()
         lang_asg_rules = lang_asg.split(SUMMARY_RULE_SPLIT_STR)
+        if ASG_UNSATISFIABLE in lang_asg_rules[0]:
+            return []
         lang_asg_sent_rule_lines = lang_asg_rules[SENTENCE_RULE_IDX].split('\n')
         return list(filter(lambda r: '  action(' in r, lang_asg_sent_rule_lines))
 
     @staticmethod
-    def _gen_summaries():
+    def _gen_summary_sentences():
         os.system(GEN_SUMMARIES_CMD)
         with open(RESULTS_FILE, 'r') as file:
             return list(filter(lambda l: len(l) > 0, file.read().split('\n')))
 
-    def _correct_summaries(self, summaries):
+    def _get_summary_length(self):
+        story_length = self.text.count(SENTENCE_SEPARATOR)
+        if story_length > 4:
+            return 3
+        if story_length > 2:
+            return 2
+        return 1
+
+    def _correct_summaries(self, summary_sentences):
+        summary_len = self._get_summary_length()
+        summaries = {' '.join(summary) for summary in itertools.combinations(summary_sentences, summary_len)}
+
         # Correct grammar
         corrected_summaries = map(self.language_checker.correct, summaries)
         # Restore complex proper nouns
         corrected_summaries = map(lambda s: re.sub(*RESTORE_PROPER_NOUNS_REGEX, s), corrected_summaries)
-        # Restore punctuation
-        corrected_summaries = map(lambda s: s.strip().replace('_', '-'), corrected_summaries)
-        return set(corrected_summaries)
+        # Restore punctuation and fix spacing
+        corrected_summaries = list(map(lambda s: s.strip().replace('_', '-').replace('  ', ' '), corrected_summaries))
+
+        scored_summaries = self.summary_scorer.asg_score(self.text, corrected_summaries, references=self.pos_summaries)
+        return scored_summaries

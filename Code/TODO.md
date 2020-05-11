@@ -1,6 +1,6 @@
 ## To show Alessandra
 
-- ASG constraints for multi-sentence summaries
+- ASG constraints for multi-sentence summaries (but  chose single sentence for speed)
 - New summary rules with conjunct choosing
 - Improved language support
     - More ASG rules
@@ -9,8 +9,6 @@
 - Summary generation for NN training examples (TODO)
 
 ## TODO
-
-- Generate all possible 1 sentence summaries and combine in all possible ways (score first using TTR then fix grammar)
 
 - #modeh(action(verb(comp(be -> const(verb_name)
 - Support puzzle.txt
