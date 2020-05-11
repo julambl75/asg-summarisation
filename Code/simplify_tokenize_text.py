@@ -30,6 +30,7 @@ COMPLEX_CLAUSE_SUBSTITUTIONS = {'a': 'the'}
 EOS_TOKENIZED = ('.', '.')
 
 SUPERFLUOUS_POS = ['PRP$', 'UH']  # Possessive pronouns and interjections
+SUPERFLUOUS_WORDS = ['some']
 DEPENDENT_CLAUSE_POS = 'WRB'  # When, where, which...
 SUBJECT_POS = ['NN', 'NNS', 'NNP', 'NNPS', 'EX', 'PRP']
 
@@ -224,14 +225,24 @@ class TextSimplifier:
         return tokenized
 
     # Ex: She ate her chocolate. -> She ate chocolate.
+    # Ex: She ate some chocolate. -> She ate chocolate.
     def _remove_superfluous_words(self, tokenized):
         for sentence in tokenized:
+            words = self._get_words_downcase(sentence)
             pos_tags = self._get_pos_tags(sentence)
+
             for superfluous_tag in SUPERFLUOUS_POS:
                 while superfluous_tag in pos_tags:
                     superfluous_idx = pos_tags.index(superfluous_tag)
                     sentence.pop(superfluous_idx)
                     pos_tags = self._get_pos_tags(sentence)
+
+            for superfluous_word in SUPERFLUOUS_WORDS:
+                while superfluous_word in words:
+                    superfluous_idx = words.index(superfluous_word)
+                    sentence.pop(superfluous_idx)
+                    words = self._get_words_downcase(sentence)
+
             if pos_tags[0] == PREPOSITION_POS:
                 sentence.pop(0)
         return tokenized
@@ -311,6 +322,10 @@ class TextSimplifier:
     @staticmethod
     def _tokens_to_pos(tokens, pos):
         return list(filter(lambda t: t[1].startswith(pos), tokens))
+
+    @staticmethod
+    def _get_words_downcase(sentence):
+        return list(map(lambda w: w.lower(), map(itemgetter(0), sentence)))
 
     @staticmethod
     def _get_pos_tags(sentence):

@@ -171,6 +171,34 @@ np -> nnp "and " nnp {
   :- object(conjunct(N,N),0,0).
 }
 
+np -> nn "and " nn {
+  subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  :- subject(conjunct(N,N),0,0).
+  :- object(conjunct(N,N),0,0).
+}
+
+np -> nn "and " nns {
+  subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  :- subject(conjunct(N,N),0,0).
+  :- object(conjunct(N,N),0,0).
+}
+
+np -> nns "and " nn {
+  subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  :- subject(conjunct(N,N),0,0).
+  :- object(conjunct(N,N),0,0).
+}
+
+np -> nns "and " nns {
+  subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  :- subject(conjunct(N,N),0,0).
+  :- object(conjunct(N,N),0,0).
+}
+
 np -> prp "and " prp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
