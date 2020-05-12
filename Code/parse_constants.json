@@ -16,6 +16,8 @@
     "ex": "noun",
     "in": "det",
     "jj": "adj_or_adv",
+    "jjr": "adj_or_adv",
+    "jjs": "adj_or_adv",
     "nn": "noun",
     "nns": "noun",
     "nnp": "noun",

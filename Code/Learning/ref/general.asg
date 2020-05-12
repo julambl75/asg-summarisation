@@ -253,6 +253,40 @@ np -> dt jj jj nn {
   :- object(N,D,conjunct(A,A)).
 }
 
+np -> dt jjr nn {
+  subject(N,D,A) :- det(D)@1, adj_or_adv(A)@2, noun(N)@3.
+  object(N,D,A) :- det(D)@1, adj_or_adv(A)@2, noun(N)@3.
+}
+
+np -> dt jjs nn {
+  subject(N,D,A) :- det(D)@1, adj_or_adv(A)@2, noun(N)@3.
+  object(N,D,A) :- det(D)@1, adj_or_adv(A)@2, noun(N)@3.
+}
+
+np -> in nn {
+  object(N,D,0) :- det(D)@1, noun(N)@2.
+}
+
+np -> in dt nn {
+  object(N,conjunct(D1,D2),0) :- det(D1)@1, det(D2)@2, noun(N)@3.
+}
+
+np -> in nns {
+  object(N,D,0) :- det(D)@1, noun(N)@2.
+}
+
+np -> in dt nns {
+  object(N,conjunct(D1,D2),0) :- det(D1)@1, det(D2)@2, noun(N)@3.
+}
+
+np -> in nnp {
+  object(N,D,0) :- det(D)@1, noun(N)@2.
+}
+
+np -> in nnps {
+  object(N,D,0) :- det(D)@1, noun(N)@2.
+}
+
 np -> jj in nn {
   object(N,D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N)@3.
 }

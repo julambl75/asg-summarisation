@@ -43,6 +43,8 @@ class Preprocessor:
     def preprocess(self):
         if self.print_results:
             pp.pprint(self.story)
+        else:
+            print('Preprocessing text...')
         tokenized, self.story, self.proper_nouns = self.tokenizer.tokenize()
 
         if self.print_results:
