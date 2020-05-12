@@ -283,10 +283,10 @@ class TextSimplifier:
             pos_tags = self._get_pos_tags(sentence)
             if PREPOSITION_POS in pos_tags:
                 preposition_idx = pos_tags.index(PREPOSITION_POS)
-                last_verb_idx = [idx for idx, tag in enumerate(pos_tags) if tag.startswith(VERB_POS)][-1]
+                verb_indices = [idx for idx, tag in enumerate(pos_tags) if tag.startswith(VERB_POS)]
                 # Preposition must be after the verb's object
-                if preposition_idx > last_verb_idx + 1:
-                    tokenized[i] = sentence[:preposition_idx] + [EOS]
+                if verb_indices and preposition_idx > verb_indices[-1] + 1:
+                    tokenized[i] = sentence[:preposition_idx] + [EOS_TOKENIZED]
         return tokenized
 
     # Ex: Spectacular discovery. -> DELETED
