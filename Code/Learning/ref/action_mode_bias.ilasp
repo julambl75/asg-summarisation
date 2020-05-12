@@ -9,6 +9,38 @@
 #modeh(action(verb(comp(const(verb_name),const(verb_name)),comp(const(main_verb),const(aux_verb))), subject(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))), object(const(noun),const(det),const(adj_or_adv)))):[4].
 #modeh(action(verb(comp(const(verb_name),const(verb_name)),comp(const(main_verb),const(aux_verb))), subject(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
 
+#bias(":- head(holds_at_node(action(verb(_,_),subject(0,_,_),object(_,_,_)),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(0,0,0)),var__(1))).").
+
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(conjunct(V,V),_,_)),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(conjunct(_,0),_,_)),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(conjunct(0,_),_,_)),var__(1))).").
+
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(_,_,conjunct(V,V))),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(_,_,conjunct(_,0))),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(_,_,conjunct(0,_))),var__(1))).").
+
+#bias(":- head(holds_at_node(action(verb(_,_),subject(conjunct(V,V),_,_),object(_,_,_)),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(conjunct(_,0),_,_),object(_,_,_)),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(conjunct(0,_),_,_),object(_,_,_)),var__(1))).").
+
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(V,V)),object(_,_,_)),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(_,0)),object(_,_,_)),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(0,_)),object(_,_,_)),var__(1))).").
+
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,V),object(_,_,V)),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,V),object(_,_,conjunct(V,_))),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,V),object(_,_,conjunct(_,V))),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(V,_)),object(_,_,V)),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(_,V)),object(_,_,V)),var__(1))).").
+
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(V,_)),object(_,_,conjunct(V,_))),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(V,_)),object(_,_,conjunct(_,V))),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(_,V)),object(_,_,conjunct(V,_))),var__(1))).").
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(_,V)),object(_,_,conjunct(_,V))),var__(1))).").
+
+#bias(":- head(holds_at_node(action(verb(comp(V,V),comp(_,past_part)),subject(_,_,_),object(0,0,0)),var__(1))).").
+
 #constant(noun,0).
 #constant(det,0).
 #constant(adj_or_adv,0).

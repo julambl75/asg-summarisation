@@ -1,4 +1,11 @@
+## To show Alessandra/David
+
+- birdhouse
+- ss reduction with mode bias (less than 10% of original)
+
 ## TODO
+
+- Remove comma if between 2 adjectives
 
 - birdhouse
 - car
