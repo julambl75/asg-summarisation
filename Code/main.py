@@ -40,7 +40,7 @@ if __name__ == '__main__':
     args = parse_args()
     story, pos_summaries = process_args(args)
 
-    preprocessor = Preprocessor(story, print_results=False, proper_nouns=True)
+    preprocessor = Preprocessor(story, print_results=False)
     homogenized_story, proper_nouns = preprocessor.preprocess()
 
     text_to_summary = TextToSummary(homogenized_story, proper_nouns, pos_summaries)

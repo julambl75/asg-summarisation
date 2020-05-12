@@ -15,12 +15,14 @@ EOS_REPLACE = ['!', ',', ';', ':']
 EOS_REMOVE = ['?']
 EOS_REMOVE_INNER = ['–', '—']
 EOS = '.'
+HYPHEN = '-'
 
 ADVERB_POS = 'RB'
 CONJUNCTIVE_POS = 'CC'
 VERB_POS = 'VB'
 PREPOSITION_POS = 'IN'
 PRONOUN_POS = 'PRP'
+COMMON_NOUN_POS = 'NN'
 PROPER_NOUN_POS = 'NNP'
 PROPER_NOUN_POS_PL = 'NNPS'
 
@@ -59,6 +61,7 @@ class TextSimplifier:
         tokenized = self._expand_complex_clauses(tokenized)
         tokenized = self._remove_superfluous_words(tokenized)
         tokenized = self._separate_dependant_clauses(tokenized)
+        tokenized = self._remove_preposition_clauses(tokenized)
         tokenized = self._remove_verbless_sentences(tokenized)
         tokenized = self._substitute_pronouns_for_proper_nouns(tokenized)
 
@@ -121,16 +124,22 @@ class TextSimplifier:
         return tokenized
 
     # Ex: Peter Little -> PeterLittle
-    @staticmethod
-    def _combine_complex_proper_nouns(tokenized):
+    # Ex: They built a birdhouse. A bird is in the bird house. -> They built a birdhouse. A bird is in the birdhouse.
+    # Ex: A bird is in the bird house. -> A bird is in the bird-house.
+    def _combine_complex_proper_nouns(self, tokenized):
+        text_nouns = {word for word, _ in self._tokens_to_pos(chain.from_iterable(tokenized), COMMON_NOUN_POS)}
         for sentence in tokenized:
             i = 0
             while i < len(sentence) - 1:
                 (word, pos) = sentence[i]
                 (next_word, next_pos) = sentence[i + 1]
                 # Reduce ASG search space
-                if pos == next_pos == PROPER_NOUN_POS:
+                if pos == next_pos and pos in [PROPER_NOUN_POS, COMMON_NOUN_POS]:
                     new_word = word + next_word
+                    if pos == COMMON_NOUN_POS:
+                        # Add hyphen unless combined words normally don't have one
+                        if new_word not in text_nouns:
+                            new_word = word + HYPHEN + next_word
                     sentence[i] = (new_word, pos)
                     sentence.pop(i + 1)
                 else:
@@ -266,6 +275,18 @@ class TextSimplifier:
                     main_clause = sentence[:dependant_idx]
                     tokenized[i] = main_clause + [EOS_TOKENIZED]
             i += 1
+        return tokenized
+
+    # Ex: They hang it up in a tree. -> They hang it up.
+    def _remove_preposition_clauses(self, tokenized):
+        for i, sentence in enumerate(tokenized):
+            pos_tags = self._get_pos_tags(sentence)
+            if PREPOSITION_POS in pos_tags:
+                preposition_idx = pos_tags.index(PREPOSITION_POS)
+                last_verb_idx = [idx for idx, tag in enumerate(pos_tags) if tag.startswith(VERB_POS)][-1]
+                # Preposition must be after the verb's object
+                if preposition_idx > last_verb_idx + 1:
+                    tokenized[i] = sentence[:preposition_idx] + [EOS]
         return tokenized
 
     # Ex: Spectacular discovery. -> DELETED

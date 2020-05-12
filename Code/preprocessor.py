@@ -30,10 +30,11 @@ MIN_NUM_SENT_FOR_PRUNE = 3
 
 # Note: after pre-processing a text, the word order may change, but capitalisation does not
 class Preprocessor:
-    def __init__(self, story, print_results=True, proper_nouns=False):
+    def __init__(self, story, print_results=True):
         self.story = story.strip().replace('\n', ' ')
         self.print_results = print_results
-        self.proper_nouns = proper_nouns
+
+        self.proper_nouns = set()
 
         self.tokenizer = TextSimplifier(self.story)
         self.helper = Helper()
@@ -81,9 +82,7 @@ class Preprocessor:
             print('\nHomogenizing story using synonyms...')
             pp.pprint(homogenized_story)
 
-        if self.proper_nouns:
-            return homogenized_story, self.proper_nouns
-        return homogenized_story
+        return homogenized_story, self.proper_nouns
 
     def _process_similarity(self, tokenized):
         similar_words = defaultdict(lambda: defaultdict(lambda: 0))

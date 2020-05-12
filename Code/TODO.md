@@ -67,6 +67,7 @@ Choice:
 - Dependant clauses: split into separate sentence (remove if there is no punctuation)
 - Verbless sentences: remove
 - Subordinating conjunctions: split into separate sentence
+- Preposition clauses: remove if after object
 - Complex proper nouns: collapse into CamelCase
 - Proper nouns: replace occurrences of pronouns with relevant proper noun (idea: if they are used in the story then there should be little ambiguity)
 
