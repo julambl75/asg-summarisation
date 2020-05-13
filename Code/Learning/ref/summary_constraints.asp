@@ -10,6 +10,10 @@
   summary(6, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,0,_)), action(I2, V, S, object(N2,D,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
   summary(7, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,D,_)), action(I2, V, S, object(N2,0,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
 
+  summary(8, V1, subject(N, D1, conjunct(A1, A2)), object(0, 0, A3)) :- action(_, V1, subject(N, D1, A2), object(0, 0, A3)), action(_, V2, subject(_, 0, 0), object(N, D2, A1)), A1 != A3.
+  summary(9, V1, subject(N, D1, conjunct(A1, A2)), object(0, 0, A3)) :- action(_, V1, subject(N, D1, A2), object(0, 0, A3)), action(_, V2, subject(_, 0, 0), object(N, D2, conjunct(A1, _))), A1 != A3.
+  summary(10, V1, subject(N, D1, conjunct(A1, A2)), object(0, 0, A3)) :- action(_, V1, subject(N, D1, A2), object(0, 0, conjunct(A3,_))), action(_, V2, subject(_, 0, 0), object(N, D2, A1)), A1 != A3.
+
   summary(I, V, S, object(conjunct(N1,N2),D,A)) :- summary(I, V, S, object(conjunct(conjunct(N1,N2),N3),D,A)).
   summary(I, V, S, object(conjunct(N1,N2),D,A)) :- summary(I, V, S, object(conjunct(N1,conjunct(N2,N3)),D,A)).
   summary(I, V, S, object(conjunct(N2,N3),D,A)) :- summary(I, V, S, object(conjunct(conjunct(N1,N2),N3),D,A)).

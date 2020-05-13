@@ -8,7 +8,6 @@
 ## TODO
 
 - birdhouse
-- car
 
 - Remove comma if between 2 adjectives (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
 - NN
