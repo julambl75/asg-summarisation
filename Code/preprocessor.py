@@ -100,13 +100,15 @@ class Preprocessor:
                                 if pos == other_pos:
                                     if word == other_word:
                                         similarity = SAME_WORD_SIMILARITY if pos in SAME_WORD_POS else 0
+                                        lemma_similarity = 0
                                     else:
-                                        similarity = self.pcn.compare_words(word, other_word, singularize_plurals=True)
+                                        similarity = self.pcn.compare_words(word, other_word)
+                                        lemma_similarity = self.pcn.compare_words(word, other_word, use_lemma=True)
                                     if similarity > 0:
                                         vocabulary.add(word)
                                         vocabulary.add(other_word)
                                         similar_words[word][other_word] = similarity
-                                        similar_sentences[i][j] += similarity
+                                    similar_sentences[i][j] += lemma_similarity if lemma_similarity else similarity
         return similar_words, similar_sentences, vocabulary
 
     @staticmethod

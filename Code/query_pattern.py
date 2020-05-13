@@ -26,6 +26,10 @@ class QueryPattern:
         return pluralize(word, pos=NOUN)
 
     @staticmethod
+    def lemmatize(word):
+        return lemma(word)
+
+    @staticmethod
     def conjugate(verb, person, tense, number):
         return conjugate(verb, person=person, tense=tense, number=number)
 

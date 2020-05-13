@@ -32,13 +32,9 @@ class ParseConceptNet:
         return relations
 
     # Returns weight between two words; if both words are plural they will be changed to singular form to avoid 0 score
-    def compare_words(self, word, other_word, singularize_plurals=False):
-        if singularize_plurals:
-            words_sg = tuple(self.query_pattern.get_singular_noun(w) for w in (word, other_word))
-            words_pl = tuple(self.query_pattern.get_plural_noun(w) for w in words_sg)
-            if words_pl == (word, other_word):
-                word, other_word = words_sg
-
+    def compare_words(self, word, other_word, use_lemma=False):
+        if use_lemma:
+            word, other_word = tuple(self.query_pattern.lemmatize(w) for w in (word, other_word))
         word = word.replace(' ', '_').lower()
         other_word = other_word.replace(' ', '_').lower()
 

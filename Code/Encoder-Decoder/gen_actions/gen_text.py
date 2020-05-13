@@ -75,6 +75,8 @@ TEST_PROPORTION = 0.1
 #  -> make sentence
 # 5. Add irrelevant sentence
 
+# words = self.datamuse_api.words(rel_syn=noun, topics=context, max=1)
+
 
 class GenActions:
     def __init__(self):
