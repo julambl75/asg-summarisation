@@ -16,8 +16,8 @@ from parse_concept_net import ParseConceptNet
 
 SIMILAR_BLEU = 0.70
 SCORE_COEFFICIENT = 500
-
 TOP_HIT_PERCENTILE = 75
+PROPER_NOUN_SCORE_INC = 1
 
 
 class SummaryScorer:
@@ -26,16 +26,22 @@ class SummaryScorer:
         self.helper = Helper()
         self.language_checker = language_check.LanguageTool('en-GB')
 
-    def asg_score(self, story, summaries, references=None, best_only=False):
+    def asg_score(self, story, summaries, references=None, proper_nouns=None, best_only=False):
         sorted_scores = []
         for summary in summaries:
             score = self.ttr_score(story, summary)
             score = int(score * SCORE_COEFFICIENT)
             sorted_scores.append((summary, score))
-        sorted_scores.sort(key=itemgetter(1), reverse=True)
 
         if not sorted_scores:
             return [] if best_only else None
+
+        # Increase score of summaries which start with proper noun
+        if proper_nouns:
+            for i, (summary, score) in enumerate(sorted_scores):
+                if any(summary.startswith(proper_noun) for proper_noun in proper_nouns):
+                    sorted_scores[i] = (summary, score + PROPER_NOUN_SCORE_INC)
+        sorted_scores.sort(key=itemgetter(1), reverse=True)
 
         third_quartile_score = np.percentile(list(map(itemgetter(1), sorted_scores)), TOP_HIT_PERCENTILE)
         sorted_scores = [(summary, score) for summary, score in sorted_scores if score >= third_quartile_score]

@@ -1,5 +1,6 @@
 import json
 import os
+from operator import itemgetter
 
 from pycorenlp import StanfordCoreNLP
 import nltk
@@ -17,6 +18,7 @@ with open(PARSE_CONSTANTS_JSON) as f:
     TENSES = CONSTANTS['tenses']
     MAIN_VERB_FORMS = CONSTANTS['main_verb_forms']
     AUX_VERB_FORMS = CONSTANTS['aux_verb_forms']
+    PREPOSITIONS = CONSTANTS['prepositions']
 
 CONSTANTS_FORMAT = '#constant({},{}).'
 VARIABLES_FORMAT = 'var_{}({}).'
@@ -97,6 +99,9 @@ class ParseCoreNLP:
             for verb_form in AUX_VERB_FORMS:
                 if verb_form in verb_forms:
                     self.constants.add(('aux_verb', verb_form))
+            for preposition in PREPOSITIONS:
+                if preposition in list(map(itemgetter(1), self.constants)):
+                    self.constants.add(('prep', preposition))
         return [lemma_format.format(category, lemma) for category, lemma in self.constants]
 
     def _format_results(self, tree=None, by_sentence=False, background_vars=False):

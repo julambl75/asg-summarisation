@@ -207,6 +207,8 @@ class TextToSummary:
         return 1
 
     def _correct_summaries(self, summary_sentences):
+        # Reverse ordering to be closer to chronological order of story
+        summary_sentences.reverse()
         summary_len = self._get_summary_length()
         summaries = {' '.join(summary) for summary in itertools.combinations(summary_sentences, summary_len)}
 
@@ -217,5 +219,4 @@ class TextToSummary:
         # Restore punctuation and fix spacing
         corrected_summaries = list(map(lambda s: s.strip().replace('_', '-').replace('  ', ' '), corrected_summaries))
 
-        scored_summaries = self.summary_scorer.asg_score(self.text, corrected_summaries, references=self.pos_summaries)
-        return scored_summaries
+        return self.summary_scorer.asg_score(self.text, corrected_summaries, self.pos_summaries, self.proper_nouns)

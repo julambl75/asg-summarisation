@@ -1,14 +1,14 @@
 ## To show Alessandra/David
 
-- birdhouse
 - ss reduction with mode bias (simple example: 396->16, very complicated example: 9477->1044)
 - Replace 2 words by superclass (W1 and W2 -> superclass(W1,W2); S V W1 - S V W2 -> S V superclass(W1,W2))
+- Increase score if first sentence of summary begins with proper noun
+- birdhouse/car
 
 
 ## TODO
 
-- birdhouse
-
+- Support numbers as single adj_or_adj object
 - Remove comma if between 2 adjectives (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
 - NN
     - Experiments:

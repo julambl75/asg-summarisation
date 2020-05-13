@@ -66,6 +66,20 @@ PRINT_EVERY_ITERS = 50
 TEST_PROPORTION = 0.1
 
 
+# Idea:
+# 1. Pick random common/proper noun(s)
+# 2. Find common verb/adjective for it
+#  -> make sentence
+# 3. Pick noun in same lexical field if common otherwise same
+# 4. Find common verb/adjective for it
+#  -> make sentence
+# 5. Add irrelevant sentence
+
+# They owned chickens. These were very large birds. Together they produced 10 eggs a day. Ronny and Jack ate breakfast.
+# -> They owned very large birds. They produced 10 eggs a day.
+
+
+
 class GenActions:
     def __init__(self):
         self.words = self.read_words()

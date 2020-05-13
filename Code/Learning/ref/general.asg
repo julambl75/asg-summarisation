@@ -131,6 +131,10 @@ np -> ex {
   subject(N,0,0) :- noun(N)@1.
 }
 
+np -> in {
+  object(0,D,0) :- det(D)@1.
+}
+
 np -> prp "and " nnp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
