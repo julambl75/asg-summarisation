@@ -207,13 +207,11 @@ class TextSimplifier:
         while i < len(tokenized):
             sentence = tokenized[i]
             pos_tags = self._get_pos_tags(sentence)
-            if COMPLEX_CLAUSE_AUX_VERB_POS in pos_tags:
-                aux_clause_idx = pos_tags.index(COMPLEX_CLAUSE_AUX_VERB_POS)
-            else:
-                aux_clause_idx = -1
+            aux_clause_idx = self.helper.find_default(pos_tags, COMPLEX_CLAUSE_AUX_VERB_POS)
+            main_clause_verbs = any(self._tokens_to_pos(sentence[:aux_clause_idx], VERB_POS))
 
-            # If there is an auxiliary clause (starting with a VBN that does not follow a verb)
-            if aux_clause_idx > 0 and not pos_tags[aux_clause_idx - 1].startswith(VERB_POS):
+            # If there is after a verb clause an auxiliary clause (starting with a VBN that does not follow a verb)
+            if main_clause_verbs and aux_clause_idx > 1 and not pos_tags[aux_clause_idx - 1].startswith(VERB_POS):
                 main_clause = sentence[:aux_clause_idx]
                 aux_clause_obj = sentence[aux_clause_idx:]
 
