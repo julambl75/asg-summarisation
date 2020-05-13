@@ -6,8 +6,8 @@ from operator import itemgetter
 
 import language_check
 from pattern.en import SG, PL, PRESENT
-from pattern.en import conjugate, lemma
 
+from query_pattern import QueryPattern
 from score_summary import SummaryScorer
 from text_to_summary import TextToSummary
 
@@ -83,14 +83,9 @@ class GenActions:
         self.stories = []
         self.training_pairs = []
 
+        self.query_pattern = QueryPattern()
         self.language_checker = language_check.LanguageTool('en-GB')
         self.summary_scorer = SummaryScorer()
-
-        # There is a bug with Python 3.7 causing the first call to Pattern to crash due to a StopIteration
-        try:
-            lemma('eight')
-        except:
-            pass
 
     @staticmethod
     def read_names():
@@ -199,7 +194,7 @@ class GenActions:
         else:
             verb = DEFAULT_VERB
         tense = random.choice(TENSES)
-        conjugated = conjugate(verb, person=person, tense=tense, number=number)
+        conjugated = self.query_pattern.conjugate(verb, person=person, tense=tense, number=number)
         if tense == PRESENT and person == 3:
             tense += TENSE_THIRD_POSTFIX
         self.create_asg_leaf(TENSE_TO_POS_TAG[tense], conjugated, VERB_PREDICATE, verb, tense)

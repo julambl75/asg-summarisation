@@ -37,3 +37,9 @@ class Helper:
     @staticmethod
     def count_sentences(text):
         return len(list(filter(lambda s: len(s) > 0, text.strip().split('.'))))
+
+    @staticmethod
+    def find_default(items, item, default=-1):
+        if item in items:
+            return items.index(item)
+        return default

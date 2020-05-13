@@ -6,6 +6,7 @@ import contractions
 
 from helper import Helper
 from parse_core_nlp import SUBORDINATING_CONJUNCTIONS
+from query_pattern import QueryPattern
 
 SUBORDINATING_CONJUNCTIONS_JOINED = '|'.join(SUBORDINATING_CONJUNCTIONS)
 SUBORDINATING_CONJUNCTIONS_REGEX = f'(?i) ?({SUBORDINATING_CONJUNCTIONS_JOINED})'
@@ -23,6 +24,7 @@ VERB_POS = 'VB'
 PREPOSITION_POS = 'IN'
 PRONOUN_POS = 'PRP'
 COMMON_NOUN_POS = 'NN'
+COMMON_NOUN_POS_PL = 'NNS'
 PROPER_NOUN_POS = 'NNP'
 PROPER_NOUN_POS_PL = 'NNPS'
 
@@ -46,6 +48,7 @@ class TextSimplifier:
         self.proper_nouns = set()
 
         self.helper = Helper()
+        self.query_pattern = QueryPattern()
 
     def tokenize(self):
         self._substitute_determiners()
@@ -55,10 +58,11 @@ class TextSimplifier:
 
         tokenized = self.helper.tokenize_text(self.text)
         tokenized = self._remove_punctuated_acronyms(tokenized)
-        tokenized = self._combine_complex_proper_nouns(tokenized)
+        tokenized = self._combine_complex_nouns(tokenized)
         tokenized = self._move_adverbs_to_end(tokenized)
         tokenized = self._split_conjunctive_clauses(tokenized)
         tokenized = self._expand_complex_clauses(tokenized)
+        tokenized = self._replace_noun_conjunction_with_superclass(tokenized)
         tokenized = self._remove_superfluous_words(tokenized)
         tokenized = self._separate_dependant_clauses(tokenized)
         tokenized = self._remove_preposition_clauses(tokenized)
@@ -126,7 +130,7 @@ class TextSimplifier:
     # Ex: Peter Little -> PeterLittle
     # Ex: They built a birdhouse. A bird is in the bird house. -> They built a birdhouse. A bird is in the birdhouse.
     # Ex: A bird is in the bird house. -> A bird is in the bird-house.
-    def _combine_complex_proper_nouns(self, tokenized):
+    def _combine_complex_nouns(self, tokenized):
         text_nouns = {word for word, _ in self._tokens_to_pos(chain.from_iterable(tokenized), COMMON_NOUN_POS)}
         for sentence in tokenized:
             i = 0
@@ -231,6 +235,30 @@ class TextSimplifier:
                 tokenized[i] = main_clause + [EOS_TOKENIZED]
                 tokenized.insert(i + 1, aux_clause)
             i += 1
+        return tokenized
+
+    # Ex: She raised chickens and geese. -> She raised poultry.
+    # Ex: He was interested in stars and planets. -> He was interested in space.
+    # Ex: They like cars and trucks. -> They like motor-vehicles.
+    def _replace_noun_conjunction_with_superclass(self, tokenized):
+        for sentence in tokenized:
+            pos_tags = self._get_pos_tags(sentence)
+            first_noun_sg_idx = self.helper.find_default(pos_tags, COMMON_NOUN_POS)
+            first_noun_pl_idx = self.helper.find_default(pos_tags, COMMON_NOUN_POS_PL)
+            first_noun_idx = max(first_noun_sg_idx, first_noun_pl_idx)
+            # Check if next token is conjunction and following one is another common noun
+            if 0 < first_noun_idx < len(pos_tags) - 3:
+                (word, pos) = sentence[first_noun_idx]
+                next_pos = pos_tags[first_noun_idx+1]
+                (next_next_word, next_next_pos) = sentence[first_noun_idx+2]
+                if next_pos == CONJUNCTIVE_POS and next_next_pos in [COMMON_NOUN_POS, COMMON_NOUN_POS_PL]:
+                    plural_comb = pos == COMMON_NOUN_POS_PL or next_next_pos == COMMON_NOUN_POS_PL
+                    hypernym = self.query_pattern.find_hypernym(word, next_next_word, return_plural=True)
+                    if hypernym:
+                        comb_pos = COMMON_NOUN_POS_PL if plural_comb else COMMON_NOUN_POS
+                        sentence.pop(first_noun_idx)
+                        sentence.pop(first_noun_idx)
+                        sentence[first_noun_idx] = (hypernym, comb_pos)
         return tokenized
 
     # Ex: She ate her chocolate. -> She ate chocolate.

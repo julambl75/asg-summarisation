@@ -1,22 +1,22 @@
 ## To show Alessandra/David
 
 - birdhouse
-- ss reduction with mode bias (less than 10% of original)
+- ss reduction with mode bias (simple example: 396->16, very complicated example: 9477->1044)
+- Replace 2 words by superclass (W1 and W2 -> superclass(W1,W2); S V W1 - S V W2 -> S V superclass(W1,W2))
+
 
 ## TODO
-
-- Remove comma if between 2 adjectives
 
 - birdhouse
 - car
 
-- Replace 2 words by superclass (W1 and W2 -> superclass(W1,W2); S V W1 - S V W2 -> S V superclass(W1,W2))
+- Remove comma if between 2 adjectives (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
 - NN
     - Experiments:
         1. ASG rules
         2. Sentences include summary cases from Preprocessor
     - Steps
-        1. Improve quality of random stories (lexical fields + irrelevant sentences)
+        1. Improve quality of random stories (lexical fields from WordNet + irrelevant sentences)
         2. Use Preprocessor for generating training data summaries
         3. Train NN
 
@@ -77,6 +77,7 @@ Choice:
 - Preposition clauses: remove if after object
 - Complex proper nouns: collapse into CamelCase
 - Proper nouns: replace occurrences of pronouns with relevant proper noun (idea: if they are used in the story then there should be little ambiguity)
+- Conjunction of common nouns from same lexical field: replace with hypernym (pluralize if items are plural and hypernym plural is used in English)
 
 ## Representation
 
@@ -89,6 +90,7 @@ Ideas:
 - keep rules as restricted as possible, when concept implemented over time add missing rules
 - to avoid having to add grammar constraints try and rely on grammar of input
 
+- reduce search space using mode bias (simple example: 396->16, very complicated example: 9477->1044)
 - for learning actions do one sentence at a time to minimize ss
 - pick best summary according to TTR*
 
