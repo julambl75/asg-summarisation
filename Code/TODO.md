@@ -1,14 +1,15 @@
 ## To show Alessandra/David
 
 - ss reduction with mode bias (simple example: 396->16, very complicated example: 9477->1044)
-- Replace 2 words by superclass (W1 and W2 -> superclass(W1,W2); S V W1 - S V W2 -> S V superclass(W1,W2))
+- Replace 2 words by hypernym
+- Add support for numbers (CD)
 - Increase score if first sentence of summary begins with proper noun
 - birdhouse/car
+- Singularize plural words to compute score (otherwise similarity is 0)
 
 
 ## TODO
 
-- Support numbers as single adj_or_adj object
 - Remove comma if between 2 adjectives (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
 - NN
     - Experiments:
@@ -102,8 +103,7 @@ object(NOUN, DET, ADJ_OR_ADV)
 noun(NAME)
 adj_or_adv(NAME)
 det(...)
-compound(FIRST, SECOND)         # for verbs
-conjunct(FIRST, SECOND)         # learn both
-disjunct(FIRST, SECOND)         # use choice rule
+compound(FIRST, SECOND)  # for verbs
+conjunct(FIRST, SECOND)  # learn both
 
 * Type-Token Ratio (TTR): The basic idea behind that measure is that if the text is more complex, the author uses a more varied vocabulary so there’s a larger number of types (unique words). This logic is explicit in the TTR’s formula, which calculates the number of types divided by the number of tokens. As a result, the higher the TTR, the higher the lexical complexity.

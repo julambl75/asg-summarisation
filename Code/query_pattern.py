@@ -18,6 +18,14 @@ class QueryPattern:
             pass
 
     @staticmethod
+    def get_singular_noun(word):
+        return singularize(word, pos=NOUN)
+
+    @staticmethod
+    def get_plural_noun(word):
+        return pluralize(word, pos=NOUN)
+
+    @staticmethod
     def conjugate(verb, person, tense, number):
         return conjugate(verb, person=person, tense=tense, number=number)
 

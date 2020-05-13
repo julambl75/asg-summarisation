@@ -192,8 +192,8 @@ class TextSimplifier:
                     first_clause_verb_idx = first_clause.index(first_clause_verbs[0])
                     first_clause_subject = first_clause[:first_clause_verb_idx]
                     second_clause = first_clause_subject + second_clause
-                # Subject and verb have been omitted from second clause, keep object conjunction
-                elif not self._tokens_to_pos(second_clause, VERB_POS):
+                # Conjuncts do not both have their own verb, keep conjunction the way it is
+                elif not (self._tokens_to_pos(first_clause, VERB_POS) and self._tokens_to_pos(second_clause, VERB_POS)):
                     i += 1
                     continue
                 tokenized[i] = first_clause + [EOS_TOKENIZED]

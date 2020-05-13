@@ -1,21 +1,12 @@
 import itertools
 
-import inflect
 from nltk.translate.bleu_score import sentence_bleu
 from pycorenlp import StanfordCoreNLP
 
 
 class Helper:
     def __init__(self):
-        self.p = inflect.engine()
         self.nlp = StanfordCoreNLP('http://localhost:9000')
-
-    # Note: this does not work in general for nouns; for example p.plural_noun('cars') returns 'cars'
-    def is_plural_pronoun(self, word):
-        return self.p.plural_noun(word) == word
-
-    def is_plural_verb(self, word):
-        return self.p.plural_verb(word) == word
 
     # Returns a list of lists of word POS tags, one for each sentence,
     #   or simply a list of each word's POS tag is ignore_sentence is True

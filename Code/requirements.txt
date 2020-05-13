@@ -5,7 +5,6 @@ numpy~=1.16.0
 requests~=2.22.0
 nltk~=3.4.5
 pycorenlp~=0.3.0
-inflect==0.2.5
 python-datamuse
 unidecode
 contractions~=0.0.24

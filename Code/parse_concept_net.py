@@ -1,5 +1,7 @@
 import requests
 
+from query_pattern import QueryPattern
+
 ENGLISH = 'en'
 DIRECT_RELATION = 'RelatedTo'
 
@@ -7,6 +9,8 @@ DIRECT_RELATION = 'RelatedTo'
 class ParseConceptNet:
     def __init__(self, print_results=True):
         self.print_results = print_results
+
+        self.query_pattern = QueryPattern()
 
     # Returns related words, sorted by weight
     # If only_direct_relations is specified, only words <other> such that <word> RelatedTo <other> will be shown
@@ -27,8 +31,14 @@ class ParseConceptNet:
                             print("{} {} {}".format(relation_start, relation_type, relation_end))
         return relations
 
-    # Returns weight between two words
-    def compare_words(self, word, other_word):
+    # Returns weight between two words; if both words are plural they will be changed to singular form to avoid 0 score
+    def compare_words(self, word, other_word, singularize_plurals=False):
+        if singularize_plurals:
+            words_sg = tuple(self.query_pattern.get_singular_noun(w) for w in (word, other_word))
+            words_pl = tuple(self.query_pattern.get_plural_noun(w) for w in words_sg)
+            if words_pl == (word, other_word):
+                word, other_word = words_sg
+
         word = word.replace(' ', '_').lower()
         other_word = other_word.replace(' ', '_').lower()
 

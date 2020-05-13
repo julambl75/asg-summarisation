@@ -12,6 +12,7 @@
     "whereas"
   ],
   "pos_categories": {
+    "cd": "det",
     "dt": "det",
     "ex": "noun",
     "in": "det",

@@ -75,10 +75,6 @@ TEST_PROPORTION = 0.1
 #  -> make sentence
 # 5. Add irrelevant sentence
 
-# They owned chickens. These were very large birds. Together they produced 10 eggs a day. Ronny and Jack ate breakfast.
-# -> They owned very large birds. They produced 10 eggs a day.
-
-
 
 class GenActions:
     def __init__(self):

@@ -2,17 +2,15 @@ import argparse
 import math
 import pprint as pp
 import re
+import warnings
 from collections import defaultdict
 from operator import itemgetter
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import warnings
-
 from ordered_set import OrderedSet
 
-from helper import Helper
 from parse_concept_net import ParseConceptNet
 from simplify_tokenize_text import TextSimplifier
 
@@ -37,7 +35,6 @@ class Preprocessor:
         self.proper_nouns = set()
 
         self.tokenizer = TextSimplifier(self.story)
-        self.helper = Helper()
         self.pcn = ParseConceptNet(False)
 
     def preprocess(self):
@@ -104,7 +101,7 @@ class Preprocessor:
                                     if word == other_word:
                                         similarity = SAME_WORD_SIMILARITY if pos in SAME_WORD_POS else 0
                                     else:
-                                        similarity = self.pcn.compare_words(word, other_word)
+                                        similarity = self.pcn.compare_words(word, other_word, singularize_plurals=True)
                                     if similarity > 0:
                                         vocabulary.add(word)
                                         vocabulary.add(other_word)
