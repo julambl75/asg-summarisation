@@ -210,7 +210,7 @@ class TextToSummary:
         # Reverse ordering to be closer to chronological order of story
         summary_sentences.reverse()
 
-        # Capitalize sentences
+        # Capitalise sentences
         summary_sentences = map(lambda s: s.capitalize(), summary_sentences)
         # Correct grammar
         summary_sentences = map(self.language_checker.correct, summary_sentences)
