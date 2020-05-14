@@ -18,6 +18,9 @@ warnings.filterwarnings("ignore")
 
 IGNORE_POS = ['DT', '.']
 SAME_WORD_POS = ['NN', 'NNS', 'NNP', 'NNPS']
+VERB_POS = 'VB'
+ADJECTIVE_POS = 'JJ'
+ADVERB_POS = 'RB'
 
 SAME_WORD_SIMILARITY = 5
 WEIGHT_SCALE = 10
@@ -83,6 +86,18 @@ class Preprocessor:
 
         return homogenized_story, self.proper_nouns
 
+    @staticmethod
+    def _similar_pos(pos, other_pos):
+        if pos in SAME_WORD_POS and other_pos in SAME_WORD_POS:
+            return True
+        if VERB_POS in pos and VERB_POS in other_pos:
+            return True
+        if ADJECTIVE_POS in pos and ADJECTIVE_POS in other_pos:
+            return True
+        if ADVERB_POS in pos and ADVERB_POS in other_pos:
+            return True
+        return pos == other_pos
+
     def _process_similarity(self, tokenized):
         similar_words = defaultdict(lambda: defaultdict(lambda: 0))
         similar_sentences = defaultdict(lambda: defaultdict(lambda: 0))
@@ -97,18 +112,20 @@ class Preprocessor:
                                 word = word.lower()
                                 other_word = other_word.lower()
 
-                                if pos == other_pos:
+                                if self._similar_pos(pos, other_pos):
+                                    similarity = lemma_similarity = 0
                                     if word == other_word:
                                         similarity = SAME_WORD_SIMILARITY if pos in SAME_WORD_POS else 0
-                                        lemma_similarity = 0
-                                    else:
+                                    elif pos == other_pos:
                                         similarity = self.pcn.compare_words(word, other_word)
+                                    if not similarity:
                                         lemma_similarity = self.pcn.compare_words(word, other_word, use_lemma=True)
-                                    if similarity > 0:
+                                    max_similarity = max(similarity, lemma_similarity)
+                                    if pos == other_pos and word != other_word and max_similarity:
                                         vocabulary.add(word)
                                         vocabulary.add(other_word)
-                                        similar_words[word][other_word] = similarity
-                                    similar_sentences[i][j] += lemma_similarity if lemma_similarity else similarity
+                                        similar_words[word][other_word] = max_similarity
+                                    similar_sentences[i][j] += max_similarity
         return similar_words, similar_sentences, vocabulary
 
     @staticmethod
