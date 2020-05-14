@@ -209,6 +209,9 @@ class TextToSummary:
     def _correct_summaries(self, summary_sentences):
         # Reverse ordering to be closer to chronological order of story
         summary_sentences.reverse()
+
+        # Capitalize sentences
+        summary_sentences = map(lambda s: s.capitalize(), summary_sentences)
         # Correct grammar
         summary_sentences = map(self.language_checker.correct, summary_sentences)
         # Restore complex proper nouns
