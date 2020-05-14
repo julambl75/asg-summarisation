@@ -209,14 +209,14 @@ class TextToSummary:
     def _correct_summaries(self, summary_sentences):
         # Reverse ordering to be closer to chronological order of story
         summary_sentences.reverse()
+        # Correct grammar
+        summary_sentences = map(self.language_checker.correct, summary_sentences)
+        # Restore complex proper nouns
+        summary_sentences = map(lambda s: re.sub(*RESTORE_PROPER_NOUNS_REGEX, s), summary_sentences)
+        # Restore punctuation and fix spacing
+        summary_sentences = list(map(lambda s: s.strip().replace('_', '-').replace('  ', ' '), summary_sentences))
+
         summary_len = self._get_summary_length()
         summaries = {' '.join(summary) for summary in itertools.combinations(summary_sentences, summary_len)}
 
-        # Correct grammar
-        corrected_summaries = map(self.language_checker.correct, summaries)
-        # Restore complex proper nouns
-        corrected_summaries = map(lambda s: re.sub(*RESTORE_PROPER_NOUNS_REGEX, s), corrected_summaries)
-        # Restore punctuation and fix spacing
-        corrected_summaries = list(map(lambda s: s.strip().replace('_', '-').replace('  ', ' '), corrected_summaries))
-
-        return self.summary_scorer.asg_score(self.text, corrected_summaries, self.pos_summaries, self.proper_nouns)
+        return self.summary_scorer.asg_score(self.text, summaries, self.pos_summaries, self.proper_nouns)
