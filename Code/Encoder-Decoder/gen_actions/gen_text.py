@@ -5,6 +5,7 @@ from distutils.dir_util import mkpath
 from operator import itemgetter
 
 import language_check
+from datamuse import datamuse
 from pattern.en import SG, PL, PRESENT
 
 from query_pattern import QueryPattern
@@ -32,11 +33,10 @@ OBJECT_TO_SUBJECT = {v: k for k, v in SUBJECT_TO_OBJECT.items()}
 DEFAULT_VERB = 'be'
 PUNCTUATION = '.'
 
-PROB_PERSON = 0.5
-PROB_PRONOUN = 0.5
+PROB_PERSON = 0#.5 TODO
+PROB_PRONOUN = 0#.5 TODO
 PROB_LAST_NOUN = 0.25
-PROB_DEFAULT_VERB = 0.5
-MIN_ADJ, MAX_ADJ = (0, 2)
+MIN_ADJ, MAX_ADJ = (0, 1)
 MIN_PEOPLE, MAX_PEOPLE = (1, 2)
 
 CONJUGATION_INDIVIDUAL = (3, SG)
@@ -96,6 +96,7 @@ class GenActions:
         self.training_pairs = []
 
         self.query_pattern = QueryPattern()
+        self.datamuse_api = datamuse.Datamuse()
         self.language_checker = language_check.LanguageTool('en-GB')
         self.summary_scorer = SummaryScorer()
 
@@ -163,16 +164,22 @@ class GenActions:
 
     def _get_random_common_noun(self):
         person, number = CONJUGATION_INDIVIDUAL
-        num_adjectives = random.randint(MIN_ADJ, MAX_ADJ)
         determiner = random.choice(DETERMINERS)
         noun = random.choice(self.nouns)
-        adjectives = [random.choice(self.adjectives).lower() for _ in range(num_adjectives)]
-        adjective_part = self._list_to_conjunct(adjectives)
+
+        # TODO cleanup
+        adjectives = [x['word'] for x in self.datamuse_api.words(rel_jjb=noun, max=1) if 'word' in x.keys() and x['word'] in self.adjectives]
+        adjective = self._list_to_conjunct(adjectives)
+
+        # TODO rel_trg, rel_gen, rel_syn
+        # words = [x['word'] for x in self.datamuse_api.words(rel='participation', max=10) if 'word' in x.keys()]
+        # [w for w in words if w in self.nouns]
+        # [w for w in words if w in self.adjectives]
+
         self.create_asg_leaf(COMMON_NOUN_POS, noun, NOUN_PREDICATE)
         self.create_asg_leaf(DETERMINER_POS, determiner, DETERMINER_PREDICATE)
-        for adjective in adjectives:
-            self.create_asg_leaf(ADJECTIVE_POS, adjective, ADJECTIVE_PREDICATE)
-        return noun, determiner, adjective_part, person, number
+        self.create_asg_leaf(ADJECTIVE_POS, adjective, ADJECTIVE_PREDICATE)
+        return noun, determiner, adjective, person, number
 
     def _subject_object_to_story_tokens(self, noun, determiner, adjective_part):
         for clause_part in [determiner, adjective_part, noun]:
@@ -186,6 +193,7 @@ class GenActions:
             elif clause_part != EMPTY_TOKEN:
                 self.curr_story_tokens.append(clause_part)
 
+    # TODO cleanup
     def get_random_subject_object(self, token_type):
         if self.last_nouns[token_type] and random.random() < PROB_LAST_NOUN:
             noun, determiner, adjective_part, person, number = self._get_random_last_noun(token_type)
@@ -197,14 +205,18 @@ class GenActions:
         self._subject_object_to_story_tokens(noun, determiner, adjective_part)
         token = f'{token_type}({noun}, {determiner}, {adjective_part})'
         if token_type == SUBJECT_TOKEN:
-            return token, person, number
+            return token, noun, adjective_part, person, number
         return token
 
-    def get_random_verb(self, person, number):
-        if random.random() < PROB_DEFAULT_VERB:
-            verb = random.choice(self.verbs)
-        else:
-            verb = DEFAULT_VERB
+    # TODO cleanup
+    def get_random_verb(self, noun, adjective, person, number):
+        # if random.random() < PROB_DEFAULT_VERB:
+        #     verb = random.choice(self.verbs)
+        # else:
+        #     verb = DEFAULT_VERB
+        verbs = [x['word'] for x in self.datamuse_api.words(rel_syn=noun, topics=adjective, max=10) if 'word' in x.keys() and x['word'] in self.verbs]
+        verb = verbs[0] if verbs else DEFAULT_VERB
+
         tense = random.choice(TENSES)
         conjugated = self.query_pattern.conjugate(verb, person=person, tense=tense, number=number)
         if tense == PRESENT and person == 3:
@@ -222,8 +234,8 @@ class GenActions:
         self.leaf_nodes.add(leaf_node)
 
     def generate_action(self, index):
-        subject, person, number = self.get_random_subject_object(SUBJECT_TOKEN)
-        verb = self.get_random_verb(person, number)
+        subject, noun, adjective, person, number = self.get_random_subject_object(SUBJECT_TOKEN)
+        verb = self.get_random_verb(noun, adjective, person, number)
         object = self.get_random_subject_object(OBJECT_TOKEN)
         self.curr_story_tokens.append(PUNCTUATION)
         return f'action({index}, {verb}, {subject}, {object}).'.replace('-', '_').lower()
@@ -286,7 +298,7 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(story_length=5, num_stories=5)
+    gen_actions.generate_stories(story_length=5, num_stories=10)
     # gen_actions.generate_stories(story_length=4, num_stories=50)
-    gen_actions.summarise_generated_stories()
-    gen_actions.write_training_data(TEST_PROPORTION)
+    # gen_actions.summarise_generated_stories()
+    # gen_actions.write_training_data(TEST_PROPORTION)
