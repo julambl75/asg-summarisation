@@ -5,8 +5,7 @@
 - Add support for numbers (CD)
 - Increase score if first sentence of summary begins with proper noun
 - birdhouse/car
-- Singularize plural words to compute score (otherwise similarity is 0)
-
+- Fix Preprocessor similarity (singularize plural words to compute score)
 
 ## TODO
 
