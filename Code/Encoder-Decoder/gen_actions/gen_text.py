@@ -168,20 +168,24 @@ class GenActions:
         adjectives = [w for w in adjectives if w in self.adjectives]
         adjective = random.choice(adjectives) if adjectives else None
 
-        # TODO remove condition since will never happen
-        if not noun and not adjective:
+        if not noun and (token_type == SUBJECT_TOKEN or not adjective):
             noun = random.choice(self.nouns)
-
-        if self.query_pattern.is_plural_noun(noun):
+        if noun and self.query_pattern.is_plural_noun(noun):
             determiner = EMPTY_TOKEN
             person, number = CONJUGATION_GROUP
         else:
-            determiner = random.choice(DETERMINERS)
+            determiner = random.choice(DETERMINERS) if noun else EMPTY_TOKEN
             person, number = CONJUGATION_INDIVIDUAL
 
-        self.create_asg_leaf(COMMON_NOUN_POS, noun, NOUN_PREDICATE)
-        self.create_asg_leaf(DETERMINER_POS, determiner, DETERMINER_PREDICATE)
-        self.create_asg_leaf(ADJECTIVE_POS, adjective, ADJECTIVE_PREDICATE)
+        if noun:
+            self.create_asg_leaf(COMMON_NOUN_POS, noun, NOUN_PREDICATE)
+        if determiner:
+            self.create_asg_leaf(DETERMINER_POS, determiner, DETERMINER_PREDICATE)
+        if adjective:
+            self.create_asg_leaf(ADJECTIVE_POS, adjective, ADJECTIVE_PREDICATE)
+
+        noun = noun or EMPTY_TOKEN
+        adjective = adjective or EMPTY_TOKEN
         return noun, determiner, adjective, person, number
 
     def _subject_object_to_story_tokens(self, noun, determiner, adjective_part):
@@ -252,7 +256,8 @@ class GenActions:
             if True:#i % PRINT_EVERY_ITERS == 0:
                 print(f'[{i}/{num_stories}]: Generating stories of length {story_length}...')
 
-            topic = self.lexical_fields[i % len(self.lexical_fields)]
+            # topic = self.lexical_fields[i % len(self.lexical_fields)]
+            topic = random.choice(self.nouns)
             print(topic)
 
             # TODO
