@@ -33,6 +33,11 @@ class QueryPattern:
     def conjugate(verb, person, tense, number):
         return conjugate(verb, person=person, tense=tense, number=number)
 
+    def is_plural_noun(self, word):
+        lemma = self.lemmatize(word)
+        plural = self.get_plural_noun(lemma)
+        return word == plural
+
     def find_hypernym(self, word1, word2, return_plural=False):
         synsets1 = self._find_word_synsets(word1)
         synsets2 = self._find_word_synsets(word2)

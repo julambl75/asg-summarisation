@@ -6,6 +6,7 @@
 - Increase score if first sentence of summary begins with proper noun
 - birdhouse/car
 - Fix Preprocessor similarity (singularize plural words to compute score)
+- Neural network 
 
 ## TODO
 
@@ -106,3 +107,15 @@ compound(FIRST, SECOND)  # for verbs
 conjunct(FIRST, SECOND)  # learn both
 
 * Type-Token Ratio (TTR): The basic idea behind that measure is that if the text is more complex, the author uses a more varied vocabulary so there’s a larger number of types (unique words). This logic is explicit in the TTR’s formula, which calculates the number of types divided by the number of tokens. As a result, the higher the TTR, the higher the lexical complexity.
+
+# Neural network
+
+For for each story:
+1. Pick predefined lexical field (topic)
+2. For each sentence:
+    - Pick a single pronoun (p)
+    - Pick a single proper noun (pn)
+    - Subject: p, pn, or hyponym of topic with optional common adjective for it
+    - Verb: verb from same lexical field as topic if possible, otherwise random
+    - Object: p, pn, or holonym/meronym of subject
+3. Add irrelevant sentence

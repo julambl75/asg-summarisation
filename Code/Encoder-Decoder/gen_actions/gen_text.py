@@ -18,13 +18,13 @@ PARENT_DIR = os.path.dirname(PATH)
 EXPORT_PATH = f'{PARENT_DIR}/data'
 NAMES_FILE = f'{PARENT_DIR}/words/names.txt'
 WORDS_FILE = f'{PARENT_DIR}/words/words.csv'
+LEXICAL_FIELDS_FILE = f'{PARENT_DIR}/words/lexical_fields.txt'
 
 TRAIN = 'train'
 TEST = 'test'
 EVAL = 'eval'
 
 DETERMINERS = ['a', 'the']
-DETERMINER_REOCCUR = 'the'
 CONJUNCT_KEYWORD = 'and'
 PRONOUNS_SUBJECT = [('I', 1, SG), ('you', 2, SG), ('he', 3, SG), ('she', 3, SG), ('it', 3, SG),
                     ('we', 1, PL), ('you', 2, PL), ('they', 3, PL)]
@@ -33,11 +33,9 @@ OBJECT_TO_SUBJECT = {v: k for k, v in SUBJECT_TO_OBJECT.items()}
 DEFAULT_VERB = 'be'
 PUNCTUATION = '.'
 
-PROB_PERSON = 0#.5 TODO
-PROB_PRONOUN = 0#.5 TODO
+PROB_PROPER_NOUN = 0.25
+PROB_PRONOUN = 0.25
 PROB_LAST_NOUN = 0.25
-MIN_ADJ, MAX_ADJ = (0, 1)
-MIN_PEOPLE, MAX_PEOPLE = (1, 2)
 
 CONJUGATION_INDIVIDUAL = (3, SG)
 CONJUGATION_GROUP = (3, PL)
@@ -66,26 +64,15 @@ PRINT_EVERY_ITERS = 50
 TEST_PROPORTION = 0.1
 
 
-# Idea:
-# 1. Pick random common/proper noun(s)
-# 2. Find common verb/adjective for it
-#  -> make sentence
-# 3. Pick noun in same lexical field if common otherwise same
-# 4. Find common verb/adjective for it
-#  -> make sentence
-# 5. Add irrelevant sentence
-
-# words = self.datamuse_api.words(rel_syn=noun, topics=context, max=1)
-
-
 class GenActions:
     def __init__(self):
-        self.words = self.read_words()
-        self.names = self.read_names()
+        self.words = self._read_words()
+        self.names = self._read_names()
+        self.lexical_fields = self._read_lexical_fields()
 
-        self.verbs = self.get_words_of_type('v')
-        self.nouns = self.get_words_of_type('n')
-        self.adjectives = self.get_words_of_type('j')
+        self.verbs = self._get_words_of_type('v')
+        self.nouns = self._get_words_of_type('n')
+        self.adjectives = self._get_words_of_type('j')
 
         self.proper_nouns = set()
         self._reset_for_new_story()
@@ -101,17 +88,22 @@ class GenActions:
         self.summary_scorer = SummaryScorer()
 
     @staticmethod
-    def read_names():
+    def _read_names():
         with open(NAMES_FILE, encoding='utf-8-sig') as names_file:
             return names_file.read().strip().split('\n')
 
     @staticmethod
-    def read_words():
+    def _read_words():
         with open(WORDS_FILE) as words_csv:
             reader = csv.reader(words_csv, delimiter=',')
             return [tuple(row) for row in reader]
 
-    def get_words_of_type(self, word_type):
+    @staticmethod
+    def _read_lexical_fields():
+        with open(LEXICAL_FIELDS_FILE) as lexical_fields_file:
+            return lexical_fields_file.read().strip().split('\n')
+
+    def _get_words_of_type(self, word_type):
         return list(map(itemgetter(0), filter(lambda e: e[1] == word_type, self.words)))
 
     @staticmethod
@@ -123,58 +115,69 @@ class GenActions:
         return f'{CONJUNCT_TOKEN}({", ".join(tokens)})'
 
     def _reset_for_new_story(self):
-        self.last_nouns = {OBJECT_TOKEN: [], SUBJECT_TOKEN: []}
+        self.last_nouns = {'prp': None, 'nnp': None}  # TODO make into constants and change keys
         self.leaf_nodes = set()
         self.curr_story_tokens = []
 
-    def _get_random_last_noun(self, token_type):
-        noun, determiner, adjective_part, person, number = random.choice(self.last_nouns[token_type])
-        if token_type == OBJECT_TOKEN:
-            if determiner != EMPTY_TOKEN:
-                determiner = DETERMINER_REOCCUR
-            if noun in SUBJECT_TO_OBJECT.keys():
-                noun = SUBJECT_TO_OBJECT[noun]
+    # TODO cleanup
+    def _get_random_pronoun(self, token_type):
+        pronouns = PRONOUNS_SUBJECT
+        if self.last_nouns['prp']:
+            noun, person, number = self.last_nouns['prp']
+        else:
+            noun, person, number = random.choice(pronouns)
+            self.create_asg_leaf(PRONOUN_POS, noun, NOUN_PREDICATE)
+            self.last_nouns['prp'] = (noun, person, number)
+
+        if token_type == OBJECT_TOKEN and noun in SUBJECT_TO_OBJECT.keys():
+            noun = SUBJECT_TO_OBJECT[noun]
         elif token_type == SUBJECT_TOKEN and noun in OBJECT_TO_SUBJECT.keys():
             noun = OBJECT_TO_SUBJECT[noun]
-        return noun, determiner, adjective_part, person, number
+        return noun, person, number
 
-    def _get_random_person(self, token_type):
-        pronouns = PRONOUNS_SUBJECT
-        nouns = []
-        num_people = random.randint(MIN_PEOPLE, MAX_PEOPLE)
-        for _ in range(num_people):
-            if random.random() < PROB_PRONOUN:
-                pronoun, person, number = random.choice(pronouns)
-                if token_type == OBJECT_TOKEN and pronoun in SUBJECT_TO_OBJECT.keys():
-                    pronoun = SUBJECT_TO_OBJECT[pronoun]
-                nouns.append(pronoun)
-                self.create_asg_leaf(PRONOUN_POS, pronoun, NOUN_PREDICATE)
+    # TODO cleanup
+    def _get_random_proper_noun(self):
+        if self.last_nouns['nnp']:
+            noun, person, number = self.last_nouns['nnp']
+        else:
+            noun = random.choice(self.names)
+            person, number = CONJUGATION_INDIVIDUAL
+            self.proper_nouns.add(noun)
+            self.create_asg_leaf(PROPER_NOUN_POS, noun, NOUN_PREDICATE)
+            self.last_nouns['nnp'] = (noun, person, number)
+        return noun, person, number
+
+    def _get_random_common_noun(self, token_type, topic):
+        if token_type == SUBJECT_TOKEN:
+            # TODO call only once
+            nouns = [x['word'] for x in self.datamuse_api.words(rel_gen=topic, max=10) if 'word' in x.keys()]
+        else:
+            prev_verb = self.curr_story_tokens[-1]
+            prev_noun = self.curr_story_tokens[-2] if self.curr_story_tokens[-2] in self.nouns else None
+
+            if random.random() < 0.5:
+                nouns = [x['word'] for x in self.datamuse_api.words(rel_com=prev_noun, topics=topic, lc=prev_verb, max=10) if 'word' in x.keys()]
             else:
-                name = random.choice(self.names)
-                person, number = CONJUGATION_INDIVIDUAL
-                nouns.append(name)
-                self.proper_nouns.add(name)
-                self.create_asg_leaf(PROPER_NOUN_POS, name, NOUN_PREDICATE)
-        if num_people > 1:
+                nouns = [x['word'] for x in self.datamuse_api.words(rel_par=prev_noun, topics=topic, lc=prev_verb, max=10) if 'word' in x.keys()]
+
+        # TODO speedup
+        nouns = [w for w in nouns if w in self.nouns or self.query_pattern.get_singular_noun(w) in self.nouns]
+        noun = random.choice(nouns) if nouns else None
+
+        adjectives = [x['word'] for x in self.datamuse_api.words(rel_jjb=noun, max=1) if 'word' in x.keys()]
+        adjectives = [w for w in adjectives if w in self.adjectives]
+        adjective = random.choice(adjectives) if adjectives else None
+
+        # TODO remove condition since will never happen
+        if not noun and not adjective:
+            noun = random.choice(self.nouns)
+
+        if self.query_pattern.is_plural_noun(noun):
+            determiner = EMPTY_TOKEN
             person, number = CONJUGATION_GROUP
-        noun = self._list_to_conjunct(nouns)
-        determiner = EMPTY_TOKEN
-        adjective_part = EMPTY_TOKEN
-        return noun, determiner, adjective_part, person, number
-
-    def _get_random_common_noun(self):
-        person, number = CONJUGATION_INDIVIDUAL
-        determiner = random.choice(DETERMINERS)
-        noun = random.choice(self.nouns)
-
-        # TODO cleanup
-        adjectives = [x['word'] for x in self.datamuse_api.words(rel_jjb=noun, max=1) if 'word' in x.keys() and x['word'] in self.adjectives]
-        adjective = self._list_to_conjunct(adjectives)
-
-        # TODO rel_trg, rel_gen, rel_syn
-        # words = [x['word'] for x in self.datamuse_api.words(rel='participation', max=10) if 'word' in x.keys()]
-        # [w for w in words if w in self.nouns]
-        # [w for w in words if w in self.adjectives]
+        else:
+            determiner = random.choice(DETERMINERS)
+            person, number = CONJUGATION_INDIVIDUAL
 
         self.create_asg_leaf(COMMON_NOUN_POS, noun, NOUN_PREDICATE)
         self.create_asg_leaf(DETERMINER_POS, determiner, DETERMINER_PREDICATE)
@@ -193,15 +196,16 @@ class GenActions:
             elif clause_part != EMPTY_TOKEN:
                 self.curr_story_tokens.append(clause_part)
 
-    # TODO cleanup
-    def get_random_subject_object(self, token_type):
-        if self.last_nouns[token_type] and random.random() < PROB_LAST_NOUN:
-            noun, determiner, adjective_part, person, number = self._get_random_last_noun(token_type)
-        elif random.random() < PROB_PERSON:
-            noun, determiner, adjective_part, person, number = self._get_random_person(token_type)
+    def get_random_subject_object(self, token_type, topic):
+        determiner = adjective_part = EMPTY_TOKEN
+        # TODO check nature of subject (disallow same nature unless common)
+
+        if random.random() < PROB_PROPER_NOUN:
+            noun, person, number = self._get_random_proper_noun()
+        elif random.random() < PROB_PRONOUN:
+            noun, person, number = self._get_random_pronoun(token_type)
         else:
-            noun, determiner, adjective_part, person, number = self._get_random_common_noun()
-        self.last_nouns[token_type].append((noun, determiner, adjective_part, person, number))
+            noun, determiner, adjective_part, person, number = self._get_random_common_noun(token_type, topic)
         self._subject_object_to_story_tokens(noun, determiner, adjective_part)
         token = f'{token_type}({noun}, {determiner}, {adjective_part})'
         if token_type == SUBJECT_TOKEN:
@@ -209,13 +213,10 @@ class GenActions:
         return token
 
     # TODO cleanup
-    def get_random_verb(self, noun, adjective, person, number):
-        # if random.random() < PROB_DEFAULT_VERB:
-        #     verb = random.choice(self.verbs)
-        # else:
-        #     verb = DEFAULT_VERB
-        verbs = [x['word'] for x in self.datamuse_api.words(rel_syn=noun, topics=adjective, max=10) if 'word' in x.keys() and x['word'] in self.verbs]
-        verb = verbs[0] if verbs else DEFAULT_VERB
+    def get_random_verb(self, person, number, topic):
+        # TODO call only once and with bigger max
+        verbs = [x['word'] for x in self.datamuse_api.words(topics=topic, max=10) if 'word' in x.keys() and x['word'] in self.verbs]
+        verb = random.choice(verbs) if verbs else DEFAULT_VERB
 
         tense = random.choice(TENSES)
         conjugated = self.query_pattern.conjugate(verb, person=person, tense=tense, number=number)
@@ -233,10 +234,10 @@ class GenActions:
         leaf_node = f'{pos_tag} -> "{value} " {{ {predicate}({lemma}). }}'
         self.leaf_nodes.add(leaf_node)
 
-    def generate_action(self, index):
-        subject, noun, adjective, person, number = self.get_random_subject_object(SUBJECT_TOKEN)
-        verb = self.get_random_verb(noun, adjective, person, number)
-        object = self.get_random_subject_object(OBJECT_TOKEN)
+    def generate_action(self, index, topic):
+        subject, noun, adjective, person, number = self.get_random_subject_object(SUBJECT_TOKEN, topic)
+        verb = self.get_random_verb(person, number, topic)
+        object = self.get_random_subject_object(OBJECT_TOKEN, topic)
         self.curr_story_tokens.append(PUNCTUATION)
         return f'action({index}, {verb}, {subject}, {object}).'.replace('-', '_').lower()
 
@@ -244,13 +245,27 @@ class GenActions:
         joined_tokens = ' '.join(self.curr_story_tokens)
         return self.language_checker.correct(joined_tokens)
 
-    def generate_stories(self, story_length, num_stories):
+    # TODO irrelevant sentence
+    def generate_stories(self, story_length, num_stories, irrelevant_sentence=False):
         for i in range(num_stories):
-            if i % PRINT_EVERY_ITERS == 0:
+            # TODO reput constant
+            if True:#i % PRINT_EVERY_ITERS == 0:
                 print(f'[{i}/{num_stories}]: Generating stories of length {story_length}...')
-            self.story_actions.append([self.generate_action(i) for i in range(story_length)])
+
+            topic = self.lexical_fields[i % len(self.lexical_fields)]
+            print(topic)
+
+            # TODO
+            if irrelevant_sentence:
+                pass
+
+            self.story_actions.append([self.generate_action(i, topic) for i in range(story_length)])
             self.story_leaf_nodes.append(sorted(self.leaf_nodes))
-            self.stories.append(self.format_story())
+
+            # TODO cleanup
+            story = self.format_story()
+            print(story)
+            self.stories.append(story)
             self._reset_for_new_story()
         print(f'[{num_stories}/{num_stories}]: Generated stories of length {story_length}...')
 
@@ -298,7 +313,7 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(story_length=5, num_stories=10)
+    gen_actions.generate_stories(story_length=4, num_stories=20, irrelevant_sentence=True)
     # gen_actions.generate_stories(story_length=4, num_stories=50)
     # gen_actions.summarise_generated_stories()
     # gen_actions.write_training_data(TEST_PROPORTION)
