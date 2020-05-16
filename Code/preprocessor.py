@@ -96,6 +96,8 @@ class Preprocessor:
             return True
         if ADVERB_POS in pos and ADVERB_POS in other_pos:
             return True
+        if pos in IGNORE_POS or other_pos in IGNORE_POS:
+            return False
         return pos == other_pos
 
     def _process_similarity(self, tokenized):
@@ -103,29 +105,41 @@ class Preprocessor:
         similar_sentences = defaultdict(lambda: defaultdict(lambda: 0))
         vocabulary = OrderedSet()
 
+        iters = 0
+        similarity_cache = defaultdict(lambda: defaultdict(lambda: int))
+
         for i, sentence in enumerate(tokenized):
             for word, pos in sentence:
-                if pos not in IGNORE_POS:
-                    for j, other_sentence in enumerate(tokenized):
-                        if i != j:
-                            for other_word, other_pos in other_sentence:
-                                word = word.lower()
-                                other_word = other_word.lower()
+                for j, other_sentence in enumerate(tokenized):
+                    for other_word, other_pos in other_sentence:
+                        if i != j and self._similar_pos(pos, other_pos):
+                            word = word.lower()
+                            other_word = other_word.lower()
 
-                                if self._similar_pos(pos, other_pos):
-                                    similarity = lemma_similarity = 0
-                                    if word == other_word:
-                                        similarity = SAME_WORD_SIMILARITY if pos in SAME_WORD_POS else 0
-                                    elif pos == other_pos:
-                                        similarity = self.pcn.compare_words(word, other_word)
-                                    if not similarity:
-                                        lemma_similarity = self.pcn.compare_words(word, other_word, use_lemma=True)
-                                    max_similarity = max(similarity, lemma_similarity)
-                                    if pos == other_pos and word != other_word and max_similarity:
-                                        vocabulary.add(word)
-                                        vocabulary.add(other_word)
-                                        similar_words[word][other_word] = max_similarity
-                                    similar_sentences[i][j] += max_similarity
+                            # Similarity already computed
+                            if other_word in similarity_cache[word].keys():
+                                similar_sentences[i][j] += similarity_cache[word][other_word]
+                            elif word in similarity_cache[other_word].keys():
+                                similar_sentences[i][j] += similarity_cache[other_word][word]
+                            else:
+                                # TODO remove
+                                iters += 1
+                                print(iters, word, other_word)
+
+                                similarity = lemma_similarity = 0
+                                if word == other_word:
+                                    similarity = SAME_WORD_SIMILARITY if pos in SAME_WORD_POS else 0
+                                elif pos == other_pos and not pos.startswith(VERB_POS):
+                                    similarity = self.pcn.compare_words(word, other_word)
+                                if not similarity:
+                                    lemma_similarity = self.pcn.compare_words(word, other_word, use_lemma=True)
+                                max_similarity = max(similarity, lemma_similarity)
+                                if pos == other_pos and word != other_word and max_similarity:
+                                    vocabulary.add(word)
+                                    vocabulary.add(other_word)
+                                    similar_words[word][other_word] = max_similarity
+                                similarity_cache[word][other_word] = max_similarity
+                                similar_sentences[i][j] += max_similarity
         return similar_words, similar_sentences, vocabulary
 
     @staticmethod
@@ -196,14 +210,15 @@ class Preprocessor:
     # From https://stackoverflow.com/questions/17730788/search-and-replace-with-whole-word-only-option
     @staticmethod
     def _homogenize_text(story, word_map, ordered_sentences):
-        if len(word_map) == 0:
-            return story
         if len(ordered_sentences) >= MIN_NUM_SENT_FOR_PRUNE:
             importances = list(map(itemgetter(1), ordered_sentences))
             importance_1st_quartile = np.percentile(importances, 25)
             pruned_sentences = list(map(itemgetter(0), filter(lambda x: x[1] < importance_1st_quartile, ordered_sentences)))
             for prune in pruned_sentences:
                 story = story.replace(prune, '')
+
+        if len(word_map) == 0:
+            return story
         replace = lambda m: word_map[m.group(0)]
         return re.sub('|'.join(r'\b%s\b' % re.escape(s) for s in word_map), replace, story)
 

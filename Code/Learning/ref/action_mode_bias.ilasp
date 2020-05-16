@@ -34,12 +34,6 @@
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(_,conjunct(_,0),_)),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(_,conjunct(0,_),_)),var__(1))).").
 
-#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,V),object(_,_,V)),var__(1))), V != 0.").
-#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,V),object(_,_,conjunct(V,_))),var__(1))), V != 0.").
-#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,V),object(_,_,conjunct(_,V))),var__(1))), V != 0.").
-#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(V,_)),object(_,_,V)),var__(1))), V != 0.").
-#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(_,V)),object(_,_,V)),var__(1))), V != 0.").
-
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(V,_)),object(_,_,conjunct(V,_))),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(V,_)),object(_,_,conjunct(_,V))),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(_,V)),object(_,_,conjunct(V,_))),var__(1))).").

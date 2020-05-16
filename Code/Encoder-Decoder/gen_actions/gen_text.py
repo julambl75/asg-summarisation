@@ -8,6 +8,7 @@ import language_check
 from datamuse import datamuse
 from pattern.en import SG, PL, PRESENT
 
+from preprocessor import Preprocessor
 from query_pattern import QueryPattern
 from score_summary import SummaryScorer
 from text_to_summary import TextToSummary
@@ -162,11 +163,10 @@ class GenActions:
         return verbs if verbs else [DEFAULT_VERB]
 
     def _get_random_pronoun(self, token_type):
-        pronouns = PRONOUNS_SUBJECT
         if self.last_pronoun:
             noun, person, number = self.last_pronoun
         else:
-            noun, person, number = random.choice(pronouns)
+            noun, person, number = random.choice(PRONOUNS_SUBJECT)
             self.create_asg_leaf(PRONOUN_POS, noun, NOUN_PREDICATE)
             self.last_pronoun = (noun, person, number)
         if token_type == OBJECT_TOKEN and noun in SUBJECT_TO_OBJECT.keys():
@@ -291,11 +291,6 @@ class GenActions:
 
             # TODO cleanup
             print(self.topic)
-            
-            # TODO
-            # TODO use lemma for Preprocessor compare verbs
-            if preprocess_p:
-                pass
 
             story_actions = []
             for action_idx in range(story_length):
@@ -306,13 +301,19 @@ class GenActions:
                 story_actions.append(self.generate_action(action_idx))
             self._reset_for_new_lexical_field()
 
-            self.story_actions.append(story_actions)
-            self.story_leaf_nodes.append(sorted(self.leaf_nodes))
 
             # TODO cleanup
             story = self.format_story()
             print(story)
+
+            if preprocess_p:
+                self.story_actions.append([])
+                self.story_leaf_nodes.append([])
+            else:
+                self.story_actions.append(story_actions)
+                self.story_leaf_nodes.append(sorted(self.leaf_nodes))
             self.stories.append(story)
+
             self._reset_for_new_story()
         print(f'[{num_stories}/{num_stories}]: Generated stories of length {story_length}...')
 
@@ -324,10 +325,20 @@ class GenActions:
             if True:#len(self.training_pairs) % PRINT_EVERY_ITERS == 0:
                 print(f'[{len(self.training_pairs)}/{num_stories}]: Summarising generated stories...')
 
-            text_to_summary = TextToSummary(story, gen_actions.proper_nouns, print_results=False)
-            summaries = text_to_summary.generate_summaries(action_set, (leaf_node_set,))
+            # text_to_summary = TextToSummary(story, gen_actions.proper_nouns, print_results=False)
+            # summaries = text_to_summary.generate_summaries(action_set, (leaf_node_set,))
+            # TODO cleanup
+            preprocessor = Preprocessor(story, print_results=False)
+            story, proper_nouns = preprocessor.preprocess()
 
-            self.training_pairs.append((story, summaries[0][0]))
+            text_to_summary = TextToSummary(story, proper_nouns, print_results=False)
+            summaries = text_to_summary.gen_summary()
+
+            if summaries:
+                self.training_pairs.append((story, summaries[0][0]))
+
+                print(story)
+                print(summaries[0][0])
         print(f'[{num_stories}/{num_stories}]: Summarised generated stories...')
 
     @staticmethod
@@ -336,8 +347,8 @@ class GenActions:
 
     def _write_training_data(self, story_summary_pairs, nn_step):
         print(f'Writing {len(story_summary_pairs)} story/summary pairs for {nn_step} data...')
-        stories = '\n'.join(list(map(itemgetter(0), gen_actions.training_pairs)))
-        summaries = '\n'.join(list(map(itemgetter(1), gen_actions.training_pairs)))
+        stories = '\n'.join(list(map(itemgetter(0), story_summary_pairs)))
+        summaries = '\n'.join(list(map(itemgetter(1), story_summary_pairs)))
 
         mkpath(EXPORT_PATH)
         stories_dest = self.get_export_file('stories', nn_step)
@@ -361,6 +372,7 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(story_length=5, num_stories=20, irrelevant_sentence=True, preprocess_p=0)
+    # gen_actions.generate_stories(story_length=5, num_stories=20, irrelevant_sentence=True, preprocess_p=0)
+    gen_actions.generate_stories(story_length=5, num_stories=3, irrelevant_sentence=True, preprocess_p=1)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(TEST_PROPORTION)

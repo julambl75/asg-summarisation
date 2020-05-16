@@ -25,6 +25,11 @@ s -> np vp {
   :- not object.
 }
 
+vp -> vbn np {
+  verb(N,T) :- verb(N,T)@1.
+  object(N,D,A) :- object(N,D,A)@2.
+}
+
 vp -> vbd np {
   verb(N,T) :- verb(N,T)@1.
   object(N,D,A) :- object(N,D,A)@2.
@@ -261,6 +266,21 @@ np -> dt nn {
 np -> dt nns {
   subject(N,D,0) :- det(D)@1, noun(N)@2.
   object(N,D,0) :- det(D)@1, noun(N)@2.
+}
+
+np -> jj nns {
+  subject(N,0,A) :- adj_or_adv(A)@1, noun(N)@2.
+  object(N,0,A) :- adj_or_adv(A)@1, noun(N)@2.
+}
+
+np -> jj nnp {
+  subject(N,0,A) :- adj_or_adv(A)@1, noun(N)@2.
+  object(N,0,A) :- adj_or_adv(A)@1, noun(N)@2.
+}
+
+np -> jj nnps {
+  subject(N,0,A) :- adj_or_adv(A)@1, noun(N)@2.
+  object(N,0,A) :- adj_or_adv(A)@1, noun(N)@2.
 }
 
 np -> dt jj nn {
