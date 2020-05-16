@@ -43,8 +43,6 @@ class Preprocessor:
     def preprocess(self):
         if self.print_results:
             pp.pprint(self.story)
-        else:
-            print('Preprocessing text...')
         tokenized, self.story, self.proper_nouns = self.tokenizer.tokenize()
 
         if self.print_results:
@@ -103,10 +101,8 @@ class Preprocessor:
     def _process_similarity(self, tokenized):
         similar_words = defaultdict(lambda: defaultdict(lambda: 0))
         similar_sentences = defaultdict(lambda: defaultdict(lambda: 0))
-        vocabulary = OrderedSet()
-
-        iters = 0
         similarity_cache = defaultdict(lambda: defaultdict(lambda: int))
+        vocabulary = OrderedSet()
 
         for i, sentence in enumerate(tokenized):
             for word, pos in sentence:
@@ -122,10 +118,6 @@ class Preprocessor:
                             elif word in similarity_cache[other_word].keys():
                                 similar_sentences[i][j] += similarity_cache[other_word][word]
                             else:
-                                # TODO remove
-                                iters += 1
-                                print(iters, word, other_word)
-
                                 similarity = lemma_similarity = 0
                                 if word == other_word:
                                     similarity = SAME_WORD_SIMILARITY if pos in SAME_WORD_POS else 0

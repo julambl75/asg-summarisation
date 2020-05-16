@@ -301,7 +301,6 @@ class GenActions:
                 story_actions.append(self.generate_action(action_idx))
             self._reset_for_new_lexical_field()
 
-
             # TODO cleanup
             story = self.format_story()
             print(story)
@@ -336,7 +335,6 @@ class GenActions:
 
             if summaries:
                 self.training_pairs.append((story, summaries[0][0]))
-
                 print(story)
                 print(summaries[0][0])
         print(f'[{num_stories}/{num_stories}]: Summarised generated stories...')

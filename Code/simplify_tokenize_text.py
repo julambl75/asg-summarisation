@@ -51,6 +51,7 @@ class TextSimplifier:
         self.query_pattern = QueryPattern()
 
     def tokenize(self):
+        self._add_final_punctuation()
         self._substitute_determiners()
         self._expand_contractions()
         self._replace_punctuation()
@@ -71,6 +72,11 @@ class TextSimplifier:
 
         self._replace_story_new_tokenized(tokenized)
         return tokenized, self.text, self.proper_nouns
+
+    def _add_final_punctuation(self):
+        self.text = self.text.strip()
+        if self.text[-1] != EOS:
+            self.text += EOS
 
     def _substitute_determiners(self):
         for key, value in SUBSTITUTIONS.items():

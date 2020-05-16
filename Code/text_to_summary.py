@@ -33,6 +33,7 @@ ASG_UNSATISFIABLE = 'UNSATISFIABLE'
 
 LEARN_ACTIONS_CMD = f'asg {ACTION_ASG} --mode=learn --depth={DEPTH} > {SUMMARY_ASG}'
 GEN_SUMMARIES_CMD = f'asg {SUMMARY_ASG} --mode=run --depth={DEPTH} > {RESULTS_FILE}'
+SILENCE_STD_ERR = ' 2> /dev/null'
 
 REMOVE_SPACES_REGEX = '[^a-zA-Z0-9-]+'
 FIND_BACKGROUND_REGEX = '#background *{[^}]*}'
@@ -60,7 +61,7 @@ class TextToSummary:
 
     def gen_summary(self):
         text = self._decapitalise(self.text, self.proper_nouns)
-        text_parser = ParseCoreNLP(text, True)
+        text_parser = ParseCoreNLP(text, self.print_results)
 
         if self.print_results:
             print('---\nStep 1\n---')
@@ -181,20 +182,24 @@ class TextToSummary:
         with open(filename, 'w') as file:
             file.write(filedata)
 
-    @staticmethod
-    def _run_learn_actions():
-        os.system(LEARN_ACTIONS_CMD)
+    def _run_learn_actions(self):
+        command = LEARN_ACTIONS_CMD
+        if not self.print_results:
+            command += SILENCE_STD_ERR
+        os.system(command)
         with open(SUMMARY_ASG, 'r') as file:
             lang_asg = file.read()
         lang_asg_rules = lang_asg.split(SUMMARY_RULE_SPLIT_STR)
-        if ASG_UNSATISFIABLE in lang_asg_rules[0]:
+        if not lang_asg or ASG_UNSATISFIABLE in lang_asg_rules[0]:
             return []
         lang_asg_sent_rule_lines = lang_asg_rules[SENTENCE_RULE_IDX].split('\n')
         return list(filter(lambda r: '  action(' in r, lang_asg_sent_rule_lines))
 
-    @staticmethod
-    def _gen_summary_sentences():
-        os.system(GEN_SUMMARIES_CMD)
+    def _gen_summary_sentences(self):
+        command = GEN_SUMMARIES_CMD
+        if not self.print_results:
+            command += SILENCE_STD_ERR
+        os.system(command)
         with open(RESULTS_FILE, 'r') as file:
             return list(filter(lambda l: len(l) > 0, file.read().split('\n')))
 

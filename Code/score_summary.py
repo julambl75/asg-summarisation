@@ -26,7 +26,7 @@ class SummaryScorer:
         self.helper = Helper()
         self.language_checker = language_check.LanguageTool('en-GB')
 
-    def asg_score(self, story, summaries, references=None, proper_nouns=None, best_only=False):
+    def asg_score(self, story, summaries, references=None, proper_nouns=None):
         sorted_scores = []
         for summary in summaries:
             score = self.ttr_score(story, summary)
@@ -34,7 +34,7 @@ class SummaryScorer:
             sorted_scores.append((summary, score))
 
         if not sorted_scores:
-            return [] if best_only else None
+            return None
 
         # Increase score of summaries which start with proper noun
         if proper_nouns:
@@ -55,7 +55,7 @@ class SummaryScorer:
                     best_bleu = max(best_bleu, bleu_score)
             assert best_bleu > SIMILAR_BLEU
 
-        return sorted_scores[0] if best_only else sorted_scores
+        return sorted_scores
 
     # Computes a score based on type-token ratio, a measure of lexical density
     # Here the goal is to maximise the density of unique words (TTR), minimising summary length
