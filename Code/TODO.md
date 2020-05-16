@@ -115,7 +115,7 @@ For for each story:
 2. For each sentence:
     - Pick a single pronoun (p)
     - Pick a single proper noun (pn)
-    - Subject: p, pn, or hyponym of topic with optional common adjective for it
+    - Subject: p, pn, or synonym/hyponym/hypernym of topic with optional common adjective for it
     - Verb: verb from same lexical field as topic if possible, otherwise random
-    - Object: p, pn, or holonym/meronym of subject
+    - Object: p, pn, or holonym/meronym of subject with lexical field of currently used common nouns
 3. Add irrelevant sentence

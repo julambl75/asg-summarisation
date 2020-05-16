@@ -1,4 +1,5 @@
 import itertools
+import random
 
 from nltk.translate.bleu_score import sentence_bleu
 from pycorenlp import StanfordCoreNLP
@@ -34,3 +35,7 @@ class Helper:
         if item in items:
             return items.index(item)
         return default
+
+    @staticmethod
+    def random_bool():
+        return random.random() < 0.5
