@@ -371,6 +371,6 @@ class GenActions:
 if __name__ == '__main__':
     gen_actions = GenActions()
     # gen_actions.generate_stories(story_length=5, num_stories=20, irrelevant_sentence=True, preprocess_p=0)
-    gen_actions.generate_stories(story_length=5, num_stories=3, irrelevant_sentence=True, preprocess_p=1)
+    gen_actions.generate_stories(story_length=5, num_stories=20, irrelevant_sentence=True, preprocess_p=1)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(TEST_PROPORTION)
