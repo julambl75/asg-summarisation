@@ -23,7 +23,7 @@ WORDS_FILE = f'{PARENT_DIR}/words/words.csv'
 
 TRAIN = 'train'
 TEST = 'test'
-EVAL = 'eval'
+EVAL = 'val'
 
 NOUN_FILTER = 'noun_filter'
 VERB_FILTER = 'verb_filter'
@@ -71,8 +71,10 @@ DETERMINER_POS = 'dt'
 ADJECTIVE_POS = 'jj'
 PAST_TENSE_POS = 'vbd'
 
-PRINT_EVERY_ITERS = 50
+PRINT_EVERY_ITERS = 5
 TEST_PROPORTION = 0.1
+PREPROCESS_PROB = 0.2
+EVAL_NUM = 5
 
 
 class GenActions:
@@ -283,36 +285,26 @@ class GenActions:
         joined_tokens = ' '.join(self.curr_story_tokens)
         return self.language_checker.correct(joined_tokens)
 
-    def generate_stories(self, story_length, num_stories, irrelevant_sentence=False, preprocess_p=0):
+    def generate_stories(self, story_length, num_stories, irrelevant_sentence=False, preprocess_p=0.0):
         for i in range(num_stories):
-            # TODO reput constant
-            if True:#i % PRINT_EVERY_ITERS == 0:
+            if i % PRINT_EVERY_ITERS == 0:
                 print(f'[{i}/{num_stories}]: Generating stories of length {story_length}...')
-
-            # TODO cleanup
-            print(self.topic)
 
             story_actions = []
             for action_idx in range(story_length):
                 if irrelevant_sentence and action_idx == story_length - 1:
                     self._reset_for_new_lexical_field()
-                    # TODO cleanup
-                    print(self.topic)
                 story_actions.append(self.generate_action(action_idx))
             self._reset_for_new_lexical_field()
 
-            # TODO cleanup
-            story = self.format_story()
-            print(story)
-
-            if preprocess_p:
+            # After preprocessing, new actions and leaf nodes get generated
+            if random.random() < preprocess_p:
                 self.story_actions.append([])
                 self.story_leaf_nodes.append([])
             else:
                 self.story_actions.append(story_actions)
                 self.story_leaf_nodes.append(sorted(self.leaf_nodes))
-            self.stories.append(story)
-
+            self.stories.append(self.format_story())
             self._reset_for_new_story()
         print(f'[{num_stories}/{num_stories}]: Generated stories of length {story_length}...')
 
@@ -320,23 +312,19 @@ class GenActions:
         num_stories = len(self.story_actions)
 
         for action_set, leaf_node_set, story in zip(self.story_actions, self.story_leaf_nodes, self.stories):
-            # TODO reput constant
-            if True:#len(self.training_pairs) % PRINT_EVERY_ITERS == 0:
+            if len(self.training_pairs) % PRINT_EVERY_ITERS == 0:
                 print(f'[{len(self.training_pairs)}/{num_stories}]: Summarising generated stories...')
 
-            # text_to_summary = TextToSummary(story, gen_actions.proper_nouns, print_results=False)
-            # summaries = text_to_summary.generate_summaries(action_set, (leaf_node_set,))
-            # TODO cleanup
-            preprocessor = Preprocessor(story, print_results=False)
-            story, proper_nouns = preprocessor.preprocess()
-
-            text_to_summary = TextToSummary(story, proper_nouns, print_results=False)
-            summaries = text_to_summary.gen_summary()
-
+            if action_set and leaf_node_set:
+                text_to_summary = TextToSummary(story, self.proper_nouns, print_results=False)
+                summaries = text_to_summary.generate_summaries(action_set, (leaf_node_set,))
+            else:
+                preprocessor = Preprocessor(story, print_results=False)
+                story, proper_nouns = preprocessor.preprocess()
+                text_to_summary = TextToSummary(story, proper_nouns, print_results=False)
+                summaries = text_to_summary.gen_summary()
             if summaries:
                 self.training_pairs.append((story, summaries[0][0]))
-                print(story)
-                print(summaries[0][0])
         print(f'[{num_stories}/{num_stories}]: Summarised generated stories...')
 
     @staticmethod
@@ -356,21 +344,26 @@ class GenActions:
         with open(summaries_dest, 'w') as summaries_file:
             summaries_file.write(summaries)
 
-    def write_training_data(self, proportion_of_test, shuffle=True):
+    def write_training_data(self, proportion_of_test, num_eval, shuffle=True):
         assert 0 <= proportion_of_test < 1
-        num_test = int(proportion_of_test * len(self.training_pairs))
+        assert 0 <= num_eval < len(self.training_pairs) / 10
+
+        num_not_eval = len(self.training_pairs) - num_eval
+        num_test = int(proportion_of_test * num_not_eval)
         if shuffle:
             print('Shuffling story/summary pairs...')
             random.shuffle(self.training_pairs)
-        test_pairs = self.training_pairs[:num_test]
-        train_pairs = self.training_pairs[num_test:]
+        test_pairs = self.training_pairs[num_eval+num_test:]
+        train_pairs = self.training_pairs[num_eval:num_eval+num_test]
+        eval_pairs = self.training_pairs[:num_eval]
         self._write_training_data(train_pairs, TRAIN)
         self._write_training_data(test_pairs, TEST)
+        self._write_training_data(eval_pairs, EVAL)
 
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    # gen_actions.generate_stories(story_length=5, num_stories=20, irrelevant_sentence=True, preprocess_p=0)
-    gen_actions.generate_stories(story_length=5, num_stories=20, irrelevant_sentence=True, preprocess_p=1)
+    # gen_actions.generate_stories(story_length=5, num_stories=100, irrelevant_sentence=True, preprocess_p=PREPROCESS_PROB)
+    gen_actions.generate_stories(story_length=5, num_stories=1, irrelevant_sentence=True, preprocess_p=1)
     gen_actions.summarise_generated_stories()
-    gen_actions.write_training_data(TEST_PROPORTION)
+    gen_actions.write_training_data(TEST_PROPORTION, EVAL_NUM)
