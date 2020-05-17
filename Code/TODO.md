@@ -11,14 +11,7 @@
 ## TODO
 
 - Remove comma if between 2 adjectives (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
-- NN
-    - Experiments:
-        1. ASG rules
-        2. Sentences include summary cases from Preprocessor
-    - Steps
-        1. Improve quality of random stories (lexical fields from WordNet + irrelevant sentences)
-        2. Use Preprocessor for generating training data summaries
-        3. Train NN
+- Train NN
 
 ## For report
 
