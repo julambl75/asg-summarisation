@@ -21,10 +21,6 @@ EXPORT_PATH = f'{PARENT_DIR}/data'
 NAMES_FILE = f'{PARENT_DIR}/words/names.txt'
 WORDS_FILE = f'{PARENT_DIR}/words/words.csv'
 
-TRAIN = 'train'
-TEST = 'test'
-EVAL = 'val'
-
 NOUN_FILTER = 'noun_filter'
 VERB_FILTER = 'verb_filter'
 ADJECTIVE_FILTER = 'adjective_filter'
@@ -70,6 +66,10 @@ PRONOUN_POS = 'prp'
 DETERMINER_POS = 'dt'
 ADJECTIVE_POS = 'jj'
 PAST_TENSE_POS = 'vbd'
+
+TRAIN = 'train'
+TEST = 'test'
+EVAL = 'val'
 
 PRINT_EVERY_ITERS = 5
 TEST_PROPORTION = 0.1
@@ -353,8 +353,8 @@ class GenActions:
         if shuffle:
             print('Shuffling story/summary pairs...')
             random.shuffle(self.training_pairs)
-        test_pairs = self.training_pairs[num_eval+num_test:]
-        train_pairs = self.training_pairs[num_eval:num_eval+num_test]
+        train_pairs = self.training_pairs[num_eval+num_test:]
+        test_pairs = self.training_pairs[num_eval:num_eval+num_test]
         eval_pairs = self.training_pairs[:num_eval]
         self._write_training_data(train_pairs, TRAIN)
         self._write_training_data(test_pairs, TEST)
