@@ -1,6 +1,7 @@
 import csv
 import os
 import random
+import time
 from distutils.dir_util import mkpath
 from operator import itemgetter
 
@@ -72,6 +73,7 @@ TEST = 'test'
 EVAL = 'val'
 
 PRINT_EVERY_ITERS = 5
+PRINT_EVERY_SECONDS = 150
 TEST_PROPORTION = 0.1
 PREPROCESS_PROB = 0.2
 EVAL_NUM = 5
@@ -286,9 +288,14 @@ class GenActions:
         return self.language_checker.correct(joined_tokens)
 
     def generate_stories(self, story_length, num_stories, irrelevant_sentence=False, preprocess_p=0.0):
+        last_print_time = start = time.time()
+
         for i in range(num_stories):
-            if i % PRINT_EVERY_ITERS == 0:
-                print(f'[{i}/{num_stories}]: Generating stories of length {story_length}...')
+            time_since_print = time.time() - last_print_time
+            if (i % PRINT_EVERY_ITERS == 0 or time_since_print > PRINT_EVERY_SECONDS) and i > 0:
+                last_print_time = time.time()
+                time_ind = self.helper.time_since(start, i / num_stories)
+                print(f'{time_ind} - [{i}/{num_stories}]: Generating stories of length {story_length}...')
 
             story_actions = []
             for action_idx in range(story_length):
@@ -309,11 +316,16 @@ class GenActions:
         print(f'[{num_stories}/{num_stories}]: Generated stories of length {story_length}...')
 
     def summarise_generated_stories(self):
+        last_print_time = start = time.time()
         num_stories = len(self.story_actions)
 
         for action_set, leaf_node_set, story in zip(self.story_actions, self.story_leaf_nodes, self.stories):
-            if len(self.training_pairs) % PRINT_EVERY_ITERS == 0:
-                print(f'[{len(self.training_pairs)}/{num_stories}]: Summarising generated stories...')
+            time_since_print = time.time() - last_print_time
+            num_summaries = len(self.training_pairs)
+            if (num_summaries % PRINT_EVERY_ITERS == 0 or time_since_print > PRINT_EVERY_SECONDS) and num_summaries > 0:
+                last_print_time = time.time()
+                time_ind = self.helper.time_since(start, num_summaries / num_stories)
+                print(f'{time_ind} - [{len(self.training_pairs)}/{num_stories}]: Summarising generated stories...')
 
             if action_set and leaf_node_set:
                 text_to_summary = TextToSummary(story, self.proper_nouns, print_results=False)
@@ -363,6 +375,6 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(story_length=5, num_stories=100, irrelevant_sentence=True, preprocess_p=PREPROCESS_PROB)
+    gen_actions.generate_stories(story_length=5, num_stories=1000, irrelevant_sentence=True, preprocess_p=PREPROCESS_PROB)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(TEST_PROPORTION, EVAL_NUM)

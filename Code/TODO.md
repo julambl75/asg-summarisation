@@ -1,11 +1,12 @@
 ## To show Alessandra/David
 
-- ss reduction with mode bias (simple example: 396->16, very complicated example: 9477->1044)
+- SS reduction with mode bias (simple example: 396->16, very complicated example: 9477->1044)
 - Replace 2 words by hypernym
 - Add support for numbers (CD)
 - Increase score if first sentence of summary begins with proper noun
-- birdhouse/car
 - Fix Preprocessor similarity (singularize plural words to compute score)
+- birdhouse/car
+- New random sentence generation
 - Neural network 
 
 ## TODO

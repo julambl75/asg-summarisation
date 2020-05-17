@@ -1,5 +1,7 @@
 import itertools
+import math
 import random
+import time
 
 from nltk.translate.bleu_score import sentence_bleu
 from pycorenlp import StanfordCoreNLP
@@ -39,3 +41,17 @@ class Helper:
     @staticmethod
     def random_bool():
         return random.random() < 0.5
+
+    @staticmethod
+    def as_minutes(seconds):
+        minutes = math.floor(seconds / 60)
+        seconds -= minutes * 60
+        return '%dm %ds' % (minutes, seconds)
+
+    @staticmethod
+    def time_since(start, percentage):
+        now = time.time()
+        since_start = now - start
+        remain = since_start / percentage - since_start
+        return '%s (- %s)' % (Helper.as_minutes(since_start), Helper.as_minutes(remain))
+
