@@ -13,6 +13,7 @@
 
 - Remove comma if between 2 adjectives (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
 - Train NN
+- Add timeout with retry for Pattern query
 
 ## For report
 
