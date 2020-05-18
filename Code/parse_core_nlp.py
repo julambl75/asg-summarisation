@@ -63,9 +63,7 @@ class ParseCoreNLP:
             for token in sentence['tokens']:
                 word = token['originalText']
                 lemma = token['lemma']
-                if word in self.lemmas.keys():
-                    assert self.lemmas[word] == lemma, "Multiple lemmas {} and {} for word {}".format(self.lemmas[word], lemma, word)
-                else:
+                if word not in self.lemmas.keys():
                     self.lemmas[word] = lemma
 
     def _tree_to_asg(self, tree):
