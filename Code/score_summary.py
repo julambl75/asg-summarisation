@@ -12,6 +12,7 @@ from parse_concept_net import ParseConceptNet
 # - Find best ASG summary without reference: TTR
 # - Find best ASG summary with reference: TTR, reference BLEU
 
+TTR_IGNORE = {'a', 'the', 'be', 'being', 'is', 'am', 'are', 'is', 'was', 'were'}
 SIMILAR_BLEU = 0.70
 SCORE_COEFFICIENT = 500
 TOP_HIT_PERCENTILE = 75
@@ -25,9 +26,14 @@ class SummaryScorer:
         self.language_checker = language_check.LanguageTool('en-GB')
 
     def asg_score(self, story, summaries, references=None, proper_nouns=None):
+        # Find common words in story which are find if repeated in summary
+        story_words, word_counts = self.get_words_and_counts(story)
+        most_common_words = word_counts.most_common()
+        story_topics = {word for word, count in most_common_words if count == most_common_words[0][1]}
+
         sorted_scores = []
         for summary in summaries:
-            score = self.ttr_score(story, summary)
+            score = self.ttr_score(story_words, summary, story_topics)
             score = int(score * SCORE_COEFFICIENT)
             sorted_scores.append((summary, score))
 
@@ -55,14 +61,18 @@ class SummaryScorer:
 
         return sorted_scores
 
+    @staticmethod
+    def get_words_and_counts(text, ignore_words=TTR_IGNORE):
+        for punctuation in string.punctuation:
+            text = text.replace(punctuation, '')
+        words = [word.lower() for word in text.split() if word.lower() not in ignore_words]
+        counts = collections.Counter(words)
+        return words, counts
+
     # Computes a score based on type-token ratio, a measure of lexical density
     # Here the goal is to maximise the density of unique words (TTR), minimising summary length
-    @staticmethod
-    def ttr_score(story, summary):
-        for punctuation in string.punctuation:
-            story = story.replace(punctuation, '')
-            summary = summary.replace(punctuation, '')
-        story_words = [word.lower() for word in story.split()]
-        summary_words = [word.lower() for word in summary.split()]
-        word_counts = collections.Counter(summary_words)
+    # If some words appear frequently in the story (topics), we do not want this to hinder prioritising good summaries
+    def ttr_score(self, story_words, summary, story_topics):
+        ignore_counts = story_topics.union(TTR_IGNORE)
+        summary_words, word_counts = self.get_words_and_counts(summary, ignore_counts)
         return len(word_counts) / (len(story_words) * len(summary_words))

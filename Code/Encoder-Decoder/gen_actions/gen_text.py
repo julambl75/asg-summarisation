@@ -337,15 +337,15 @@ class GenActions:
 
     def _write_training_data(self, story_summary_pairs, nn_step):
         print(f'Writing {len(story_summary_pairs)} story/summary pairs for {nn_step} data...')
-        stories = '\n' + '\n'.join(list(map(itemgetter(0), story_summary_pairs))).replace('.', ' .')
-        summaries = '\n' + '\n'.join(list(map(itemgetter(1), story_summary_pairs))).replace('.', ' .')
+        stories = '\n'.join(list(map(itemgetter(0), story_summary_pairs))).replace('.', ' .')
+        summaries = '\n'.join(list(map(itemgetter(1), story_summary_pairs))).replace('.', ' .')
 
         mkpath(EXPORT_PATH)
         stories_dest = self.get_export_file('stories', nn_step)
         summaries_dest = self.get_export_file('summaries', nn_step)
-        with open(stories_dest, 'a') as stories_file:
+        with open(stories_dest, 'w') as stories_file:
             stories_file.write(stories)
-        with open(summaries_dest, 'a') as summaries_file:
+        with open(summaries_dest, 'w') as summaries_file:
             summaries_file.write(summaries)
 
     def write_training_data(self, proportion_of_test, num_eval, shuffle=True):
@@ -367,6 +367,6 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(story_length=4, num_stories=500, irrelevant_sentence=True)
+    gen_actions.generate_stories(story_length=4, num_stories=1000, irrelevant_sentence=True)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(TEST_PROPORTION, EVAL_NUM)

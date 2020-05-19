@@ -13,10 +13,6 @@
 ## TODO
 
 - Freeze Embedding layer
-
-- Remove determiners and to be verb for TTR (birdhouse)
-- Correct summaries after scoring (2nd pass)
-
 - Remove comma if between 2 objects instead of only keeping first item in list (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
 
 ## For report
