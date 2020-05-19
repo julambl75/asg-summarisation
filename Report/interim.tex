@@ -1,0 +1,104 @@
+\documentclass[12pt,twoside]{report}
+\setcounter{secnumdepth}{3}
+
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage[a4paper,width=150mm,top=25mm,bottom=25mm,bindingoffset=6mm]{geometry}
+%\usepackage{fancyhdr}
+\usepackage[pagestyles]{titlesec}
+\usepackage{lipsum}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{csquotes}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{enumitem}
+\usepackage{datetime}
+\usepackage{subcaption}
+\usepackage[titletoc]{appendix}
+\usepackage{titlesec}
+
+\usetikzlibrary{shapes,arrows,trees,positioning}
+\tikzstyle{block}=[draw, fill=blue!20, minimum size=2em]
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+    citecolor=blue
+}
+
+%\pagestyle{fancy}
+%\renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
+%\fancyhead{}
+%\fancyhead[L]{Chapter \thechapter: \leftmark}
+%\fancyhead[R]{\nouppercase{\rightmark}}
+
+\renewcommand*\thesection{\arabic{section}}
+\newpagestyle{Headings}{
+ \sethead
+   {Chapter \thechapter: \chaptertitle}
+   {}
+   {Section \toptitlemarks\thesection: \toptitlemarks\sectiontitle}
+   \headrule
+ \setfoot{}{\thepage}{}
+}
+\newpagestyle{PageNum}{
+ \setfoot{}{\thepage}{}
+}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{challenge}{Challenge}
+
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
+
+\graphicspath{ {media/} }
+
+\newcommand{\reporttitle}{Using Answer Set Grammars For Text Summarization}
+\newcommand{\reportauthor}{Julien Amblard}
+\newcommand{\supervisor}{Alessandra Russo}
+\newcommand{\reporttype}{Individual Project}
+\newcommand{\degreetype}{Computing MEng}
+
+\begin{document}
+
+\pagestyle{empty}
+\input{title}
+
+\pagenumbering{roman}
+
+\tableofcontents
+
+\titleformat{\chapter}
+{\normalfont\huge}{\chaptertitlename{} \thechapter}{20pt}{\bfseries\huge}
+\titlespacing*{\chapter}{0pt}{0pt}{40pt}
+
+\chapter{Introduction}
+\pagestyle{Headings}
+\pagenumbering{arabic}
+\input{chapters/introduction}
+
+\chapter{Background}
+\input{chapters/background}
+
+\chapter{Literature Review}
+\input{chapters/literature_review}
+
+\chapter{Plan Of Work}
+\input{chapters/plan_of_work}
+
+\begin{appendices}
+\titleformat{\chapter}{\normalfont\huge}{\appendixname{} \thechapter.}{20pt}{\bfseries\huge}
+\input{appendices/pos} \label{appendix:pos}
+\end{appendices}
+
+%\nocite{*}
+\bibliographystyle{vancouver}
+\bibliography{references}
+\pagestyle{PageNum}
+
+\end{document}
