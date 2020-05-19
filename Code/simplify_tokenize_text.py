@@ -5,6 +5,7 @@ from operator import itemgetter
 import contractions
 
 from helper import Helper
+from parse_concept_net import ParseConceptNet
 from parse_core_nlp import SUBORDINATING_CONJUNCTIONS
 from query_pattern import QueryPattern
 
@@ -49,6 +50,7 @@ class TextSimplifier:
 
         self.helper = Helper()
         self.query_pattern = QueryPattern()
+        self.pcn = ParseConceptNet(False)
 
     def tokenize(self):
         self._add_final_punctuation()
@@ -258,7 +260,8 @@ class TextSimplifier:
                 if next_pos == CONJUNCTIVE_POS and next_next_pos in [COMMON_NOUN_POS, COMMON_NOUN_POS_PL]:
                     plural_comb = pos == COMMON_NOUN_POS_PL or next_next_pos == COMMON_NOUN_POS_PL
                     hypernym = self.query_pattern.find_hypernym(word, next_next_word, return_plural=True)
-                    if hypernym:
+                    similarity = all(self.pcn.compare_words(hypernym.replace('-', ' '), w, True) for w in (word, next_next_word))
+                    if hypernym and similarity:
                         comb_pos = COMMON_NOUN_POS_PL if plural_comb else COMMON_NOUN_POS
                         sentence.pop(first_noun_idx)
                         sentence.pop(first_noun_idx)

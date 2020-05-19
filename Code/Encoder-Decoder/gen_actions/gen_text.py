@@ -75,7 +75,6 @@ EVAL = 'val'
 PRINT_EVERY_ITERS = 5
 PRINT_EVERY_SECONDS = 150
 TEST_PROPORTION = 0.1
-PREPROCESS_PROB = 0.2
 EVAL_NUM = 5
 
 
@@ -287,7 +286,7 @@ class GenActions:
         joined_tokens = ' '.join(self.curr_story_tokens)
         return self.language_checker.correct(joined_tokens)
 
-    def generate_stories(self, story_length, num_stories, irrelevant_sentence=False, preprocess_p=0.0):
+    def generate_stories(self, story_length, num_stories, irrelevant_sentence=False):
         last_print_time = start = time.time()
 
         for i in range(num_stories):
@@ -299,18 +298,11 @@ class GenActions:
 
             story_actions = []
             for action_idx in range(story_length):
-                if irrelevant_sentence and action_idx == story_length - 1:
-                    self._reset_for_new_lexical_field()
                 story_actions.append(self.generate_action(action_idx))
             self._reset_for_new_lexical_field()
 
-            # After preprocessing, new actions and leaf nodes get generated
-            if random.random() < preprocess_p:
-                self.story_actions.append([])
-                self.story_leaf_nodes.append([])
-            else:
-                self.story_actions.append(story_actions)
-                self.story_leaf_nodes.append(sorted(self.leaf_nodes))
+            self.story_actions.append(story_actions)
+            self.story_leaf_nodes.append(sorted(self.leaf_nodes))
             self.stories.append(self.format_story())
             self._reset_for_new_story()
         print(f'[{num_stories}/{num_stories}]: Generated stories of length {story_length}...')
@@ -375,6 +367,6 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(story_length=5, num_stories=500, irrelevant_sentence=True, preprocess_p=PREPROCESS_PROB)
+    gen_actions.generate_stories(story_length=4, num_stories=500, irrelevant_sentence=True)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(TEST_PROPORTION, EVAL_NUM)

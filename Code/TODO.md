@@ -12,9 +12,8 @@
 
 ## TODO
 
-- Remove Preprocessor and irrelevant sentences from action generator
 - Freeze Embedding layer
-- Fix "She gets an entities" (birdhouse)
+
 - Remove determiners and to be verb for TTR (birdhouse)
 - Correct summaries after scoring (2nd pass)
 

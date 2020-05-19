@@ -11,8 +11,6 @@ from parse_concept_net import ParseConceptNet
 # Cases:
 # - Find best ASG summary without reference: TTR
 # - Find best ASG summary with reference: TTR, reference BLEU
-# - Score NN prediction: TTR, reference BLEU, story BLEU?
-# - Compare NN prediction with ASG summary: reference BLEUs
 
 SIMILAR_BLEU = 0.70
 SCORE_COEFFICIENT = 500
