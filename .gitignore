@@ -1,12 +1,12 @@
 Code/.idea
 
-Report/*.aux
-Report/*.bbl
-Report/*.blg
-Report/*.dvi
-Report/*.log
-Report/*.out
-Report/*.synctex.gz
-Report/*.toc
+Report/**/*.aux
+Report/**/*.bbl
+Report/**/*.blg
+Report/**/*.dvi
+Report/**/*.log
+Report/**/*.out
+Report/**/*.synctex.gz
+Report/**/*.toc
 
 Code/*.ipynb_checkpoints

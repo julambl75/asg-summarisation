@@ -5,15 +5,20 @@
 - Add support for numbers (CD)
 - Increase score if first sentence of summary begins with proper noun
 - Fix Preprocessor similarity (singularize plural words to compute score)
+- Make Preprocessor much faster (keep similarity cache and use symmetry of similarity)
 - birdhouse/car
 - New random sentence generation
-- Neural network 
+- Neural network
 
 ## TODO
 
-- Remove comma if between 2 adjectives (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
-- Train NN
-- Add timeout with retry for Pattern query
+- Remove Preprocessor and irrelevant sentences from action generator
+- Freeze Embedding layer
+- Fix "She gets an entities" (birdhouse)
+- Remove determiners and to be verb for TTR (birdhouse)
+- Correct summaries after scoring (2nd pass)
+
+- Remove comma if between 2 objects instead of only keeping first item in list (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
 
 ## For report
 
@@ -107,10 +112,11 @@ conjunct(FIRST, SECOND)  # learn both
 
 For for each story:
 1. Pick predefined lexical field (topic)
-2. For each sentence:
-    - Pick a single pronoun (p)
-    - Pick a single proper noun (pn)
+2. Pick a single pronoun (p)
+3. Pick a single proper noun (pn)
+4. For each sentence:
     - Subject: p, pn, or synonym/hyponym/hypernym of topic with optional common adjective for it
     - Verb: verb from same lexical field as topic if possible, otherwise random
     - Object: p, pn, or holonym/meronym of subject with lexical field of currently used common nouns
-3. Add irrelevant sentence
+
+maybe ASG in appendix
