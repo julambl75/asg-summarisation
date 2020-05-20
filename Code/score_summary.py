@@ -35,7 +35,7 @@ class SummaryScorer:
         highest_word_count = most_common_words[0][1]
 
         story_topics = set()
-        if highest_word_count > 1 and highest_word_count > story_len * TTR_IGNORE_MIN_FREQU_RATIO:
+        if highest_word_count > 1 and highest_word_count >= story_len * TTR_IGNORE_MIN_FREQU_RATIO:
             story_topics = {word for word, count in most_common_words if count == highest_word_count}
             for proper_noun in proper_nouns:
                 for word in proper_noun.lower().split():
