@@ -49,7 +49,11 @@ class QueryPattern:
         if common_lexical_field:
             return common_lexical_field
 
-        hypernym = self._find_common_hypernym(synsets1, synsets2).replace('_', '-')
+        hypernym = self._find_common_hypernym(synsets1, synsets2)
+        if not hypernym:
+            return None
+
+        hypernym = hypernym.replace('_', '-')
         if return_plural:
             hypernym_plural = pluralize(hypernym, pos=NOUN)
             if word_frequency(hypernym_plural.replace('-', ' '), 'en') > 0:
@@ -104,4 +108,7 @@ class QueryPattern:
         hypernyms1 = {hypernym: idx for (hypernym, idx) in hypernyms1.items() if hypernym in common_hypernyms}
         hypernyms2 = {hypernym: idx for (hypernym, idx) in hypernyms2.items() if hypernym in common_hypernyms}
         common_hypernyms = {hypernym: (hypernyms1[hypernym] + hypernyms2[hypernym]) for hypernym in common_hypernyms}
+
+        if not common_hypernyms:
+            return None
         return min(common_hypernyms.items(), key=lambda x: x[1])[0]

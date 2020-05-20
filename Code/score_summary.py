@@ -13,6 +13,8 @@ from parse_concept_net import ParseConceptNet
 # - Find best ASG summary with reference: TTR, reference BLEU
 
 TTR_IGNORE = {'a', 'the', 'be', 'being', 'is', 'am', 'are', 'is', 'was', 'were'}
+TTR_IGNORE_MIN_FREQU_RATIO = 0.4
+
 SIMILAR_BLEU = 0.70
 SCORE_COEFFICIENT = 500
 TOP_HIT_PERCENTILE = 75
@@ -27,9 +29,14 @@ class SummaryScorer:
 
     def asg_score(self, story, summaries, references=None, proper_nouns=None):
         # Find common words in story which are find if repeated in summary
+        story_len = sum([1 for sent in story.split('.') if len(sent)])
         story_words, word_counts = self.get_words_and_counts(story)
         most_common_words = word_counts.most_common()
-        story_topics = {word for word, count in most_common_words if count == most_common_words[0][1]}
+        highest_word_count = most_common_words[0][1]
+
+        story_topics = set()
+        if highest_word_count > 1 and highest_word_count > story_len * TTR_IGNORE_MIN_FREQU_RATIO:
+            story_topics = {word for word, count in most_common_words if count == highest_word_count}
 
         sorted_scores = []
         for summary in summaries:

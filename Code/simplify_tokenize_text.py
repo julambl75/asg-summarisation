@@ -260,12 +260,13 @@ class TextSimplifier:
                 if next_pos == CONJUNCTIVE_POS and next_next_pos in [COMMON_NOUN_POS, COMMON_NOUN_POS_PL]:
                     plural_comb = pos == COMMON_NOUN_POS_PL or next_next_pos == COMMON_NOUN_POS_PL
                     hypernym = self.query_pattern.find_hypernym(word, next_next_word, return_plural=True)
-                    similarity = all(self.pcn.compare_words(hypernym.replace('-', ' '), w, True) for w in (word, next_next_word))
-                    if hypernym and similarity:
-                        comb_pos = COMMON_NOUN_POS_PL if plural_comb else COMMON_NOUN_POS
-                        sentence.pop(first_noun_idx)
-                        sentence.pop(first_noun_idx)
-                        sentence[first_noun_idx] = (hypernym, comb_pos)
+                    if hypernym:
+                        similarity = all(self.pcn.compare_words(hypernym.replace('-', ' '), w, True) for w in (word, next_next_word))
+                        if similarity:
+                            comb_pos = COMMON_NOUN_POS_PL if plural_comb else COMMON_NOUN_POS
+                            sentence.pop(first_noun_idx)
+                            sentence.pop(first_noun_idx)
+                            sentence[first_noun_idx] = (hypernym, comb_pos)
         return tokenized
 
     # Ex: She ate her chocolate. -> She ate chocolate.

@@ -12,6 +12,7 @@
 
 ## TODO
 
+- Fix Peter Little
 - Freeze Embedding layer
 - Remove comma if between 2 objects instead of only keeping first item in list (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
 
