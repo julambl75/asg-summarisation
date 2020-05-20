@@ -321,7 +321,7 @@ class TextSimplifier:
                 preposition_idx = pos_tags.index(PREPOSITION_POS)
                 verb_indices = [idx for idx, tag in enumerate(pos_tags) if tag.startswith(VERB_POS)]
                 # Preposition must be after the verb's object
-                if verb_indices and preposition_idx > verb_indices[-1] + 1:
+                if verb_indices and preposition_idx > verb_indices[-1] + 2:
                     tokenized[i] = sentence[:preposition_idx] + [EOS_TOKENIZED]
         return tokenized
 
