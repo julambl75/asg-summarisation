@@ -1,0 +1,16 @@
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.7cm, auto]
+\node (input) [] {Input(s)};
+\node (interpretation) [block, right =of input] {Interpretation};
+\node (transformation) [block, right =of interpretation] {Transformation};
+\node (generation) [block, right =of transformation] {Generation};
+\node (output) [right =of generation] {Output};
+\draw [->] (input) -- (interpretation);
+\draw [->] (interpretation) -- (transformation);
+\draw [->] (transformation) -- (generation);
+\draw [->] (generation) -- (output);
+\end{tikzpicture}
+\caption{\cite{lloret_text_2008} Summarization Steps}
+\label{fig:summarization_steps}
+\end{figure}
