@@ -82,4 +82,5 @@ class SummaryScorer:
     def ttr_score(self, story_words, summary, story_topics):
         ignore_counts = story_topics.union(TTR_IGNORE)
         summary_words, word_counts = self.get_words_and_counts(summary, ignore_counts)
-        return len(word_counts) / (len(story_words) * len(summary_words))
+        score_scale = len(story_words) * len(summary_words) or 1
+        return len(word_counts) / score_scale
