@@ -15,10 +15,10 @@ from parse_concept_net import ParseConceptNet
 TTR_IGNORE = {'a', 'the', 'be', 'being', 'is', 'am', 'are', 'is', 'was', 'were'}
 TTR_IGNORE_MIN_FREQU_RATIO = 0.4
 
-SIMILAR_BLEU = 0.70
+SIMILAR_BLEU = 0.65
 SCORE_COEFFICIENT = 500
 TOP_HIT_PERCENTILE = 75
-PROPER_NOUN_SCORE_INC = 1
+PROPER_NOUN_SCORE_INC = 2
 
 
 class SummaryScorer:
@@ -37,6 +37,9 @@ class SummaryScorer:
         story_topics = set()
         if highest_word_count > 1 and highest_word_count > story_len * TTR_IGNORE_MIN_FREQU_RATIO:
             story_topics = {word for word, count in most_common_words if count == highest_word_count}
+            for proper_noun in proper_nouns:
+                for word in proper_noun.lower().split():
+                    story_topics.add(word)
 
         sorted_scores = []
         for summary in summaries:

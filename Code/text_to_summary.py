@@ -216,7 +216,7 @@ class TextToSummary:
         summary_sentences.reverse()
 
         # Capitalise sentences
-        summary_sentences = map(lambda s: s.capitalize(), summary_sentences)
+        summary_sentences = map(lambda s: s[0].upper() + s[1:], summary_sentences)
         # Correct grammar
         summary_sentences = map(self.language_checker.correct, summary_sentences)
         # Restore complex proper nouns
@@ -227,4 +227,7 @@ class TextToSummary:
         summary_len = self._get_summary_length()
         summaries = {' '.join(summary) for summary in itertools.combinations(summary_sentences, summary_len)}
 
+        proper_nouns = list(map(lambda n: re.sub(*RESTORE_PROPER_NOUNS_REGEX, n), self.proper_nouns))
+        for i, proper_noun in enumerate(self.proper_nouns):
+            self.text = self.text.replace(proper_noun, proper_nouns[i])
         return self.summary_scorer.asg_score(self.text, summaries, self.pos_summaries, self.proper_nouns)
