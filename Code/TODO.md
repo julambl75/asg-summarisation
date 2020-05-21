@@ -1,18 +1,10 @@
 ## To show Alessandra/David
 
-- SS reduction with mode bias (simple example: 396->16, very complicated example: 9477->1044)
-- Replace 2 words by hypernym
-- Add support for numbers (CD)
-- Increase score if first sentence of summary begins with proper noun
-- Fix Preprocessor similarity (singularize plural words to compute score)
-- Make Preprocessor much faster (keep similarity cache and use symmetry of similarity)
-- birdhouse/car
-- New random sentence generation
-- Neural network
+- Report
+- Neural network predictions
 
 ## TODO
 
-- Generate more examples
 - Remove comma if between 2 objects instead of only keeping first item in list (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
 
 ## For report

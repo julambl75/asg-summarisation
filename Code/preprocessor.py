@@ -77,12 +77,12 @@ class Preprocessor:
             print('\nGetting shortest words for each set of synonyms...')
             pp.pprint(shortest_word_map)
 
-        homogenized_story = self._homogenize_text(self.story, shortest_word_map, ordered_sentences)
+        homogenised_story = self._homogenise_text(self.story, shortest_word_map, ordered_sentences)
         if self.print_results:
             print('\nHomogenizing story using synonyms...')
-            pp.pprint(homogenized_story)
+            pp.pprint(homogenised_story)
 
-        return homogenized_story, self.proper_nouns
+        return homogenised_story, self.proper_nouns
 
     @staticmethod
     def _similar_pos(pos, other_pos):
@@ -201,7 +201,7 @@ class Preprocessor:
 
     # From https://stackoverflow.com/questions/17730788/search-and-replace-with-whole-word-only-option
     @staticmethod
-    def _homogenize_text(story, word_map, ordered_sentences):
+    def _homogenise_text(story, word_map, ordered_sentences):
         if len(ordered_sentences) >= MIN_NUM_SENT_FOR_PRUNE:
             importances = list(map(itemgetter(1), ordered_sentences))
             importance_1st_quartile = np.percentile(importances, 25)

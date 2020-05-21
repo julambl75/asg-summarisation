@@ -19,6 +19,7 @@
 \usepackage{subcaption}
 \usepackage[titletoc]{appendix}
 \usepackage{titlesec}
+\usepackage{color,soul} % TODO remove
 
 \usetikzlibrary{shapes,arrows,trees,positioning}
 \tikzstyle{block}=[draw, fill=blue!20, minimum size=2em]
@@ -81,14 +82,9 @@
 \titlespacing*{\chapter}{0pt}{0pt}{40pt}
 
 \chapter{Introduction}
+\input{chapters/introduction}
 \pagestyle{Headings}
 \pagenumbering{arabic}
-
-- General Problem
-
-- Specific Problem
-
-- Objectives
 
 \chapter{Background}
 
@@ -99,32 +95,102 @@
 \chapter{Contributions}
 \input{chapters/contributions}
 
-- Overview of architecture
-
-- Lots of interesting examples
+- Do same as project (main core with acronym like SumASG, then SumASG* to fix/build on top of foundation)
+    - Use Peter Little examples
+    - Appendix with summary generation rules
+    - Talk about expandability (talk about mechanisms)
+    - Very nice to not be able to generate grammatically incorrect with ASG
+- Describe action predicates as high level semantic descriptor of all possible actions that can happen in sentences
+- Think about initial motivation (have definition of what is summary, NN does not)
+    1. NNs need lots of data and time to summarize
+    2. ASG can give results with short list of rules, pre/post-processing and carefully constructed structure
+- Maybe formalize mathematically task of summarization (with CFG, BK, E+, E-)
+    1. CFG is language, BK is leaf nodes, result is actions
+    2. CFG is language, BK is leaf nodes, E is actions, result is summaries
+- For report think about how to formalize task of summarization in ASG (how thought evolve)
+    1. Originally just create summaries from actions
+    2. Now preprocess to prune and homogenize, produce and score summaries, take best and fix grammar
+    3. Use example of Peter Little to showcase pipeline
+- Compare with NN
+    1. Randomize action(...) to generate summary(...) on trained ASG
+    2. Train NN to generate same summary(...)
+    3. Show framework is sane and expandable (computationally tractable)
+    4. Compute Rouge score (PyRouge, must clone repo into project) on ASG and NN
+- Final goal: take story-specific ASG and general rules to generate summaries, then use top 5/10
 
 \chapter{Preprocessor}
+\input{chapters/preprocessor}
 
-- Sub diagrams
+Choice:
+1. Simplify using Python script (faster)
+2. Make ASG format more complex (new information probably lost in summary anyway)
 
-- Motivate steps (Preprocessor make job easier for ASG, making better quality summary)
+- Punctuation
+    - [?]: remove clause (helps avoid negation for rhetorical questions)
+    - [!|,|;|:]: transform into '.'
+    - [–|—]: delete inner part
+- Multiple clauses (conjunctive or main+auxiliary): split into multiple sentences
+- Adverbs: move to end
+- Possessive pronouns and interjections: remove
+- Prepositions: remove when at start of sentence
+- Contractions: expand
+- Acronyms: remove punctuation
+- Dependant clauses: split into separate sentence (remove if there is no punctuation)
+- Verbless sentences: remove
+- Subordinating conjunctions: split into separate sentence
+- Preposition clauses: remove if after object
+- Complex proper nouns: collapse into CamelCase
+- Proper nouns: replace occurrences of pronouns with relevant proper noun (idea: if they are used in the story then there should be little ambiguity)
+- Conjunction of common nouns from same lexical field: replace with hypernym (pluralize if items are plural and hypernym plural is used in English)
 
 \chapter{ASG}
 \input{chapters/asg}
 
-- Sub diagrams
-
 - Learning is not really learning (ASG never learns how to summarize, we build in rules of feature extraction)
 
+http://universalteacher.org.uk/lang/engstruct.htm
+
+Ideas:
+- final fix-up using language\_checker.fix
+- hard-code determiners into derivations (https://www.ef.com/wwen/english-resources/english-grammar/determiners/)
+- use lots of simple/precise rules rather than complicated/general ones to minimize ss
+- keep rules as restricted as possible, when concept implemented over time add missing rules
+- to avoid having to add grammar constraints try and rely on grammar of input
+
+- reduce search space using mode bias (simple example: 396->16, very complicated example: 9477->1044)
+- for learning actions do one sentence at a time to minimize ss
+- pick best summary according to TTR*
+
+action(INDEX, VERB, SUBJECT, OBJECT)
+summary(VERB, SUBJECT, OBJECT)
+
+verb(INDICATIVE\_FORM, TENSE)
+subject(NOUN, DET, ADJ\_OR\_ADV)
+object(NOUN, DET, ADJ\_OR\_ADV)
+noun(NAME)
+adj\_or\_adv(NAME)
+det(...)
+compound(FIRST, SECOND)  for verbs
+conjunct(FIRST, SECOND)  learn both
+
+* Type-Token Ratio (TTR): The basic idea behind that measure is that if the text is more complex, the author uses a more varied vocabulary so there’s a larger number of types (unique words). This logic is explicit in the TTR’s formula, which calculates the number of types divided by the number of tokens. As a result, the higher the TTR, the higher the lexical complexity.
+
 \chapter{Post-Processing / Scoring}
+\input{chapters/postprocess}
 
 - Sub diagrams
 
 \chapter{Evaluation}
+\input{chapters/evaluation}
 
-- Generated dataset
-
-- NN
+For for each story:
+1. Pick predefined lexical field (topic)
+2. Pick a single pronoun (p)
+3. Pick a single proper noun (pn)
+4. For each sentence:
+    - Subject: p, pn, or synonym/hyponym/hypernym of topic with optional common adjective for it
+    - Verb: verb from same lexical field as topic if possible, otherwise random
+    - Object: p, pn, or holonym/meronym of subject with lexical field of currently used common nouns
 
 \chapter{Literature Review}
 
@@ -132,10 +198,10 @@
 
 - Compare approaches
 
-% TODO appendix for ASG maybe
-
 \begin{appendices}
 \titleformat{\chapter}{\normalfont\huge}{\appendixname{} \thechapter.}{20pt}{\bfseries\huge}
+\input{appendices/pos}
+\input{appendices/asg}
 \end{appendices}
 
 %\nocite{*}
