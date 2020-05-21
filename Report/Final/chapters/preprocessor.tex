@@ -1,0 +1,26 @@
+\section{Overview}
+
+In order to... as shown in Figure \ref{fig:preprocessor_pipeline}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.55cm, auto]
+\node (story_in) [] {Story};
+\node (tokenize) [block, right =of story_in] {Tokenize};
+\node (simplify) [block, right =of tokenize] {Simplify};
+\node (prune) [block, right =of simplify] {Prune};
+\node (homogenise) [block, right =of prune] {Homogenise};
+\node (story_out) [block, right =of homogenise] {Preprocessed Story};
+\draw [->] (story_in) -- (tokenize);
+\draw [->] (tokenize) -- (simplify);
+\draw [->] (simplify) -- (prune);
+\draw [->] (prune) -- (homogenise);
+\draw [->] (homogenise) -- (story_out);
+\end{tikzpicture}
+\caption{Preprocessor Steps}
+\label{fig:preprocessor_pipeline}
+\end{figure}
+
+\section{Tokenization and Simplification}
+
+\section{Sentence Pruning and Homogenisation}

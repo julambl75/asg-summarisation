@@ -1,0 +1,46 @@
+\section{Overview}
+
+Once we have obtained potential sentences from ASG to be used in a summary, we can now post-process these as explained in Section \ref{sec:summary_creation}. By combining them in different ways, we are able to form summaries. From these, we will retain the highest scoring ones, according to the metric detailed in Section \ref{sec:scoring}. A diagram illustrating these steps is shown below in Figure \ref{fig:postprocess_pipeline}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.55cm, auto]
+\node (summary_sentence_1) [block] {Summary Sentence 1};
+\node (summary_sentence_2) [block, below =of summary_sentence_1] {Summary Sentence 2};
+\node (summary_sentence_3) [below =of summary_sentence_2] {...};
+\node (summary_sentence_4) [block, below =of summary_sentence_3] {Summary Sentence n};
+\node (post_process_1) [block, right =of summary_sentence_1] {Post-Process};
+\node (post_process_2) [block, below =of post_process_1] {Post-Process};
+\node (post_process_3) [below =of post_process_2] {...};
+\node (post_process_4) [block, below =of post_process_3] {Post-Process};
+\node (combine) [block, right =of post_process_2] {Combine};
+\node (summary_1) [block, above right =of combine] {Summary 1};
+\node (summary_2) [block, below =of summary_1] {Summary 2};
+\node (summary_3) [below =of summary_2] {...};
+\node (summary_4) [block, below =of summary_3] {Summary m};
+\node (score_1) [right =of summary_1] {Score};
+\node (score_2) [below =of score_1, right =of summary_2] {Score};
+\node (score_3) [below =of score_2] {...};
+\node (score_4) [below =of score_3, right =of summary_4] {Score};
+\draw [->] (summary_sentence_1) -- (post_process_1);
+\draw [->] (summary_sentence_2) -- (post_process_2);
+\draw [->] (summary_sentence_4) -- (post_process_4);
+\draw [->] (post_process_1) -- (combine);
+\draw [->] (post_process_2) -- (combine);
+\draw [->] (post_process_4) -- (combine);
+\draw [->] (combine) -- (summary_1);
+\draw [->] (combine) -- (summary_2);
+\draw [->] (combine) -- (summary_4);
+\draw [->] (summary_1) -- (score_1);
+\draw [->] (summary_2) -- (score_2);
+\draw [->] (summary_4) -- (score_4);
+\end{tikzpicture}
+\caption{Post-Processing / Scoring Steps}
+\label{fig:postprocess_pipeline}
+\end{figure}
+
+\section{Summary Creation}
+\label{sec:summary_creation}
+
+\section{Scoring}
+\label{sec:scoring}

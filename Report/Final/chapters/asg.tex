@@ -1,0 +1,37 @@
+\section{Overview}
+
+Our use ASG is two-fold. Firstly, we pass in each sentence from the story to ASG to obtain its semantic representation in ASP. Secondly, we take these actions and use ASG rules to generate possible summary components. These will later be post-processed and turned into actual valid summaries. A diagram of the two ASG steps is shown below in Figure \ref{fig:asg_pipeline}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.55cm, auto]
+\node (sentence_1) [block] {Sentence 1};
+\node (sentence_2) [block, below =of sentence_1] {Sentence 2};
+\node (sentence_3) [below =of sentence_2] {...};
+\node (sentence_4) [block, below =of sentence_3] {Sentence n};
+\node (learn_action_1) [block, right =of sentence_1] {Learn Action};
+\node (learn_action_2) [block, right =of sentence_2, below =of learn_action_1] {Learn Action};
+\node (learn_action_3) [right =of sentence_3, below =of learn_action_2] {...};
+\node (learn_action_4) [block, right =of sentence_4, below =of learn_action_3] {Learn Action};
+\node (gen_summaries) [block, right =of learn_action_2] {Generate Summaries};
+\node (summary_sentence_1) [block, above right =of gen_summaries] {Summary Sentence 1};
+\node (summary_sentence_2) [block, right =of gen_summaries, below =of summary_sentence_1] {Summary Sentence 2};
+\node (summary_sentence_3) [right =of gen_summaries, below =of summary_sentence_2] {...};
+\node (summary_sentence_4) [block, right =of gen_summaries, below =of summary_sentence_3] {Summary Sentence m};
+\draw [->] (sentence_1) -- (learn_action_1);
+\draw [->] (sentence_2) -- (learn_action_2);
+\draw [->] (sentence_4) -- (learn_action_4);
+\draw [->] (learn_action_1) -- (gen_summaries);
+\draw [->] (learn_action_2) -- (gen_summaries);
+\draw [->] (learn_action_4) -- (gen_summaries);
+\draw [->] (gen_summaries) -- (summary_sentence_1);
+\draw [->] (gen_summaries) -- (summary_sentence_2);
+\draw [->] (gen_summaries) -- (summary_sentence_4);
+\end{tikzpicture}
+\caption{ASG Steps}
+\label{fig:asg_pipeline}
+\end{figure}
+
+\section{Learning Actions}
+
+\section{Generating Summary Sentences}
