@@ -1,10 +1,10 @@
 \section{Overview}
 
-In order to... as shown in Figure \ref{fig:preprocessor_pipeline}.
+In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we have created the \textsc{Preprocessor}. As we will loose information in summary anyway, it is completely acceptable to... which steps are shown below in Figure \ref{fig:preprocessor_pipeline}.
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[node distance=0.55cm, auto]
+\begin{tikzpicture}[node distance=0.45cm, auto]
 \node (story_in) [] {Story};
 \node (tokenize) [block, right =of story_in] {Tokenize};
 \node (simplify) [block, right =of tokenize] {Simplify};
@@ -23,7 +23,15 @@ In order to... as shown in Figure \ref{fig:preprocessor_pipeline}.
 
 \section{Tokenization and Simplification}
 
+With the help of \textbf{CoreNLP}, we can assign a POS tag to each word, or \textit{token}, from the input story. Using this information, we can now make a number of simplifications which will make the sentence structure more consistent throughout.
+
+\subsection{Punctuation}
+
 \section{Sentence Pruning and Homogenisation}
+
+\section{Example}
+
+\textcolor{red}{\textbf{\hl{TODO}}}
 
 \section{Expandability}
 
