@@ -26,13 +26,153 @@ In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we
 With the help of \textbf{CoreNLP}, we can assign a POS tag to each word, or \textit{token}, from the input story. Using this information, we can now make a number of simplifications which will make the sentence structure more consistent throughout.
 
 \subsection{Punctuation}
+\label{subsec:punctuation}
 
-\section{Sentence Pruning and Homogenisation}
+To avoid having to build recognition and semantic understanding of different types of punctuation into \textsc{SumASG}, it is preferable to transform the story such that it uses no punctuation apart from full stops. The idea is that each sentence in the resulting text contains exactly one action or description.
 
-\section{Example}
+Depending on the type of punctuation used at the end of a clause, a different treatment is applied:
+\begin{itemize}[nolistsep]
+\item Question marks: We remove the clause, as it is most likely irrelevant for this task. It also helps avoid negation since we are deleting rhetorical questions.
+\item Dashes: These are used around clauses which add detail, so it is quite safe to delete them for the task of summarization.
+\item Exclamation marks, commas, semi-colons and colons: We replace any of these with a full stop.
+\end{itemize}
+
+\subsection{Individual Word Transformations}
+
+One of the main goals of the \textsc{Preprocessor} is to transform the story in a simple and consistent structure, one where a given POS tag may only appear in a limited number of places in a sentence.
+
+\subsubsection{Acronyms}
+
+Some acronyms are often spelled using full stops after each letter. To prevent these from being recognized as multiple sentences, it is beneficial to remove any punctuation from acronyms. Therefore the word ``U.S.A." would become ``USA".
+
+\subsubsection{Contractions}
+
+Contractions can be difficult to understand for machines, and they add unwanted complexity to the task of parsing. Therefore it is simplest to expand all of them, for example transforming ``it's" into ``it is".
+
+\subsubsection{Adverbs}
+
+In the English language, adverbs can appear almost anywhere in a sentence, and their position has minimal semantic influence. To illustrate this, consider the following sentences, which all have the same meaning:
+
+\begin{displayquote}
+\underline{Slowly} he eats toast. \\
+He \underline{slowly} eats toast. \\
+He eats toast \underline{slowly}.
+\end{displayquote}
+
+In order to provide \textsc{SumASG} with a consistent format for parsing adverbs, we should always move them to the end of the clause in which they appear (in the above example we would keep the last sentence).
+
+\subsubsection{Possessive Pronouns, Interjections and Prepositions}
+
+In most cases, possessive pronouns and interjections do not add much to the meaning of a story, especially when the end goal is to create a summary. Therefore, we can remove such words from the text. For instance, the sequence ``\underline{Ah}! She ate \underline{her} chocolate." would become ``She ate chocolate.".
+
+Prepositions which appear at the start of a sentence may be removed, as they are not integral to the meaning. For example, ``\underline{Besides} today is Sunday" gets transformed into ``Today is Sunday".
+
+Moreover, prepositions which come after the object in a sentence can sometimes cause it to become syntactically too complex. Rather than encoding such high-level of detail into the internal representation of \textsc{SumASG}, it is preferable to simply omit the final clause. In this case, ``They have a picnic \underline{under} a tree." becomes ``They have a picnic.". Although some information is thrown away, this loss will usually have no impact on the quality of the summary.
+
+\subsection{Clause Transformations}
+
+After going through the \textsc{Preprocessor}, we would like each sentence in the given story to only focus on a single topic.
+
+When possible, we should split sentences containing multiple clauses into individual sentences. Otherwise, we can delete the auxiliary clause and keep the main clause.
+
+Examples of the transformations applied to different types of clauses can be seen below in Figure \ref{fig:clause_transformations}.
+
+\begin{figure}[H]
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+\textit{Conjunctive Clause} We looked left \underline{and} they saw us.\\
+\textit{Conjunctive Clause}. Cars have wheels \underline{and} go fast.\\
+\textit{Subordinating Clause}. She never walks alone \underline{because} she is afraid.\\
+\textit{Dependant Clause}. I want to be President \underline{when I grow up}.\\
+\textit{Dependant Clause}. \underline{When I grow up}, I will have a garden.
+\end{displayquote}
+\caption{Before transformation}
+\vspace{\baselineskip}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+\textit{Conjunctive Clause}. We looked left. they saw us.\\
+\textit{Conjunctive Clause}. Cars have wheels. Cars go fast.\\
+\textit{Subordinating Clause}. She never walks alone. she is afraid.\\
+\textit{Dependant Clause}. I want to be President.\\
+\textit{Dependant Clause}. I will have a garden.
+\caption{After transformation}
+\end{displayquote}
+\end{subfigure}
+\caption{Examples of the splitting of multi-clause sentences}
+\label{fig:clause_transformations}
+\end{figure}
+
+\subsubsection{Hypernym Substitution}
+
+However, in some cases we may be able to perform an optimization that allows us to collapse a conjunction of two words into a common \textit{hypernym} (i.e. superclass).
+
+In practice, this involves using \textbf{Pattern} (see Chapter \ref{chapter:evaluation}), to try and find a lexical field to which both words pertain.
+
+For example, the words ``chicken" and ``goose" both belong to the lexical field of ``poultry". Similarly, ``cars" and ``trucks" have common hypernym ``motor-vehicles".
+
+\textcolor{red}{\textbf{\hl{TODO expand?}}}
+
+\subsection{Case and Proper Nouns}
+
+We want to ensure that all occurrences of a word are treated as the same token. Since \textsc{SumASG} will be generating new sentences from scratch, the simplest solution is to convert the entire story to lower-case, apart from proper nouns.
+
+In the case of complex proper nouns (i.e., those constructed from multiple words), we should remove inner spaces so that we end up with a camel-case string. For instance, the sequence ``Peter Little" will become ``PeterLittle".
+
+We can also do this with complex common nouns, for example transforming ``bird house" into ``bird-house".
+
+\subsubsection{Pronoun Substitution}
+
+Sometimes, an author will introduce a character or group by name, and later refer to them using a pronoun.
+
+If a story contains exactly one distinct singular proper noun and then uses either ``he" or ``she", then it is safe to assume that this pronoun refers the aforementioned proper noun. The same can be said about plural proper nouns and the pronoun ``they".
+To clarify this, an example is shown in Figure \ref{fig:pronoun_substitution}.
+
+\begin{figure}[H]
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+\textbf{Antonio} is a cheesemaker. \underline{He} makes burrata.
+\textbf{Italians} eat pasta. \underline{They} make it with egg sometimes.
+\end{displayquote}
+\caption{Before transformation}
+\vspace{\baselineskip}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+\textbf{Antonio} is a cheesemaker. \textbf{Antonio} makes burrata.
+\textbf{Italians} eat pasta. \textbf{Italians} make it with egg sometimes.
+\caption{After transformation}
+\end{displayquote}
+\end{subfigure}
+\caption{Example of substituting pronouns with proper nouns}
+\label{fig:pronoun_substitution}
+\end{figure}
+
+\subsection{Example}
+
+\textcolor{red}{\textbf{\hl{TODO}}}
+
+\section{Sentence Pruning and Homogenization}
+
+\subsection{Similarity}
+\label{subsec:similarity}
+
+\subsection{Example}
 
 \textcolor{red}{\textbf{\hl{TODO}}}
 
 \section{Expandability}
 
-\textcolor{red}{\textbf{\hl{TODO}}}
+In its current state, \textsc{SumASG} expects positive sentences only, and the only form punctuation recognized is the full stop.
+
+\subsection{Negation}
+
+In order to support negation, we would need to modify the structure of \textsc{SumASG}'s internal representation (see Chapter \ref{chapter:asg}). However, to achieve a better semantic understanding in \textsc{SumASG*}, we could add some more simplification logic to the \textsc{Preprocessor}.
+
+After having implemented this, the phrase ``not happy" would be transformed into the word ``sad".
+
+\subsection{Lists}
+
+At the moment, \textsc{SumASG} can parse a list of length 2 at the most, i.e. a conjunction of two items. By adding a transformation to the \textsc{Preprocessor} before we modify the punctuation (see Subsection \ref{subsec:punctuation}), we could overcome this limitation. Intuitively, this would mean going from a sentence with a an $n$-item list, to $\floor{\frac{n}{2}}$ sentences with two objects and one sentence with a single object (if $n$ is odd).
+
+For instance, the sentence ``Bob had a book, a computer and a chair." would be split into ``Bob had a book and a computer. Bob had a book".

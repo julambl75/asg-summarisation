@@ -244,7 +244,7 @@ class TextSimplifier:
         return tokenized
 
     # Ex: She raised chickens and geese. -> She raised poultry.
-    # Ex: He was interested in stars and planets. -> He was interested in space.
+    # Ex: He was interested in stars and planets. -> He was interested in astronomy.
     # Ex: They like cars and trucks. -> They like motor-vehicles.
     def _replace_noun_conjunction_with_superclass(self, tokenized):
         for sentence in tokenized:

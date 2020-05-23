@@ -32,6 +32,15 @@
     citecolor=blue
 }
 
+% https://tex.stackexchange.com/questions/81942/div-equivalent-to-mod
+\makeatletter
+\newcommand*{\bdiv}{%
+  \nonscript\mskip-\medmuskip\mkern5mu%
+  \mathbin{\operator@font div}\penalty900\mkern5mu%
+  \nonscript\mskip-\medmuskip
+}
+\makeatother
+
 %\pagestyle{fancy}
 %\renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
 %\fancyhead{}
@@ -56,6 +65,7 @@
 \newtheorem{challenge}{Challenge}
 
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
 
 \graphicspath{ {media/} }
 
@@ -95,30 +105,6 @@
 \chapter{Preprocessor}
 \input{chapters/preprocessor}
 
-Choice:
-1. Simplify using Python script (faster)
-2. Make ASG format more complex (new information probably lost in summary anyway)
-
-- Punctuation
-    - [?]: remove clause (helps avoid negation for rhetorical questions)
-    - [!|,|;|:]: transform into '.'
-    - [–|—]: delete inner part
-- Multiple clauses (conjunctive or main+auxiliary): split into multiple sentences
-- Adverbs: move to end
-- Possessive pronouns and interjections: remove
-- Prepositions: remove when at start of sentence
-- Contractions: expand
-- Acronyms: remove punctuation
-- Dependant clauses: split into separate sentence (remove if there is no punctuation)
-- Verbless sentences: remove
-- Subordinating conjunctions: split into separate sentence
-- Preposition clauses: remove if after object
-- Complex proper nouns: collapse into CamelCase
-- Proper nouns: replace occurrences of pronouns with relevant proper noun (idea: if they are used in the story then there should be little ambiguity)
-- Conjunction of common nouns from same lexical field: replace with hypernym (pluralize if items are plural and hypernym plural is used in English)
-
-lists
-
 \chapter{ASG}
 \input{chapters/asg}
 
@@ -140,6 +126,11 @@ Ideas:
 - to avoid having to add grammar constraints try and rely on grammar of input
 
 - reduce search space using mode bias (simple example: 396->16, very complicated example: 9477->1044)
+
+Choice:
+1. Simplify using Python script (faster)
+2. Make ASG format more complex (new information probably lost in summary anyway)
+
 - for learning actions do one sentence at a time to minimize ss
 - pick best summary according to TTR*
 
