@@ -46,10 +46,61 @@ The output of \textsc{SumASG} is a list of sentences, each of which could potent
 
 \subsection{Post-Processing}
 
+\subsubsection{Grammar}
+
+Because \textsc{SumASG} uses the same capitalization for a given word regardless of its position in the sentence, it means that the first word of each sentence will not be capitalized unless it is a proper noun. We therefore need to fix this, as well as remove the space before each full stop.
+
+Compound nouns, whose hyphen was replaced with an underscore for the internal representation of \textsc{SumASG}, also need to be restored to their grammatically-correct form.
+
+In addition, the task of summarization might have created a sentence where an incorrect verb form is used, or possibly the wrong determiner. To amend this we use a tool called \href{https://pypi.org/project/language-check/}{language-check}, which is able to correct phrases like ``they has an dog" to ``they have a dog".
+
+\subsubsection{Complex Nouns}
+
+One of the optimizations done by the \textsc{Preprocessor} was to combine complex nouns such as ``Peter Little" into their camel-case form ``PeterLittle", so that they would be recognized as a single token by \textsc{SumASG}. We now need to expand them back to their original form, as this is how it should be written in English.
+
 \subsection{Combining}
+
+Depending on the length of the original story, we can envision and different number of sentences to be in the summary, as shown below in Table \ref{tab:summary_length}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+Story length   & 1-2 & 3-4 & 5+ \\ \midrule
+Summary length & 1   & 2   & 3  \\ \bottomrule
+\end{tabular}
+\caption{Length of a summary depending on the number of sentences in the story}
+\label{tab:summary_length}
+\end{table}
+
+Once we have grammatically-correct summary sentences and know how many should be kept for the summary (say $n$), we generate all possible order-preserving combinations of length $n$. For instance, such combinations of length 3 for the list $[0,1,2,3]$ would be the following: $[0,1,2]$, $[0,2,3]$ and $[1,2,3]$.
 
 \section{Scoring}
 \label{sec:scoring}
+
+As you can imagine, we often end up with a large number of combinations at this phase. We therefore need to determine which of these are better and discard the rest.
+
+\subsection{TTR}
+
+To this end, we utilize an NLP metric called TTR (type-token ratio), a measure of lexical density. To provide the most informative summaries possible, we want to maximize the density of unique words.
+
+To calculate a summary's TTR, we divide the number of unique words in the summary by the total number of words. We then divide this by number of unique words in the story in order to get a more consistent range for our scores.
+
+\textcolor{red}{\textbf{\hl{TODO example}}}
+
+\subsubsection{Ignored Words}
+
+However, we do not want to neglect summaries which use the same determiner, proper noun, or the verb ``to be" multiple times, as these are extremely common in English.
+
+In addition, a story might revolve around a given topic, and it could be the case that the \textsc{Preprocessor} had replaced different synonyms of this topic with a unique word.
+
+To get around this, what we can do is to exclude such words from the summary length and number of unique summary words. This way, computing the TTR...
+
+\textcolor{red}{\textbf{\hl{TODO example}}}
+
+\section{Reference Summaries}
+
+\section{Example}
 
 \section{Expandability}
 
