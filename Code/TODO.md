@@ -1,8 +1,8 @@
 ## To show Alessandra/David
 
 - Fix Peter Little (refactoring bugs)
-- Report
 - Neural network predictions
+- Report (see TODOs)
 
 ## TODO
 
