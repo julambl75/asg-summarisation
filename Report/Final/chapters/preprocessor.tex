@@ -107,7 +107,7 @@ Examples of the transformations applied to different types of clauses can be see
 
 However, in some cases we may be able to perform an optimization that allows us to collapse a conjunction of two words into a common \textit{hypernym} (i.e. superclass).
 
-In practice, this involves using \href{http://web.archive.org/web/20190516161631/https://www.clips.uantwerpen.be/pages/pattern-en}{Pattern} to try and find a lexical field to which both words pertain.
+In practice, this involves using \textbf{\href{http://web.archive.org/web/20190516161631/https://www.clips.uantwerpen.be/pages/pattern-en}{Pattern}} to try and find a lexical field to which both words pertain.
 
 For example, the words ``chicken" and ``goose" both belong to the lexical field of ``poultry". Similarly, ``cars" and ``trucks" have common hypernym ``motor-vehicles".
 
@@ -149,17 +149,60 @@ To clarify this, an example is shown in Figure \ref{fig:pronoun_substitution}.
 \end{figure}
 
 \subsection{Example}
+\label{subsec:simplification_example}
 
 \textcolor{red}{\textbf{\hl{TODO}}}
 
 \section{Sentence Pruning and Homogenization}
 
-\subsection{Similarity}
-\label{subsec:similarity}
+Once the sentence structure of the story has been simplified, one of the main jobs of the \textsc{Preprocessor} is to remove irrelevant semantic complexity from the story.
+
+In order to understand what is relevant in a story and what is not, the \textsc{Preprocessor} looks at the semantic similarity between words with the same POS tag (or a related one, i.e. singular noun and plural noun, or verbs with a different tense).
+
+\subsection{Word Similarity}
+
+It uses a loop to iterate over each sentence, and compares each word with every word from other sentences which have the same or a related POS tag. For each comparison, word \textit{similarity} is computed using the tool \href{http://www.conceptnet.io}{ConceptNet}, a semantic knowledge network.
+
+As you might imagine, having such nesting of loops can be quite expensive, which is why we keep a cache of previously requested similarities, and use the fact that this \textit{similarity} relation is symmetric.
+
+\subsection{Sentence Similarity and Pruning}
+
+\subsubsection{Sentence Similarity}
+
+Once we have computed the \textit{similarity} between words of different sentences, we can add these up on a per-sentence basis, which gives us a binary relation of \textit{similarity} between sentences.
+
+We now have enough information to generate a \textit{text relationship map} over the sentences. The idea is that the more ``linked" a sentence is, the more relevant it is to the story. For each sentence, we therefore take the sum of the values of all its \textit{similarity} relations with other sentences. The higher this number, the more relevant, or \textit{important}, the sentence is to the story.
+
+\subsubsection{Pruning}
+
+In the interest of removing irrelevant sentences to help \textsc{SumASG}, we compute the 25th percentile over the \textit{importances} of all the sentences. We then prune sentences whose \textit{importance} is strictly less than this value.
+
+In most cases, one quarter of the story will be pruned. However, if every sentence has the same \textit{importance}, then nothing gets removed. On the other hand, if two thirds of the story are very \textit{important} and the rest is irrelevant, then we remove more than a quarter of the sentences.
+
+\subsection{Synonyms and Homogenization}
+
+Another use for \textit{word similarity} is to find out if the author of the story has used any synonyms. When the \textit{similarity} between two words is above a certain threshold, then we consider them to be synonyms.
+
+For every set of synonyms we find, we can choose a unique \textit{representative} for the set, and replace occurrences of the other words in that set with our \textit{representative}. For simplicity, we choose the \textit{representative} as the shortest word in its synonym set.
+
+This is what we call \textit{story homogenization}, and it helps \textsc{SumASG} link words that would otherwise be considered completely different tokens in the story.
 
 \subsection{Example}
 
-\textcolor{red}{\textbf{\hl{TODO}}}
+An example is shown below in Figure \ref{fig:text_relationship_map_example} for the story of Peter Little, where the weight between two nodes refers to \textit{similarity}. In this example, we consider words to be synonyms whenever their \textit{similarity} is at least 20. The labels of the nodes (starting from 0) for sentence \textit{similarity} correspond to the index of the sentence in the simplified story (see Subsection \ref{subsec:simplification_example}). As you can see, sentence 5 is deemed irrelevant and will be pruned, while sentence 0 is very important.
+
+\begin{figure}[H]
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=\textwidth]{word_similarity.eps}
+\caption{Word \textit{similarity}}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=\textwidth]{sentence_similarity.eps}
+\caption{Sentence \textit{similarity}}
+\end{subfigure}
+\caption{Text relationship map for the example of Peter Little}
+\label{fig:text_relationship_map_example}
+\end{figure}
 
 \section{Expandability}
 

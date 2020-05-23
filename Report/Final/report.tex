@@ -132,7 +132,6 @@ Choice:
 2. Make ASG format more complex (new information probably lost in summary anyway)
 
 - for learning actions do one sentence at a time to minimize ss
-- pick best summary according to TTR*
 
 action(INDEX, VERB, SUBJECT, OBJECT)
 summary(VERB, SUBJECT, OBJECT)
@@ -146,13 +145,8 @@ det(...)
 compound(FIRST, SECOND)  for verbs
 conjunct(FIRST, SECOND)  learn both
 
-* Type-Token Ratio (TTR): The basic idea behind that measure is that if the text is more complex, the author uses a more varied vocabulary so there’s a larger number of types (unique words). This logic is explicit in the TTR’s formula, which calculates the number of types divided by the number of tokens. As a result, the higher the TTR, the higher the lexical complexity.
-
 \chapter{Post-Processing / Scoring}
 \input{chapters/postprocess}
-
-- Fix grammar
-- Final goal: take story-specific ASG and general rules to generate summaries, then use top 5/10
 
 \chapter{Evaluation}
 \input{chapters/evaluation}
