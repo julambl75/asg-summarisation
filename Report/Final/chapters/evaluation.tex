@@ -1,11 +1,41 @@
 \label{chapter:evaluation}
 
-\section{Succeeding of Goals}
+\section{Reflection About Objectives}
 
-\section{General Idea}
+If we go back to the objectives from Chapter \ref{chapter:introduction}, we can see that some were fully achieved, while others were only partly realized.
 
-\section{Datasets}
+\subsection{Successes}
 
-\section{Pattern}
+\subsection{Limitations}
 
-\section{Results}
+\textcolor{red}{\textbf{\hl{TODO}}}
+
+\section{Summarization Neural Network}
+
+\subsection{General Idea}
+
+As the vast majority of modern text summarization frameworks are based on machine learning, it makes sense to compare the performance \textsc{SumASG*} with that of a neural network.
+
+More specifically, we should generate a set of stories which we can give to our framework in order to obtain corresponding summaries. We can then use this as training data for an encoder-decoder, to see if it is able to learn how \textsc{SumASG*} creates summaries.
+
+If the neural network is able to learn to generate similar summaries, then we can consider our framework to be sane.
+
+\subsection{Datasets}
+
+In order to generate the required number of stories, we have used words from \href{http://www.wordfrequency.info/}{wordfrequency.info}. This database contains 5,000 individual English words, of which 1,001 are verbs, 2,542 nouns and 839 adjectives. We also make use of the 561 first names from \href{https://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/vital-events/names/babies-first-names/babies-first-names-summary-records-comma-separated-value-csv-format}{National Records of Scotland}.
+
+\subsection{Libraries}
+
+For this task, we have chosen to use a library called \href{http://web.archive.org/web/20190516161631/https://www.clips.uantwerpen.be/pages/pattern-en}{Pattern}, which allows us to conjugate verbs, as well as toggle nouns between singular or plural.
+
+We also take advantage of the \href{https://www.datamuse.com/api/}{Datamuse API}, which lets us find words which are semantically related to a given word in a certain way.
+
+\textcolor{red}{\textbf{\hl{TODO define meronym/...}}}
+
+\subsection{Story Structure}
+
+\subsection{Training}
+
+\subsection{Results}
+
+\textcolor{red}{\textbf{\hl{TODO}}}
