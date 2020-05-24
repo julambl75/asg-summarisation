@@ -61,6 +61,11 @@ He eats toast \underline{slowly}.
 
 In order to provide \textsc{SumASG} with a consistent format for parsing adverbs, we should always move them to the end of the clause in which they appear (in the above example we would keep the last sentence).
 
+
+\subsubsection{Determiners}
+
+In the English language, the determiners ``a" and ``an" are semantically identical, so to makes sense to only use one of the two, with the intention of reducing the number of tokens that \textsc{SumASG has to process}. We can always correct the output of \textsc{SumASG} to make it grammatically-correct.
+
 \subsubsection{Possessive Pronouns, Interjections and Prepositions}
 
 In most cases, possessive pronouns and interjections do not add much to the meaning of a story, especially when the end goal is to create a summary. Therefore, we can remove such words from the text. For instance, the sequence ``\underline{Ah}! She ate \underline{her} chocolate." would become ``She ate chocolate.".
@@ -151,7 +156,46 @@ To clarify this, an example is shown in Figure \ref{fig:pronoun_substitution}.
 \subsection{Example}
 \label{subsec:simplification_example}
 
-\textcolor{red}{\textbf{\hl{TODO}}}
+The result of running the simplification transformations is illustrated below in Figure \ref{fig:simplification_example}. Please refer to Chapter \ref{chapter:contributions} for the original story.
+
+\begin{figure}[H]
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+\begin{enumerate}[label=\protect\circled{\alph*}]
+\item Adverbs: move ``always" and ``Now" to the end of the sentence
+\item Determiners: ``an" $\rightarrow$ ``a"
+\item Possessive pronouns: \st{``his"}
+\item Prepositions: \st{``So"}
+\item Conjunctive clauses: ``serious in school" $\|$ ``did homework always"
+\item Dependant clauses: \st{``When he was older"}
+\item Complex clauses: ``was a curious little boy" $\|$ ``named Peter Little"
+\item Hypernym substitution: ``stars and planets" $\rightarrow$ ``astronomy"
+\item Case: make all words but proper nouns lower case
+\item Complex nouns: ``Peter Little" $\rightarrow$ ``PeterLittle"
+\item Complex nouns: ``quantum physics" $\rightarrow$ ``quantum-physics"
+\item Pronoun substitution: ``he" $\rightarrow$ ``PeterLittle"
+\end{enumerate}
+\end{displayquote}
+\caption{Transformations applied (where $\|$ means splitting into multiple sentences)}
+\vspace{\baselineskip}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+\textbf{0.} there was a curious little boy.\\
+\textbf{1.} \circled{g} the curious little boy was named \circled{j} PeterLittle.\\
+\textbf{2.} \circled{l} PeterLittle was interested in \circled{h} astronomy.\\
+\textbf{3.} \circled{d} PeterLittle was serious in school.\\
+\textbf{4.} \circled{e} PeterLittle did \circled{c} homework \circled{a} always.\\
+\textbf{5.} \circled{f} PeterLittle studied mathematics and \circled{k} quantum-physics.\\
+\textbf{6.} PeterLittle studied for \circled{c} exams hard.\\
+\textbf{7.} PeterLittle became \circled{b} a astrophysicist.\\
+\textbf{8.} PeterLittle is famous \circled{a} now.
+\caption{Sentences after applying transformations}
+\end{displayquote}
+\end{subfigure}
+\caption{Example of applying simplification to the story of Peter Little}
+\label{fig:simplification_example}
+\end{figure}
 
 \section{Sentence Pruning and Homogenization}
 
@@ -189,19 +233,46 @@ This is what we call \textit{story homogenization}, and it helps \textsc{SumASG}
 
 \subsection{Example}
 
-An example is shown below in Figure \ref{fig:text_relationship_map_example} for the story of Peter Little, where the weight between two nodes refers to \textit{similarity}. In this example, we consider words to be synonyms whenever their \textit{similarity} is at least 20. The labels of the nodes (starting from 0) for sentence \textit{similarity} correspond to the index of the sentence in the simplified story (see Subsection \ref{subsec:simplification_example}). As you can see, sentence 5 is deemed irrelevant and will be pruned, while sentence 0 is very important.
+An example is shown below in Figure \ref{fig:text_relationship_map_example} for the story of Peter Little, where the weight between two nodes denotes \textit{similarity}. In this example, we consider words to be synonyms whenever their \textit{similarity} is at least 20. The labels of the nodes (starting from 0) for sentence \textit{similarity} correspond to the index of the sentence in the simplified story (see Subsection \ref{subsec:simplification_example}).
+
+As you can see, sentences 5 and 6 are deemed irrelevant and will be pruned, while sentences 0, 1 and 2 are thought as being very important.
+
+Moreover, {homework, school} and {interested, curious} are considered synonym sets, and homogenization will replace occurrences of these words with their shortest synonym (which may be itself).
 
 \begin{figure}[H]
+\begin{subfigure}{\textwidth}
 \begin{subfigure}{0.5\textwidth}
+\renewcommand\thesubfigure{\roman{subfigure}}
 \includegraphics[width=\textwidth]{word_similarity.eps}
 \caption{Word \textit{similarity}}
 \end{subfigure}
 \begin{subfigure}{0.5\textwidth}
+\renewcommand\thesubfigure{\roman{subfigure}}
 \includegraphics[width=\textwidth]{sentence_similarity.eps}
 \caption{Sentence \textit{similarity}}
 \end{subfigure}
-\caption{Text relationship map for the example of Peter Little}
-\label{fig:text_relationship_map_example}
+\setcounter{subfigure}{0}
+\caption{Text relationship maps}
+\end{subfigure}
+\vspace{\baselineskip}
+\begin{subfigure}{\textwidth}
+\centering
+\begin{tabular}{@{}llllllllll@{}}
+\toprule
+Sentence   & 0    & 1    & 2    & 3    & 7    & 8    & 4 & 5 & 6 \\ \midrule
+Importance & 40.7 & 24.4 & 18.8 & 14.8 & 12.5 & 11.3 & 6 & 0 & 0 \\ \bottomrule
+\end{tabular}
+\caption{Sentences ordered by importance}
+\end{subfigure}
+\vspace{\baselineskip}
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+there was a curious little boy. the curious little boy was named PeterLittle. PeterLittle was curious in astronomy. PeterLittle was serious in school. PeterLittle did school always. PeterLittle became a astrophysicist. PeterLittle is famous now.
+\end{displayquote}
+\caption{Homogenized story}
+\end{subfigure}
+\caption{Example of applying sentence pruning and homogenization to the simplified story of Peter Little}
+\label{fig:preprocessor_example}
 \end{figure}
 
 \section{Expandability}

@@ -146,7 +146,7 @@ class TextSimplifier:
                 (word, pos) = sentence[i]
                 (next_word, next_pos) = sentence[i + 1]
                 # Reduce ASG search space
-                if pos == next_pos and pos in [PROPER_NOUN_POS, COMMON_NOUN_POS]:
+                if pos.startswith(COMMON_NOUN_POS) and next_pos.startswith(COMMON_NOUN_POS):
                     new_word = word + next_word
                     if pos == COMMON_NOUN_POS:
                         # Add hyphen unless combined words normally don't have one

@@ -227,7 +227,8 @@ class TextToSummary:
         summary_len = self._get_summary_length()
         summaries = {' '.join(summary) for summary in itertools.combinations(summary_sentences, summary_len)}
 
-        proper_nouns = list(map(lambda n: re.sub(*RESTORE_PROPER_NOUNS_REGEX, n), self.proper_nouns))
-        for i, proper_noun in enumerate(self.proper_nouns):
-            self.text = self.text.replace(proper_noun, proper_nouns[i])
+        proper_nouns_simplified = list(self.proper_nouns)
+        proper_nouns_original = list(map(lambda n: re.sub(*RESTORE_PROPER_NOUNS_REGEX, n), proper_nouns_simplified))
+        for i, proper_noun in enumerate(proper_nouns_original):
+            self.text = self.text.replace(proper_noun, proper_nouns_simplified[i])
         return self.summary_scorer.asg_score(self.text, summaries, self.pos_summaries, self.proper_nouns)

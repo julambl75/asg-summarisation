@@ -1,3 +1,5 @@
+\label{chapter:contributions}
+
 \section{Architecture Overview}
 
 The central part of the pipeline, which performs story summarization, revolves around the ASG task of \textsc{SumASG}. To build on top of this foundation, we first have the \textsc{Preprocessor}, as well as some final post-processing and scoring mechanisms. We will call this augmented task \textsc{SumASG*}, and describe each step in the following chapters. A diagram of the entire pipeline can be seen in Figure \ref{fig:main_pipeline}.
@@ -23,7 +25,7 @@ The central part of the pipeline, which performs story summarization, revolves a
 
 Given plenty of time and a large amount of training data in a specific format, a neural network is able to closely approximate the definition of a summary.
 
-In contrast, using logic means that we can hard-code this definition directly into our program. By carefully constructing its structure, we can get results with just a short list of rules. Because it is a logic program, we know that it will always produce a complete and valid output, as long as the program is correct.
+In contrast, using logic means that we can hard-code this definition directly into our program. By carefully constructing its structure, we can get results with just a short list of rules, and know that it will always produce a complete and valid output.
 
 \section{Example}
 
@@ -32,7 +34,7 @@ Throughout this paper, we shall be using the example of the story of Peter Littl
 \begin{figure}[H]\
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-There was a curious little boy named Peter Little. He was interested in stars and planets. So he was serious in school and always did his homework. When he was older he studied physics and maths. He studied hard for his exams and became an astrophysicist. Now he is famous.
+There was a curious little boy named Peter Little. He was interested in stars and planets. So he was serious in school and always did his homework. When he was older, he studied mathematics and quantum physics. He studied hard for his exams and became an astrophysicist. Now he is famous.
 \end{displayquote}
 \caption{Story of Peter Little}
 \vspace{\baselineskip}

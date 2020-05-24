@@ -19,7 +19,8 @@
 \usepackage{subcaption}
 \usepackage[titletoc]{appendix}
 \usepackage{titlesec}
-\usepackage{color,soul} % TODO remove
+\usepackage{enumitem}
+\usepackage{color,soul}
 
 \usetikzlibrary{shapes,arrows,trees,positioning}
 \tikzstyle{block}=[draw, fill=blue!20, minimum size=2em]
@@ -41,11 +42,10 @@
 }
 \makeatother
 
-%\pagestyle{fancy}
-%\renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
-%\fancyhead{}
-%\fancyhead[L]{Chapter \thechapter: \leftmark}
-%\fancyhead[R]{\nouppercase{\rightmark}}
+% https://tex.stackexchange.com/questions/7032/good-way-to-make-textcircled-numbers
+%\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            %\node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+\newcommand*\circled[1]{\raisebox{.5pt}{\textcircled{\raisebox{-.5pt} {#1}}}}
 
 \renewcommand*\thesection{\arabic{section}}
 \newpagestyle{Headings}{
