@@ -141,7 +141,7 @@ Instead, we compute 75th percentile over the scores of all generated summaries, 
 
 Finally, we want to be sure that our framework generates good summaries, and that the scoring works as intended. Therefore, if a story has a reference summary, then we should make sure that there exists a similar \textit{top summary}.
 
-In our implementation, we have chosen to use the BLEU score, which measures how closely the output given by a machine matches a text written by a human. If there exists a \textit{top summary} whose BLEU score is above a certain threshold, then we consider the summarization to be successful.
+In our implementation, we have chosen to use the BLEU score, which measures how closely the output given by a machine matches a text written by a human. If there exists a \textit{top summary} whose BLEU score with one of the references is above a certain threshold, then we consider the summarization to be successful.
 
 \section{Example}
 \label{sec:postprocess_example}
