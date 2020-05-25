@@ -212,7 +212,7 @@ class TextToSummary:
         return 1
 
     def _correct_summaries(self, summary_sentences):
-        # Reverse ordering to be closer to chronological order of story
+        # Reverse ordering to be closer to a more chronological order of story
         summary_sentences.reverse()
 
         # Capitalise sentences
@@ -224,11 +224,13 @@ class TextToSummary:
         # Restore punctuation and fix spacing
         summary_sentences = list(map(lambda s: s.strip().replace('_', '-').replace('  ', ' '), summary_sentences))
 
+        # Generate all order-preserving combinations of summary sentences
         summary_len = self._get_summary_length()
         summaries = {' '.join(summary) for summary in itertools.combinations(summary_sentences, summary_len)}
 
-        proper_nouns_simplified = list(self.proper_nouns)
-        proper_nouns_original = list(map(lambda n: re.sub(*RESTORE_PROPER_NOUNS_REGEX, n), proper_nouns_simplified))
-        for i, proper_noun in enumerate(proper_nouns_original):
-            self.text = self.text.replace(proper_noun, proper_nouns_simplified[i])
-        return self.summary_scorer.asg_score(self.text, summaries, self.pos_summaries, self.proper_nouns)
+        # Retrieve original complex proper nouns
+        proper_nouns = list(map(lambda n: re.sub(*RESTORE_PROPER_NOUNS_REGEX, n), self.proper_nouns))
+        for i, proper_noun in enumerate(self.proper_nouns):
+            self.text = self.text.replace(proper_noun, proper_nouns[i])
+
+        return self.summary_scorer.asg_score(self.text, summaries, self.pos_summaries, proper_nouns)

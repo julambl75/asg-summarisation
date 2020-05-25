@@ -233,7 +233,7 @@ This is what we call \textit{story homogenization}, and it helps \textsc{SumASG}
 
 \subsection{Example}
 
-An example is shown below in Figure \ref{fig:text_relationship_map_example} for the story of Peter Little, where the weight between two nodes denotes \textit{similarity}. In this example, we consider words to be synonyms whenever their \textit{similarity} is at least 20. The labels of the nodes (starting from 0) for sentence \textit{similarity} correspond to the index of the sentence in the simplified story (see Subsection \ref{subsec:simplification_example}).
+An example is shown below in Figure \ref{fig:preprocessor_example} for the story of Peter Little, where the weight between two nodes denotes \textit{similarity}. In this example, we consider words to be synonyms whenever their \textit{similarity} is at least 20. The labels of the nodes (starting from 0) for sentence \textit{similarity} correspond to the index of the sentence in the simplified story (see Subsection \ref{subsec:simplification_example}).
 
 As you can see, sentences 5 and 6 are deemed irrelevant and will be pruned, while sentences 0, 1 and 2 are thought as being very important.
 
@@ -254,8 +254,8 @@ Moreover, {homework, school} and {interested, curious} are considered synonym se
 \setcounter{subfigure}{0}
 \caption{Text relationship maps}
 \end{subfigure}
-\vspace{\baselineskip}
 \begin{subfigure}{\textwidth}
+\vspace{\baselineskip}
 \centering
 \begin{tabular}{@{}llllllllll@{}}
 \toprule
@@ -264,8 +264,8 @@ Importance & 40.7 & 24.4 & 18.8 & 14.8 & 12.5 & 11.3 & 6 & 0 & 0 \\ \bottomrule
 \end{tabular}
 \caption{Sentences ordered by importance}
 \end{subfigure}
-\vspace{\baselineskip}
 \begin{subfigure}{\textwidth}
+\vspace{\baselineskip}
 \begin{displayquote}
 there was a curious little boy. the curious little boy was named PeterLittle. PeterLittle was curious in astronomy. PeterLittle was serious in school. PeterLittle did school always. PeterLittle became a astrophysicist. PeterLittle is famous now.
 \end{displayquote}
