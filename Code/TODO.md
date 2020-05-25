@@ -2,7 +2,8 @@
 
 - Fix Peter Little (refactoring bugs)
 - Neural network predictions
-- Report (see TODOs)
+- Final presentation questions (length, people present)
+- Report (send PDF for easier reading, see TODOs)
 
 ## TODO
 
@@ -83,7 +84,7 @@ Ideas:
 - pick best summary according to TTR*
 
 action(INDEX, VERB, SUBJECT, OBJECT)
-summary(VERB, SUBJECT, OBJECT)
+summary(INDEX, VERB, SUBJECT, OBJECT)
 
 verb(INDICATIVE_FORM, TENSE)
 subject(NOUN, DET, ADJ_OR_ADV)

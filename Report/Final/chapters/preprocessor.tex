@@ -21,7 +21,7 @@ In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we
 \label{fig:preprocessor_pipeline}
 \end{figure}
 
-\section{Tokenization and Simplification}
+\section{Tokenization And Simplification}
 
 With the help of \textbf{CoreNLP}, we can assign a POS tag to each word, or \textit{token}, from the input story. Using this information, we can now make a number of simplifications which will make the sentence structure more consistent throughout.
 
@@ -66,7 +66,7 @@ In order to provide \textsc{SumASG} with a consistent format for parsing adverbs
 
 In the English language, the determiners ``a" and ``an" are semantically identical, so to makes sense to only use one of the two, with the intention of reducing the number of tokens that \textsc{SumASG has to process}. We can always correct the output of \textsc{SumASG} to make it grammatically-correct.
 
-\subsubsection{Possessive Pronouns, Interjections and Prepositions}
+\subsubsection{Possessive Pronouns, Interjections And Prepositions}
 
 In most cases, possessive pronouns and interjections do not add much to the meaning of a story, especially when the end goal is to create a summary. Therefore, we can remove such words from the text. For instance, the sequence ``\underline{Ah}! She ate \underline{her} chocolate." would become ``She ate chocolate.".
 
@@ -118,7 +118,7 @@ For example, the words ``chicken" and ``goose" both belong to the lexical field 
 
 \textcolor{red}{\textbf{\hl{TODO expand?}}}
 
-\subsection{Case and Proper Nouns}
+\subsection{Case And Proper Nouns}
 
 We want to ensure that all occurrences of a word are treated as the same token. Since \textsc{SumASG} will be generating new sentences from scratch, the simplest solution is to convert the entire story to lower-case, apart from proper nouns.
 
@@ -197,7 +197,7 @@ The result of running the simplification transformations is illustrated below in
 \label{fig:simplification_example}
 \end{figure}
 
-\section{Sentence Pruning and Homogenization}
+\section{Sentence Pruning And Homogenization}
 
 Once the sentence structure of the story has been simplified, one of the main jobs of the \textsc{Preprocessor} is to remove irrelevant semantic complexity from the story.
 
@@ -209,7 +209,7 @@ It uses a loop to iterate over each sentence, and compares each word with every 
 
 As you might imagine, having such nesting of loops can be quite expensive, which is why we keep a cache of previously requested similarities, and use the fact that this \textit{similarity} relation is symmetric.
 
-\subsection{Sentence Similarity and Pruning}
+\subsection{Sentence Similarity And Pruning}
 
 \subsubsection{Sentence Similarity}
 
@@ -223,7 +223,7 @@ In the interest of removing irrelevant sentences to help \textsc{SumASG}, we com
 
 In most cases, one quarter of the story will be pruned. However, if every sentence has the same \textit{importance}, then nothing gets removed. On the other hand, if two thirds of the story are very \textit{important} and the rest is irrelevant, then we remove more than a quarter of the sentences.
 
-\subsection{Synonyms and Homogenization}
+\subsection{Synonyms And Homogenization}
 
 Another use for \textit{word similarity} is to find out if the author of the story has used any synonyms. When the \textit{similarity} between two words is above a certain threshold, then we consider them to be synonyms.
 
@@ -289,4 +289,4 @@ After having implemented this, the phrase ``not happy" would be transformed into
 
 At the moment, \textsc{SumASG} can parse a list of length 2 at the most, i.e. a conjunction of two items. By adding a transformation to the \textsc{Preprocessor} before we modify the punctuation (see Subsection \ref{subsec:punctuation}), we could overcome this limitation. Intuitively, this would mean going from a sentence with a an $n$-item list, to $\floor{\frac{n}{2}}$ sentences with two objects and one sentence with a single object (if $n$ is odd).
 
-For instance, the sentence ``Bob had a book, a computer and a chair." would be split into ``Bob had a book and a computer. Bob had a book".
+For instance, the sentence ``Bob had a book, a computer and a chair." would be split into ``Bob had a book and a computer. Bob had a chair".

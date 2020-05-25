@@ -2,7 +2,7 @@
 
 \section{Overview}
 
-Our use ASG is two-fold. Firstly, we pass in each sentence from the story to ASG to obtain its semantic representation in ASP. Secondly, we take these actions and use ASG rules to generate possible summary components. These will later be post-processed and turned into actual valid summaries. A diagram of the two ASG steps is shown below in Figure \ref{fig:asg_pipeline}.
+Our use ASG is two-fold. Firstly, we pass in each sentence from the story to ASG to obtain its semantic representation in ASP. Secondly, we take these \textit{actions} and use ASG rules to generate possible summary components. These will later be post-processed and turned into actual valid summaries. A diagram of the two ASG steps is shown below in Figure \ref{fig:asg_pipeline}.
 
 \begin{figure}[H]
 \centering
@@ -36,16 +36,126 @@ Our use ASG is two-fold. Firstly, we pass in each sentence from the story to ASG
 
 \section{Internal Representation}
 
-In order to model the structure of sentences the English language, we have created a CFG that has a similar hierarchy to that of an NLP parse tree.
+In order to model the structure of sentences the English language, we have created a CFG that has a similar hierarchy to that of an NLP parse tree. The ASG code for this general structure can be seen in Appendix \ref{appendix:asg}. Throughout this description of \textsc{SumASG}, please refer to Chapter \ref{chapter:background} for information on how to interpret an ASG program. Also, a table listing the possible POS tags is available in Appendix \ref{appendix:pos}.
+
+\subsection{Leaf Nodes}
+
+At the bottom end of the structure, there are leaf nodes that correspond to individual English words. These nodes are added based on the context, that is to say the words appearing in our story.
+
+Each of these nodes has on the LHS (left-hand side) of the derivation its pos tag, and on the RHS (right-hand side) a string containing the word itself. In order to conform to the syntax of ASG, we must write the POS tags in lower-case. Also, we include a space at the end of each word's textual representation so that when we run our program the words appear distinct and not all concatenated together.
+
+In ASG every derivation also has a set of ASP rules, which in the case of leaf nodes is just a single rule telling us the word's lemma and sentence \textit{role}. In the case of verbs, the lemma is the base form of the verb, so we also need to keep track of its tense.
+
+For example, leaf nodes for the sentence ``they drove a race-car fast." would look like this:
+
+\begin{displayquote}
+\begin{lstlisting}
+prp -> "they " { noun(they). }
+vbd -> "drove " { verb(drive,past). }
+dt -> "a " { det(a). }
+nn -> "race-car " { noun(race_car). }
+rb -> "fast " { adj_or_adv(fast). }
+\end{lstlisting}
+\end{displayquote}
+
+As part of the input to \textsc{SumASG}, we receive some leaf nodes corresponding to words in the story, where the lemmas and \textit{roles} have been assigned by the \textsc{Preprocessor}.
+
+In Figure \ref{fig:leaf_nodes}, you can see which POS tags fall under which \textit{roles}, keeping in mind that this categorization is only an optimization and was not intended to strictly adhere to English grammar.
+
+\begin{figure}[H]
+\begin{subfigure}{\textwidth}
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textit{Role}         & POS tags                    \\ \midrule
+\texttt{verb(\underline{lemma},\underline{tense})}         & VB, VBD, VBG, VBN, VBP, VBZ \\
+\texttt{noun(\underline{lemma})}         & EX, NN, NNS, NNP, NNPS, PRP \\
+\texttt{det(\underline{lemma})}          & CD, DT, IN                  \\
+\texttt{adj\_or\_adv(\underline{lemma})} & JJ, JJR, JJS, RB, RP        \\ \bottomrule
+\end{tabular}
+\caption{POS tags by \textit{role}}
+\vspace{\baselineskip}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
+\centering
+\begin{tabular}{@{}lllllll@{}}
+\toprule
+POS tag  & VB   & VBD  & VBG    & VBN        & VBP     & VBZ            \\ \midrule
+Verb tense & \texttt{base} & \texttt{past} & \texttt{gerund} & \texttt{past\_part} & \texttt{present} & \texttt{present\_third} \\ \bottomrule
+\end{tabular}
+\caption{Verb tense by POS tag}
+\vspace{\baselineskip}
+\end{subfigure}
+\caption{Predicates used for the leaf nodes in the internal representation}
+\label{fig:leaf_nodes}
+\end{figure}
+
+\subsection{Non-Leaf Nodes}
+
+The job of the non-leaf nodes is to join leaf nodes together, matching the way we would join words in English to form a sentence.
 
 \section{Learning Actions}
 
-We firstly need to convert the preprocessed story's sentences from English into our 
+We first need to convert the preprocessed story's sentences from English into our internal structure. In other words, we need to learn about the \textit{actions} described by the sentences in our story.
 
 \subsection{Formalization}
 
+We can formalize the task of learning an action as \textsc{SumASG\textsubscript{1}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes (\textsc{BK}), and a grammar-conforming sentence (\textsc{E}), its goal is to return the \textit{action} corresponding to this sentence.
+
+\textcolor{red}{\textbf{\hl{TODO better formatting of formalization?}}}
+
+\subsection{Implementation}
+
+In practice, what we do is append to the program containing our general grammar the context-specific leaf nodes (given to us by the \textsc{Preprocessor}), as well as a positive example containing our sentence to learn from. For instance, we would add the positive example for the sentence ``they drove a race car fast":
+
+\begin{displayquote}
+\begin{lstlisting}
++ ["they ", "drove ", "a ", "race-car ", "fast ", ". "]
+\end{lstlisting}
+\end{displayquote}
+
+We also need to ensure that the derivation for sentences contains a constraint enforcing that an \texttt{action} be learned when an example is given:
+
+\begin{displayquote}
+\begin{lstlisting}
+s -> np vp {
+  :- not action(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), verb(V_N,V_T)@2, subject(S_N,S_D,S_A)@1, object(O_N,O_D,O_A)@2.
+  ...
+}
+\end{lstlisting}
+\end{displayquote}
+
+\subsection{Mode Bias}
+
+In order 
+
+\subsection{Search Space Reduction}
+
+The set of rules that a task in ILASP is able to learn, as defined by the mode bias, is called the \textit{search space}. The more complex the structure of the rules we can learn, the more of these the engine can generate, and so the larger the \textit{search space}. The more leaf nodes we add, the more combinations of lemmas we can create, thereby exponentially growing the \textit{search space}. Since ASG tries to run the program with every single rule in the \textit{search space}, we need to keep this as small as possible.
+
+\subsubsection{Learning Actions Individually}
+
+With this in mind, it is preferable to feed in each sentence separately to \textsc{SumASG\textsubscript{1}}. Although it might seem easier at first to learn them all in one go, doing so individually limits the number of leaf nodes we need to add to the program.
+
+Using this optimization, learning the \textit{actions} from the simplified story of Peter Little takes just a few minutes, rather than many hours.
+
+\subsubsection{Cutting Out Rules}
+
+We have also created a number of mode bias rules which eliminate impossible or extremely improbable sentences. With this optimization, we have been able to take the search space size for a simple sentence down from 396 to 16, and from 9477 to 1044 for a more complicated one (i.e., one with more leaf nodes).
+
+For example, the following rule says that we cannot have an \textit{action} where the object of sentence is a conjunction of two words which both have the same lemma.
+
+\begin{displayquote}
+\begin{lstlisting}
+#bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(conjunct(V,V),_,_)),var__(1))).").
+\end{lstlisting}
+\end{displayquote}
+
 \section{Generating Summary Sentences}
+
+\section{Example}
 
 \section{Expandability}
 
-\textcolor{red}{\textbf{\hl{TODO}}}
+\textcolor{red}{\textbf{\hl{TODO missing English structures}}}
+\textcolor{red}{\textbf{\hl{TODO speed}}}
