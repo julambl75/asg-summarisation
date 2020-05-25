@@ -106,10 +106,12 @@ We can formalize the task of learning an action as \textsc{SumASG\textsubscript{
 
 \subsection{Implementation}
 
-In practice, what we do is append to the program containing our general grammar the context-specific leaf nodes (given to us by the \textsc{Preprocessor}), as well as a positive example containing our sentence to learn from. For instance, we would add the positive example for the sentence ``they drove a race car fast":
+\subsubsection{Positive Example}
+
+In practice, what we do is append to the program containing our general grammar the context-specific leaf nodes (given to us by the \textsc{Preprocessor}), as well as a positive example containing our sentence to learn from. For instance, we would add the positive example for the sentence ``they drove a race car fast.":
 
 \begin{displayquote}
-\begin{lstlisting}
+\begin{lstlisting}[numbers=none]
 + ["they ", "drove ", "a ", "race-car ", "fast ", ". "]
 \end{lstlisting}
 \end{displayquote}
@@ -117,7 +119,7 @@ In practice, what we do is append to the program containing our general grammar 
 We also need to ensure that the derivation for sentences contains a constraint enforcing that an \texttt{action} be learned when an example is given:
 
 \begin{displayquote}
-\begin{lstlisting}
+\begin{lstlisting}[numbers=none]
 s -> np vp {
   :- not action(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), verb(V_N,V_T)@2, subject(S_N,S_D,S_A)@1, object(O_N,O_D,O_A)@2.
   ...
@@ -125,13 +127,31 @@ s -> np vp {
 \end{lstlisting}
 \end{displayquote}
 
-\subsection{Mode Bias}
+\subsubsection{Mode Bias}
 
-In order 
+In order guide the learning task, we must also specify a \textit{mode bias} as part of the program for \textsc{SumASG\textsubscript{1}}, which essentially tells ASG the format of the rules which can be learned.
+
+Since we are only interested in learning facts here, it is enough to provide \textit{mode bias} rules of the following form (where \texttt{[4]} restricts the learning task to the fourth derivation):
+
+\begin{displayquote}
+\begin{lstlisting}[numbers=none]
+#modeh(action(verb(_,_), subject(_,_,_), object(_,_,_)):[4].
+\end{lstlisting}
+\end{displayquote}
+
+\subsubsection{Running}
+
+Once we have augmented our general grammar with all of this information, it is now possible to run the resulting program with the below command, causing an \textit{action} to be output to the command line. Here we use a \textit{depth} of 7, having found that this is the minimum number necessary to ensure that ASG has access to the lowest possible leaf nodes in the tree.
+
+\begin{displayquote}
+\begin{lstlisting}[numbers=none]
+asg action.asg --mode=learn --depth=7
+\end{lstlisting}
+\end{displayquote}
 
 \subsection{Search Space Reduction}
 
-The set of rules that a task in ILASP is able to learn, as defined by the mode bias, is called the \textit{search space}. The more complex the structure of the rules we can learn, the more of these the engine can generate, and so the larger the \textit{search space}. The more leaf nodes we add, the more combinations of lemmas we can create, thereby exponentially growing the \textit{search space}. Since ASG tries to run the program with every single rule in the \textit{search space}, we need to keep this as small as possible.
+The set of rules that a task in ILASP is able to learn, as defined by the \textit{mode bias}, is called the \textit{search space}. The more complex the structure of the rules we can learn, the more of these the engine can generate, and so the larger the \textit{search space}. The more leaf nodes we add, the more combinations of lemmas we can create, thereby exponentially growing the \textit{search space}. Since ASG tries to run the program with every single rule in the \textit{search space}, we need to keep this as small as possible.
 
 \subsubsection{Learning Actions Individually}
 
@@ -141,12 +161,12 @@ Using this optimization, learning the \textit{actions} from the simplified story
 
 \subsubsection{Cutting Out Rules}
 
-We have also created a number of mode bias rules which eliminate impossible or extremely improbable sentences. With this optimization, we have been able to take the search space size for a simple sentence down from 396 to 16, and from 9477 to 1044 for a more complicated one (i.e., one with more leaf nodes).
+We have also created a number of \textit{mode bias} rules which eliminate impossible or extremely improbable sentences. With this optimization, we have been able to take the search space size for a simple sentence down from 396 to 16, and from 9477 to 1044 for a more complicated one (i.e., one with more leaf nodes).
 
 For example, the following rule says that we cannot have an \textit{action} where the object of sentence is a conjunction of two words which both have the same lemma.
 
 \begin{displayquote}
-\begin{lstlisting}
+\begin{lstlisting}[numbers=none]
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(conjunct(V,V),_,_)),var__(1))).").
 \end{lstlisting}
 \end{displayquote}
