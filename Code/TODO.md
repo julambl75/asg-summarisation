@@ -1,14 +1,6 @@
 ## TODO
 
-Second marker -> RHS below David
-
-Introduction (several pages): set scene, motivate project (define summary, various approaches with pros/cons in paragraph), describe objectives
-1. Motivations 2. Objectives 3. Contributions 4. Describe next chapters
-
-Contributions -> Approach Overview, move part to introduction
-
 - Email to Alessandra
-
 - Check if in top summaries for NN output
 
 ## For report

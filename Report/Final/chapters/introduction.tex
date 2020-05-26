@@ -1,14 +1,79 @@
 \label{chapter:introduction}
 
-\section{General Problem}
-
 In general, the task of summarization in NLP (natural language processing) is to produce a shortened text which covers the main points expressed in a longer text (given as input). In order to do this, a system performing such a task must analyse/process the input to be able to extract from it the most important information.
 
-\section{Specific Problem}
+\section{Motivations}
+
+In recent years, state-of-the-art systems that accomplish text summarization have relied largely on Machine Learning. Given a training corpus, along with some careful preprocessing and fine-tuning of hyper-parameters, such systems are able to produce effective summaries \cite{kiyani_survey_2017}.
+
+Given plenty of time and a large amount of training data in a specific format, a neural network is able to closely approximate the definition of a summary.
+
+In contrast, using logic means that we can hard-code this definition directly into our program. By carefully constructing its structure, we can get results with just a short list of rules, and know that it will always produce a complete and valid output.
+
+\textcolor{red}{\textbf{\hl{TODO rephrase?}}}
+\textcolor{red}{\textbf{\hl{TODO mention various approaches}}}
+
+\section{Objectives}
+
+The main goal of this project is to investigate the task of text summarization using ASG.
 
 Given a brief paragraph of text, for example a short story aimed at young children, we should be able to provide a summary in multiple sentences. The goal here is to extract the most important information from all the relevant sentences, and from this generate one or more grammatically-correct summaries.
 
 This should be accomplished with the use of Answer Set Grammars (ASG), although pre- and/or post-processing may be required. Apart from the ASG scripts, all code should be written in Python.
+
+%In almost all these papers, the first step is to generate a parse tree in order to identify the different parts of speech and get a better understanding of a text. Once a parse tree is obtained, the task becomes to find out which details are important, and which can be omitted from the summary. Finally, the summary must be grammatically correct and provide enough information such that it serves a purpose to the reader.
+%
+%To know what is important...
+
+\textcolor{red}{\textbf{\hl{TODO fix}}}
+
+\section{Approach Overview}
+
+The central part of the pipeline, which performs story summarization, revolves around the ASG task of \textsc{SumASG}. To build on top of this foundation, we first have the \textsc{Preprocessor}, as well as some final post-processing and scoring mechanisms. We will call this augmented task \textsc{SumASG*}, and describe each step in the following chapters. A diagram of the entire pipeline can be seen in Figure \ref{fig:main_pipeline}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.3cm, auto]
+\node (story) [] {Story};
+\node (preprocessor) [block, right =of story] {Preprocessor};
+\node (asg) [block, right =of preprocessor] {SumASG};
+\node (score) [block, right =of asg] {Post-Processing/Scoring};
+\node (summaries) [right =of score] {Scored Summaries};
+\draw [->] (story) -- (preprocessor);
+\draw [->] (preprocessor) -- (asg);
+\draw [->] (asg) -- (score);
+\draw [->] (score) -- (summaries);
+\end{tikzpicture}
+\caption{Main Pipeline}
+\label{fig:main_pipeline}
+\end{figure}
+
+\subsection{Example}
+
+Throughout this paper, we shall be using the example of the story of Peter Little to illustrate the different steps of our pipeline, as shown below in Figure \ref{fig:peter_little}.
+
+\begin{figure}[H]\
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+There was a curious little boy named Peter Little. He was interested in stars and planets. So he was serious in school and always did his homework. When he was older, he studied mathematics and quantum physics. He studied hard for his exams and became an astrophysicist. Now he is famous.
+\end{displayquote}
+\caption{Story of Peter Little}
+\vspace{\baselineskip}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+\textbf{A.} Peter Little was interested in space so he studied hard and became a famous astrophysicist.\\
+\textbf{B.} Peter Little was curious about astronomy. He was serious in school. Now he is famous.\\
+\caption{Reference summaries}
+\end{displayquote}
+\end{subfigure}
+\caption{Example of the task of summarization for the story of Peter Little}
+\label{fig:peter_little}
+\end{figure}
+
+\section{Contributions}
+
+\newpage
 
 \section{Objectives}
 
