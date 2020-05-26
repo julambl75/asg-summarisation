@@ -1,13 +1,15 @@
-## To show Alessandra/David
-
-- Fix Peter Little (refactoring bugs)
-- Neural network predictions
-- Final presentation questions (length, people present)
-- Report (send PDF for easier reading, see TODOs)
-
 ## TODO
 
-- Remove comma if between 2 objects instead of only keeping first item in list (recurse with pos=NN/NNS/NNP/NNPS/JJ[, pos]+ CC pos)
+Second marker -> RHS below David
+
+Introduction (several pages): set scene, motivate project (define summary, various approaches with pros/cons in paragraph), describe objectives
+1. Motivations 2. Objectives 3. Contributions 4. Describe next chapters
+
+Contributions -> Approach Overview, move part to introduction
+
+- Email to Alessandra
+
+- Check if in top summaries for NN output
 
 ## For report
 
