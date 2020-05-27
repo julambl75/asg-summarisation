@@ -235,6 +235,13 @@ np -> nns ``and " nns {
   :- object(conjunct(N,N),0,0).
 }
 
+np -> dt nn ``and " dt nn {
+  subject(conjunct(N1,N2),D,0) :- det(D)@1, det(D)@4, noun(N1)@2, noun(N2)@5.
+  object(conjunct(N1,N2),D,0) :- det(D)@1, det(D)@4, noun(N1)@2, noun(N2)@5.
+  :- subject(conjunct(N,N),_,0).
+  :- object(conjunct(N,N),_,0).
+}
+
 np -> prp ``and " prp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
@@ -505,9 +512,9 @@ s -> np vp {
   summary(3, V, subject(N1,0,0), object(N3,D,conjunct(A1,A2))) :- action(_, V, subject(conjunct(N1,N2),_,_), object(N3,D,A1)), action(_, V, subject(N1,_,_), object(N3,D,A2)).
   summary(4, V, S, object(0,0,conjunct(A1,A2))) :- action(I1, V, S, object(_,_,A1)), action(I2, V, S, object(_,_,A2)), A1 != A2, A1 != 0, A2 != 0, I1 < I2.
 
-  summary(5, V, S, object(conjunct(N1,N2),0,0)) :- action(I1, V, S, object(N1,0,_)), action(I2, V, S, object(N2,0,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
-  summary(6, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,0,_)), action(I2, V, S, object(N2,D,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
-  summary(7, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,D,_)), action(I2, V, S, object(N2,0,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
+  summary(5, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,0,_)), action(I2, V, S, object(N2,D,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
+  summary(6, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,D,_)), action(I2, V, S, object(N2,0,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
+  summary(7, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,D,_)), action(I2, V, S, object(N2,D,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
 
   summary(8, V1, subject(N, D1, conjunct(A1, A2)), object(0, 0, A3)) :- action(_, V1, subject(N, D1, A2), object(0, 0, A3)), action(_, V2, subject(_, 0, 0), object(N, D2, A1)), A1 != A3.
   summary(9, V1, subject(N, D1, conjunct(A1, A2)), object(0, 0, A3)) :- action(_, V1, subject(N, D1, A2), object(0, 0, A3)), action(_, V2, subject(_, 0, 0), object(N, D2, conjunct(A1, _))), A1 != A3.

@@ -228,6 +228,13 @@ np -> nns "and " nns {
   :- object(conjunct(N,N),0,0).
 }
 
+np -> dt nn "and " dt nn {
+  subject(conjunct(N1,N2),D,0) :- det(D)@1, det(D)@4, noun(N1)@2, noun(N2)@5.
+  object(conjunct(N1,N2),D,0) :- det(D)@1, det(D)@4, noun(N1)@2, noun(N2)@5.
+  :- subject(conjunct(N,N),_,0).
+  :- object(conjunct(N,N),_,0).
+}
+
 np -> prp "and " prp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.

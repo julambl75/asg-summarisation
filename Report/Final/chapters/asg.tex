@@ -143,7 +143,7 @@ vp -> vbd np {
 \end{lstlisting}
 \end{displayquote}
 
-In order to handle continuous tenses, we introduce the predicate \texttt{comp(\underline{first},\underline{second})}. Without changing the \textit{arity} of our \texttt{verb(\underline{lemma},\underline{tense})} predicate, can use this to combine two verb \textit{lemmas}, as well as two verb tenses.
+In order to handle continuous tenses, we introduce the predicate \texttt{comp(\underline{first},\underline{second})}. Without changing the \textit{arity} of our predicate \texttt{verb(\underline{lemma},\underline{tense})}, we can use this to combine two verb \textit{lemmas}, as well as two verb tenses.
 
 For example, the derivation that handles the \textit{verb phrase} ``are eating apples" is the following:
 
@@ -184,9 +184,7 @@ We first need to convert the preprocessed story's sentences from English into ou
 
 \subsection{Formalization}
 
-We can formalize the task of learning an action as \textsc{SumASG\textsubscript{1}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes (\textsc{BK}), and a grammar-conforming sentence (\textsc{E}), its goal is to return the \textit{action} corresponding to this sentence.
-
-\textcolor{red}{\textbf{\hl{TODO better formatting of formalization?}}}
+We can formalize the task of learning an action as \textsc{SumASG\textsubscript{1}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes (\textsc{BK}), and a grammar-conforming sentence (\textsc{E}), its goal is to return the \textit{action} corresponding to this sentence, which should have the format \texttt{action(\underline{verb},\underline{subject},\underline{object})}.
 
 \subsection{Implementation}
 
@@ -256,6 +254,14 @@ asg action.asg --mode=%\underline{learn}%--depth=7
 \end{lstlisting}
 \end{displayquote}
 
+For the input sentence ``they drove a race-car fast.", the engine returns a new ASG program without the \textit{mode bias}, where the following \textit{action} has been added to the derivation for sentences (\texttt{s -> np vp}):
+
+\begin{displayquote}
+\begin{lstlisting}[numbers=none]
+action(verb(drive, past), subject(they, 0, 0), object(race_car, a, fast)).
+\end{lstlisting}
+\end{displayquote}
+
 \subsection{Search Space Reduction}
 
 The set of rules that a task in ILASP is able to learn, as defined by the \textit{mode bias}, is called the \textit{search space}. The more complex the structure of the rules we can learn, the more of these the engine can generate, and so the larger the \textit{search space}. The more leaf nodes we add, the more combinations of \textit{lemmas} we can create, thereby exponentially growing the \textit{search space}. Since ASG tries to run the program with every single rule in the \textit{search space}, we need to keep this as small as possible.
@@ -301,27 +307,41 @@ Without the optimization, we would end up with a \textit{search space} size of 1
 \end{lstlisting}
 \end{displayquote} 
 
-Another way to solve this would have been to add a \textit{mode bias} constraint ruling out cases where both verbs in a continuous form are the same. However, we would usually end up with a \textit{search space} at least as large, since any verb could appear in continuous form. Also, we would have to handle the edge case where both verbs are ``to be", as ``is being" is a perfectly acceptable phrase in English.
+Another way to solve this would have been to add a \textit{mode bias} constraint ruling out cases where both verbs in a continuous form are the same. However, we would usually end up with a \textit{search space} at least as large, since any verb could appear in continuous fo. Also, we would have to handle the edge case where both verbs are ``to be", as ``is being" is a perfectly acceptable phrase in English.
 
 \section{Generating Summary Sentences}
 
 \subsection{Formalization}
 
-We can formalize the task of generating a summary sentence as \textsc{SumASG\textsubscript{2}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes for the original story (\textsc{BK}), and a set of learned \textit{actions}, (\textsc{E}), its goal is to return a set of sentences which may be used to summarize the text.
+We can formalize the task of generating a \textit{summary sentence} as \textsc{SumASG\textsubscript{2}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes for the original story (\textsc{BK}), and a set of learned \textit{actions}, (\textsc{E}), its goal is to return a set of user-readable sentences which may be used to summarize the text.
 
 \subsection{Implementation}
 
 \subsubsection{Learned Actions}
 
-\textcolor{red}{\textbf{\hl{TODO new first argument in predicate}}}
+In order to keep the story's chronological ordering, we assign indices to the learned \textit{actions}, inserting this information directly into the \texttt{action} predicates as an additional first argument.
+
+We then put all of these augmented \textit{actions} as rules inside the derivation for sentences (\texttt{s -> np vp}) in our general grammar. 
 
 \subsubsection{Summary Generation Rules And Constraints}
 
-\textcolor{red}{\textbf{\hl{TODO}}}
+A \textit{summary sentence} should have the same structure as a sentence from the story, so we can define the predicate \texttt{summary} in the same way as we did for \textit{actions}.
+
+Moreover, we can create rules whose head is a \texttt{summary} predicate, and whose body contains one or more \texttt{action} predicates. We also assign an identifier to each of these rules, in order to keep track of which one has been used.
+
+In the base case, a \textit{summary sentence} is simply a word-for-word copy of an \textit{action}, in which case we do not care about its position in the story:
+
+\begin{displayquote}
+\begin{lstlisting}[numbers=none]
+summary(0, V, S, O) :- action(_, V, S, O).
+\end{lstlisting}
+\end{displayquote} 
+
+We can create much more complex rules, allowing us to combine information from two \textit{actions} into a single \textit{summary sentence}. In the case where we have two \textit{actions} that share a common 
 
 \subsubsection{Running}
 
-Once we have augmented the fourth rule of our general grammar (\texttt{s -> np vp}) with the learned \textit{actions} and our set of summary generation rules and constraints, we can now generate all the possible summary sentences with the below command.
+Once we have augmented the fourth rule of our general grammar (\texttt{s -> np vp}) with the learned \textit{actions} and our set of summary generation rules and constraints, we can now generate all the possible \textit{summary sentences} with the below command.
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none, escapechar=\%]
@@ -345,7 +365,7 @@ By greatly simplifying the input story using the \textsc{Preprocessor}, we were 
 
 \subsection{Missing Summarization Rules}
 
-In its current implementation, \textsc{SumASG\textsubscript{2}} only uses 11 summary generation rules, one of which simply repeats the given \textit{action}. While this is largely sufficient to demonstrate the potential of our approach, in no way does it be used as-is in a production text summarization tool.
+In its current implementation, \textsc{SumASG\textsubscript{2}} only uses 11 summary generation rules, one of which simply repeats the given \textit{action}. While this is largely sufficient to demonstrate the potential of our approach, in no way can it be used as-is in a production text summarization tool.
 
 \subsection{Speed}
 
@@ -353,6 +373,6 @@ Apart from readability, the main reason for trying to keep our general grammar's
 
 The more complexity we allow in terms of expressible sentences, the more expensive it is to use our general grammar.
 
-Similarly, the more summarization rules we create, the longer it takes to generate summaries. On top of this, having more potential summary sentences means that we end up with more summaries to score, many of which could be syntactically different but semantically equivalent.
+Similarly, the more summarization rules we create, the longer it takes to generate summaries. On top of this, having more potential \textit{summary sentences} means that we end up with more summaries to score, many of which could be syntactically different but semantically equivalent.
 
 In order to increase complexity without a detrimental impact on performance, we would need to either optimize ASG itself to run faster with our framework, or use more powerful machines.
