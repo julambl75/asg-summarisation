@@ -94,7 +94,7 @@ Verb tense & \texttt{base} & \texttt{past} & \texttt{gerund} & \texttt{past\_par
 
 The job of the non-leaf nodes is to join leaf nodes together, matching the way we would join words in English to form a sentence.
 
-In our general grammar, sentences are made up a \textit{noun part} (\texttt{np}) followed by a \textit{verb part} (\texttt{vp}). While a \textit{noun part} can be made up of leaf nodes, a \textit{verb part} is always a verb followed by a \textit{noun part}.
+In our general grammar, sentences (\texttt{s -> np vp}) are made up a \textit{noun part} (\texttt{np}) followed by a \textit{verb part} (\texttt{vp}). While a \textit{noun part} can be made up of leaf nodes, a \textit{verb part} is always a verb followed by a \textit{noun part}.
 
 \subsubsection{Noun Parts}
 
@@ -113,7 +113,18 @@ np -> dt nn {
 \end{lstlisting}
 \end{displayquote}
 
-In the case of more complex \textit{noun phrases}, ...
+In the case of more complex \textit{noun phrases} we use a special predicate \texttt{conjunct(\underline{first},\underline{second})}, allowing us to join two words of the same \textit{role} together. Here, we also need to add a constraint that rules out cases where the two \textit{conjuncts} have the same lemma.
+
+For example, the \textit{noun phrase} ``green and blue" would be encompassed by the below derivation:
+
+\begin{displayquote}
+\begin{lstlisting}
+np -> jj "and " jj {
+  object(0,0,conjunct(A1,A2)) :- adj_or_adv(A1)@1, adj_or_adv(A2)@3.
+  :- object(0,0,conjunct(A,A)).
+}
+\end{lstlisting}
+\end{displayquote}
 
 \textcolor{red}{\textbf{\hl{TODO finish section}}}
 
