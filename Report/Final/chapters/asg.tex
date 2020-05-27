@@ -44,7 +44,7 @@ At the bottom end of the structure, there are leaf nodes that correspond to indi
 
 Each of these nodes has on the LHS (left-hand side) of the derivation its pos tag, and on the RHS (right-hand side) a string containing the word itself. In order to conform to the syntax of ASG, we must write the POS tags in lower-case. Also, we include a space at the end of each word's textual representation so that when we run our program the words appear distinct and not all concatenated together.
 
-In ASG every derivation also has a set of ASP rules, which in the case of leaf nodes is just a single rule telling us the word's lemma and sentence \textit{role}. In the case of verbs, the lemma is the base form of the verb, so we also need to keep track of its tense.
+In ASG every derivation also has a set of ASP rules, which in the case of leaf nodes is just a single rule telling us the word's \textit{lemma} and sentence \textit{role}. In the case of verbs, the \textit{lemma} is the base form of the verb, so we also need to keep track of its tense.
 
 For example, leaf nodes for the sentence ``they drove a race-car fast." would look like this:
 
@@ -58,7 +58,7 @@ rb -> "fast " { adj_or_adv(fast). }
 \end{lstlisting}
 \end{displayquote}
 
-As part of the input to \textsc{SumASG}, we receive some leaf nodes corresponding to words in the story, where the lemmas and \textit{roles} have been assigned by the \textsc{Preprocessor}.
+As part of the input to \textsc{SumASG}, we receive some leaf nodes corresponding to words in the story, where the \textit{lemmas} and \textit{roles} have been assigned by the \textsc{Preprocessor}.
 
 In Figure \ref{fig:leaf_nodes}, you can see which POS tags fall under which \textit{roles}, keeping in mind that this categorization is only an optimization and was not intended to strictly adhere to English grammar.
 
@@ -113,7 +113,7 @@ np -> dt nn {
 \end{lstlisting}
 \end{displayquote}
 
-To handle the case of more complex \textit{noun phrases}, we have created a special predicate \texttt{conjunct(\underline{first},\underline{second})}, allowing us to join two words with the same \textit{role}. We also need to add constraints that rule out cases where the two \textit{conjuncts} have the same lemma.
+To handle the case of more complex \textit{noun phrases}, we have created a special predicate \texttt{conjunct(\underline{first},\underline{second})}, allowing us to join two words with the same \textit{role}. We also need to add constraints that rule out cases where the two \textit{conjuncts} have the same \textit{lemma}.
 
 For example, the \textit{noun phrase} ``bread and cheese" would be encompassed by the below derivation:
 
@@ -130,9 +130,38 @@ np -> nn "and " nn {
 
 \subsubsection{Verb Parts}
 
-\textcolor{red}{\textbf{\hl{TODO finish section}}}
+The last child node of a \textit{verb part} is always a single \textit{noun part}. Before that comes a verb, whose POS tag may represent any of the forms used in English as seen in Figure \ref{fig:leaf_nodes}. In each of these cases, the node inherits the \texttt{verb(\underline{lemma},\underline{tense})} and \texttt{object(\underline{noun},\underline{det},\underline{adj\_or\_adv})} from its children.
+
+For instance, the \textit{verb phrase} ``drank tea" can be captured with the following derivation:
+
+\begin{displayquote}
+\begin{lstlisting}
+vp -> vbd np {
+  verb(N,T) :- verb(N,T)@1.
+  object(N,D,A) :- object(N,D,A)@2.
+}
+\end{lstlisting}
+\end{displayquote}
+
+In order to handle continuous tenses, we introduce the predicate \texttt{comp(\underline{first},\underline{second})}. Without changing the \textit{arity} of our \texttt{verb(\underline{lemma},\underline{tense})} predicate, can use this to combine two verb \textit{lemmas}, as well as two verb tenses.
+
+For example, the derivation that handles the \textit{verb phrase} ``are eating apples" is the following:
+
+\begin{displayquote}
+\begin{lstlisting}
+vp -> vbp vbg np {
+  verb(comp(N1,N2),comp(T1,gerund)) :- verb(N1,T1)@1, verb(N2,gerund)@2.
+  object(N,D,A) :- object(N,D,A)@3.
+}
+\end{lstlisting}
+\end{displayquote}
 
 \subsubsection{Sentences}
+
+Having gone through the internal representation of \textit{noun phrases} and \textit{verb phrases}, ...
+
+\textcolor{red}{\textbf{\hl{TODO finish section}}}
+\textcolor{red}{\textbf{\hl{TODO talk about main\_verb/aux\_verb in optimizations}}}
 
 \section{Learning Actions}
 
@@ -148,7 +177,7 @@ We can formalize the task of learning an action as \textsc{SumASG\textsubscript{
 
 \subsubsection{Positive Example}
 
-In practice, what we do is append to the program containing our general grammar the context-specific leaf nodes (given to us by the \textsc{Preprocessor}), as well as a positive example containing our sentence to learn from. For instance, we would add the positive example for the sentence ``they drove a race car fast.":
+In practice, what we do is append to the program containing our general grammar the context-specific leaf nodes (given to us by the \textsc{Preprocessor}), as well as a positive example containing our sentence to learn from. For instance, we would add the positive example for the sentence ``they drove a race-car fast.":
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]
@@ -179,6 +208,30 @@ Since we are only interested in learning facts here, it is enough to provide \te
 \end{lstlisting}
 \end{displayquote}
 
+For the most basic of sentences (ones where there is no need to use any \texttt{conjunct} or \texttt{comp} predicates), we use this specific rule:
+
+\begin{displayquote}
+\begin{lstlisting}[numbers=none]
+#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+\end{lstlisting}
+\end{displayquote}
+
+As you can see, this would require defining ILASP \textit{constants} corresponding to possible \textit{tokens}. To this end, we do so for each word in the simplified text.
+
+For the sentence ``they drove a race-car fast", these would look like this:
+
+\begin{displayquote}
+\begin{lstlisting}
+#constant(noun,they).
+#constant(verb_name,drive).
+#constant(main_verb,past).
+#constant(verb_form,past).
+#constant(det,a).
+#constant(noun,race_car).
+#constant(adj_or_adv,fast).
+\end{lstlisting}
+\end{displayquote}
+
 \subsubsection{Running}
 
 Once we have augmented our general grammar with all of this information, it is now possible to run the resulting program with the below command, causing an \textit{action} to be output to the command line. Here we use a \textit{depth} of 7, having found that this is the minimum number necessary to ensure that ASG has access to the lowest possible leaf nodes in the tree.
@@ -191,7 +244,7 @@ asg action.asg --mode=%\underline{learn}%--depth=7
 
 \subsection{Search Space Reduction}
 
-The set of rules that a task in ILASP is able to learn, as defined by the \textit{mode bias}, is called the \textit{search space}. The more complex the structure of the rules we can learn, the more of these the engine can generate, and so the larger the \textit{search space}. The more leaf nodes we add, the more combinations of lemmas we can create, thereby exponentially growing the \textit{search space}. Since ASG tries to run the program with every single rule in the \textit{search space}, we need to keep this as small as possible.
+The set of rules that a task in ILASP is able to learn, as defined by the \textit{mode bias}, is called the \textit{search space}. The more complex the structure of the rules we can learn, the more of these the engine can generate, and so the larger the \textit{search space}. The more leaf nodes we add, the more combinations of \textit{lemmas} we can create, thereby exponentially growing the \textit{search space}. Since ASG tries to run the program with every single rule in the \textit{search space}, we need to keep this as small as possible.
 
 \subsubsection{Learning Actions Individually}
 
@@ -203,7 +256,7 @@ Using this optimization, learning the \textit{actions} from the simplified story
 
 We have also created a number of \textit{mode bias} rules which eliminate impossible or extremely improbable sentences. With this optimization, we have been able to take the search space size for a simple sentence down from 396 to 16, and from 9477 to 1044 for a more complicated one (i.e., one with more leaf nodes).
 
-For example, the following rule says that we cannot have an \textit{action} where the object of sentence is a conjunction of two words which both have the same lemma.
+For example, the following rule says that we cannot have an \textit{action} where the object of sentence is a conjunction of two words which both have the same \textit{lemma}.
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]
