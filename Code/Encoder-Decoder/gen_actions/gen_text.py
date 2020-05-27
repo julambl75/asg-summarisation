@@ -42,8 +42,8 @@ OBJECT_TO_SUBJECT = {v: k for k, v in SUBJECT_TO_OBJECT.items()}
 DEFAULT_VERB = 'be'
 PUNCTUATION = '.'
 
-PROB_PROPER_NOUN = 0.25
-PROB_PRONOUN = 0.25
+PROB_PROPER_NOUN = 0  # TODO .25
+PROB_PRONOUN = 0  # TODO .25
 PROB_LAST_NOUN = 0.25
 
 CONJUGATION_INDIVIDUAL = (3, SG)
@@ -367,6 +367,6 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(story_length=4, num_stories=1000, irrelevant_sentence=True)
+    gen_actions.generate_stories(story_length=4, num_stories=2000, irrelevant_sentence=True)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(TEST_PROPORTION, EVAL_NUM)

@@ -123,27 +123,8 @@
 \input{chapters/asg}
 
 - Learning is not really learning (ASG never learns how to summarize, we build in rules of feature extraction)
-- Describe action predicates as high level semantic descriptor of all possible actions that can happen in sentences
 
-- Maybe formalize mathematically task of summarization (with CFG, BK, E+, E-)
-    1. CFG is language, BK is leaf nodes, result is actions
-    2. CFG is language, BK is leaf nodes, E is actions, result is summaries
-- Appendix with summary generation rules
-
-http://universalteacher.org.uk/lang/engstruct.htm
-
-Ideas:
-- use lots of simple/precise rules rather than complicated/general ones to minimize ss
-- keep rules as restricted as possible, when concept implemented over time add missing rules
 - to avoid having to add grammar constraints try and rely on grammar of input
-
-- reduce search space using mode bias (simple example: 396->16, very complicated example: 9477->1044)
-
-Choice:
-1. Simplify using Python script (faster)
-2. Make ASG format more complex (new information probably lost in summary anyway)
-
-- for learning actions do one sentence at a time to minimize ss
 
 action(INDEX, VERB, SUBJECT, OBJECT)
 summary(VERB, SUBJECT, OBJECT)

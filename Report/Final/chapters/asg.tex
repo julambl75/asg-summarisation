@@ -94,11 +94,36 @@ Verb tense & \texttt{base} & \texttt{past} & \texttt{gerund} & \texttt{past\_par
 
 The job of the non-leaf nodes is to join leaf nodes together, matching the way we would join words in English to form a sentence.
 
-\textcolor{red}{\textbf{\hl{TODO approach.md}}}
+In our general grammar, sentences are made up a \textit{noun part} (\texttt{np}) followed by a \textit{verb part} (\texttt{vp}). While a \textit{noun part} can be made up of leaf nodes, a \textit{verb part} is always a verb followed by a \textit{noun part}.
+
+\subsubsection{Noun Parts}
+
+In the derivation for a \textit{noun part}, we use logic rules whose role it is to encapsulate a sentence \textit{subject} and/or an \textit{object}. This is done in a bottom-up manner, by using information from the child node(s) to populate a predicate at the \textit{noun part} level.
+
+The resulting predicates have respective forms \texttt{subject(\underline{noun},\underline{det},\underline{adj\_or\_adv})} and \texttt{object(\underline{noun},\underline{det},\underline{adj\_or\_adv})}. For all these predicates, we use the \textit{ground term} \texttt{0} to denote the absence of a token.
+
+For instance, we can capture the \textit{noun phrase} ``a race-car" using the following derivation:
+
+\begin{displayquote}
+\begin{lstlisting}
+np -> dt nn {
+  subject(N,D,0) :- det(D)@1, noun(N)@2.
+  object(N,D,0) :- det(D)@1, noun(N)@2.
+}
+\end{lstlisting}
+\end{displayquote}
+
+In the case of more complex \textit{noun phrases}, ...
+
+\textcolor{red}{\textbf{\hl{TODO finish section}}}
+
+\subsubsection{Verb Parts}
+
+\subsubsection{Sentences}
 
 \section{Learning Actions}
 
-We first need to convert the preprocessed story's sentences from English into our internal structure. In other words, we need to learn about the \textit{actions} described by the sentences in our story.
+We first need to convert the preprocessed story's sentences from English into our internal structure. In other words, we need to learn about the \textit{actions} described by the sentences in our story, which can be thought of as high-level semantic descriptors.
 
 \subsection{Formalization}
 
@@ -114,7 +139,7 @@ In practice, what we do is append to the program containing our general grammar 
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]
-+ ["they ", "drove ", "a ", "race-car ", "fast ", ". "]
++ [``they ", ``drove ", ``a ", ``race-car ", ``fast ", ``. "]
 \end{lstlisting}
 \end{displayquote}
 
@@ -146,8 +171,8 @@ Since we are only interested in learning facts here, it is enough to provide \te
 Once we have augmented our general grammar with all of this information, it is now possible to run the resulting program with the below command, causing an \textit{action} to be output to the command line. Here we use a \textit{depth} of 7, having found that this is the minimum number necessary to ensure that ASG has access to the lowest possible leaf nodes in the tree.
 
 \begin{displayquote}
-\begin{lstlisting}[numbers=none]
-asg action.asg --mode=learn --depth=7
+\begin{lstlisting}[numbers=none, escapechar=\%]
+asg action.asg --mode=%\underline{learn}%--depth=7
 \end{lstlisting}
 \end{displayquote}
 
@@ -175,9 +200,54 @@ For example, the following rule says that we cannot have an \textit{action} wher
 
 \section{Generating Summary Sentences}
 
+\subsection{Formalization}
+
+We can formalize the task of generating a summary sentence as \textsc{SumASG\textsubscript{2}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes for the original story (\textsc{BK}), and a set of learned \textit{actions}, (\textsc{E}), its goal is to return a set of sentences which may be used to summarize the text.
+
+\subsection{Implementation}
+
+\subsubsection{Learned Actions}
+
+\textcolor{red}{\textbf{\hl{TODO new first argument in predicate}}}
+
+\subsubsection{Summary Generation Rules And Constraints}
+
+\textcolor{red}{\textbf{\hl{TODO}}}
+
+\subsubsection{Running}
+
+Once we have augmented the fourth rule of our general grammar (\texttt{s -> np vp}) with the learned \textit{actions} and our set of summary generation rules and constraints, we can now generate all the possible summary sentences with the below command.
+
+\begin{displayquote}
+\begin{lstlisting}[numbers=none, escapechar=\%]
+asg summary.asg --mode=%\underline{run}%--depth=7
+\end{lstlisting}
+\end{displayquote}
+
 \section{Example}
+
+\textcolor{red}{\textbf{\hl{TODO}}}
 
 \section{Expandability}
 
-\textcolor{red}{\textbf{\hl{TODO missing English structures}}}
-\textcolor{red}{\textbf{\hl{TODO speed}}}
+Throughout the development of \textsc{SumASG}, it was a constant struggle to try and find the right balance between expressibility, summary pertinence and computational efficiency.
+
+\subsection{Missing English Structures}
+
+Although our general grammar allows for a wide range in terms of the words that can be used to form a sentence, to no extent does it cover even a tenth of the sentences that are used in formal or informal English. Even if you were to consider only sentences consisting of exactly one clause, \textsc{SumASG} is incapable of understanding most non-general structures commonly used in English.
+
+By greatly simplifying the input story using the \textsc{Preprocessor}, we were able to alleviate a large part of this struggle. However if we were to use our general grammar for a task other than summarization, we would most likely run into issues due to loss of information.
+
+\subsection{Missing Summarization Rules}
+
+In its current implementation, \textsc{SumASG\textsubscript{2}} only uses 11 summary generation rules, one of which simply repeats the given \textit{action}. While this is largely sufficient to demonstrate the potential of our approach, in no way does it be used as-is in a production text summarization tool.
+
+\subsection{Speed}
+
+Apart from readability, the main reason for trying to keep our general grammar's structure simple, and the number of summarization rules restricted, has to do with computational cost.
+
+The more complexity we allow in terms of expressible sentences, the more expensive it is to use our general grammar.
+
+Similarly, the more summarization rules we create, the longer it takes to generate summaries. On top of this, having more potential summary sentences means that we end up with more summaries to score, many of which could be syntactically different but semantically equivalent.
+
+In order to increase complexity without a detrimental impact on performance, we would need to either optimize ASG itself to run faster with our framework, or use more powerful machines.
