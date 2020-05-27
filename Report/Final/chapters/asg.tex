@@ -113,22 +113,24 @@ np -> dt nn {
 \end{lstlisting}
 \end{displayquote}
 
-In the case of more complex \textit{noun phrases} we use a special predicate \texttt{conjunct(\underline{first},\underline{second})}, allowing us to join two words of the same \textit{role} together. Here, we also need to add a constraint that rules out cases where the two \textit{conjuncts} have the same lemma.
+To handle the case of more complex \textit{noun phrases}, we have created a special predicate \texttt{conjunct(\underline{first},\underline{second})}, allowing us to join two words with the same \textit{role}. We also need to add constraints that rule out cases where the two \textit{conjuncts} have the same lemma.
 
-For example, the \textit{noun phrase} ``green and blue" would be encompassed by the below derivation:
+For example, the \textit{noun phrase} ``bread and cheese" would be encompassed by the below derivation:
 
 \begin{displayquote}
 \begin{lstlisting}
-np -> jj "and " jj {
-  object(0,0,conjunct(A1,A2)) :- adj_or_adv(A1)@1, adj_or_adv(A2)@3.
-  :- object(0,0,conjunct(A,A)).
+np -> nn "and " nn {
+  subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
+  :- subject(conjunct(N,N),0,0).
+  :- object(conjunct(N,N),0,0).
 }
 \end{lstlisting}
 \end{displayquote}
 
-\textcolor{red}{\textbf{\hl{TODO finish section}}}
-
 \subsubsection{Verb Parts}
+
+\textcolor{red}{\textbf{\hl{TODO finish section}}}
 
 \subsubsection{Sentences}
 
