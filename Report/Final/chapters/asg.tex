@@ -68,7 +68,7 @@ In Figure \ref{fig:leaf_nodes}, you can see which POS tags fall under which \tex
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textit{Role}         & POS tags                    \\ \midrule
-\texttt{verb(\underline{lemma},\underline{tense})}         & VB, VBD, VBG, VBN, VBP, VBZ \\
+\texttt{verb(\underline{lemma},\underline{tense})}         & VBD, VBG, VBN, VBP, VBZ \\
 \texttt{noun(\underline{lemma})}         & EX, NN, NNS, NNP, NNPS, PRP \\
 \texttt{det(\underline{lemma})}          & CD, DT, IN                  \\
 \texttt{adj\_or\_adv(\underline{lemma})} & JJ, JJR, JJS, RB, RP        \\ \bottomrule
@@ -80,8 +80,8 @@ In Figure \ref{fig:leaf_nodes}, you can see which POS tags fall under which \tex
 \centering
 \begin{tabular}{@{}lllllll@{}}
 \toprule
-POS tag  & VB   & VBD  & VBG    & VBN        & VBP     & VBZ            \\ \midrule
-Verb tense & \texttt{base} & \texttt{past} & \texttt{gerund} & \texttt{past\_part} & \texttt{present} & \texttt{present\_third} \\ \bottomrule
+POS tag  & VBD  & VBG    & VBN        & VBP     & VBZ            \\ \midrule
+Verb tense & \texttt{past} & \texttt{gerund} & \texttt{past\_part} & \texttt{present} & \texttt{present\_third} \\ \bottomrule
 \end{tabular}
 \caption{Verb tense by POS tag}
 \vspace{\baselineskip}
@@ -158,10 +158,25 @@ vp -> vbp vbg np {
 
 \subsubsection{Sentences}
 
-Having gone through the internal representation of \textit{noun phrases} and \textit{verb phrases}, ...
+In order to join sentences (\texttt{s -> np vp}) together we use what is called an \texttt{s\_group}. Defined recursively, these can either be empty or contain another \texttt{s\_group} followed by a sentence (\texttt{s}) and a full-stop:
 
-\textcolor{red}{\textbf{\hl{TODO finish section}}}
-\textcolor{red}{\textbf{\hl{TODO talk about main\_verb/aux\_verb in optimizations}}}
+\begin{displayquote}
+\begin{lstlisting}
+s_group -> { count(0). }
+s_group -> s_group s ". " { count(X+1) :- count(X)@1. }
+\end{lstlisting}
+\end{displayquote}
+
+In the way we currently use this general grammar, only a single sentence is allowed per \texttt{parse tree} for efficiency reasons, and because it is not necessary. However, if we we were to increase this limit for another application, it could easily be done by changing the first constraint at the root node:
+
+\begin{displayquote}
+\begin{lstlisting}
+start -> s_group {
+   :- count(X)@1, X > 1.
+   :- count(X)@1, X = 0.
+}
+\end{lstlisting}
+\end{displayquote}
 
 \section{Learning Actions}
 
@@ -212,7 +227,7 @@ For the most basic of sentences (ones where there is no need to use any \texttt{
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
 \end{lstlisting}
 \end{displayquote}
 
@@ -223,9 +238,8 @@ For the sentence ``they drove a race-car fast", these would look like this:
 \begin{displayquote}
 \begin{lstlisting}
 #constant(noun,they).
-#constant(verb_name,drive).
-#constant(main_verb,past).
-#constant(verb_form,past).
+#constant(main_verb,drive).
+#constant(main_form,past).
 #constant(det,a).
 #constant(noun,race_car).
 #constant(adj_or_adv,fast).
@@ -263,6 +277,31 @@ For example, the following rule says that we cannot have an \textit{action} wher
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(conjunct(V,V),_,_)),var__(1))).").
 \end{lstlisting}
 \end{displayquote}
+
+Additionally, a number of extraneous rules can appear in the \textit{search space} when we allow for continuous verbs. Continuous verbs are made up of a \textit{main verb} and an \textit{auxiliary verb}. What can happen is that the \textit{search space} contains rules where the \textit{main verb} is never used as such in English (normally always the verb ``to be").
+
+To get around this issue, we enforce that all potential \textit{main verbs} already appear in this form in the input story sentence; the same can be said regarding \textit{auxiliary verbs}. Practically, this means adding \textit{constants} to the program for each \textit{main verb} and \textit{auxiliary verb} appearing in the input.
+
+For instance, the phrase ``are eating" would require the following \textit{constants}:
+
+\begin{displayquote}
+\begin{lstlisting}
+#constant(main_verb,be).
+#constant(aux_verb,eat).
+#constant(main_form,present).
+#constant(aux_form,gerund).
+\end{lstlisting}
+\end{displayquote}
+
+Without the optimization, we would end up with a \textit{search space} size of 176 for the sentence ``they are eating apples". We can reduce this number to 20 thanks to a \textit{mode bias} that enforces learned continuous verbs to be exactly as they appear in the simplified story:
+
+\begin{displayquote}
+\begin{lstlisting}[numbers=none]
+#modeh(action(verb(comp(const(main_verb),const(aux_verb)),comp(const(main_form),const(aux_form))), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+\end{lstlisting}
+\end{displayquote} 
+
+Another way to solve this would have been to add a \textit{mode bias} constraint ruling out cases where both verbs in a continuous form are the same. However, we would usually end up with a \textit{search space} at least as large, since any verb could appear in continuous form. Also, we would have to handle the edge case where both verbs are ``to be", as ``is being" is a perfectly acceptable phrase in English.
 
 \section{Generating Summary Sentences}
 

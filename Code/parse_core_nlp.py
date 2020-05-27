@@ -75,28 +75,27 @@ class ParseCoreNLP:
             tag = tree.label().lower()
             word = tree[0]
             if word in self.lemmas.keys() and tag in POS_CATEGORIES.keys():
-                category = POS_CATEGORIES[tag]
                 lemma = self.lemmas[word].lower().replace('-', '_')
 
-                self.constants.add((category, lemma))
                 if tag in TENSES.keys():
-                    predicates = f'verb({lemma},{TENSES[tag]}). '
-                    self.constants.add(('verb_form', TENSES[tag]))
+                    tense = TENSES[tag]
+                    predicates = f'verb({lemma},{tense}). '
+                    if tense in MAIN_VERB_FORMS:
+                        self.constants.add(('main_verb', lemma))
+                        self.constants.add(('main_form', tense))
+                    elif tense in AUX_VERB_FORMS:
+                        self.constants.add(('aux_verb', lemma))
+                        self.constants.add(('aux_form', tense))
                 else:
+                    category = POS_CATEGORIES[tag]
                     predicates = f'{category}({lemma}). '
+                    self.constants.add((category, lemma))
                 asg_leaves.append(f'{tag} -> "{word} " {{ {predicates}}}')
         return asg_leaves
 
     # Takes as argument a string format with placeholders (category, lemma)
     def _lemmas_to_format(self, lemma_format):
         if lemma_format == CONSTANTS_FORMAT:
-            verb_forms = [value for key, value in self.constants if key == 'verb_form']
-            for verb_form in MAIN_VERB_FORMS:
-                if verb_form in verb_forms:
-                    self.constants.add(('main_verb', verb_form))
-            for verb_form in AUX_VERB_FORMS:
-                if verb_form in verb_forms:
-                    self.constants.add(('aux_verb', verb_form))
             for preposition in PREPOSITIONS:
                 if preposition in list(map(itemgetter(1), self.constants)):
                     self.constants.add(('prep', preposition))

@@ -124,19 +124,8 @@
 
 - Learning is not really learning (ASG never learns how to summarize, we build in rules of feature extraction)
 
-- to avoid having to add grammar constraints try and rely on grammar of input
-
 action(INDEX, VERB, SUBJECT, OBJECT)
 summary(VERB, SUBJECT, OBJECT)
-
-verb(INDICATIVE\_FORM, TENSE)
-subject(NOUN, DET, ADJ\_OR\_ADV)
-object(NOUN, DET, ADJ\_OR\_ADV)
-noun(NAME)
-adj\_or\_adv(NAME)
-det(...)
-compound(FIRST, SECOND)  for verbs
-conjunct(FIRST, SECOND)  learn both
 
 \chapter{Post-Processing / Scoring}
 \input{chapters/postprocess}

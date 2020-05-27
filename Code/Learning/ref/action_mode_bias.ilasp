@@ -1,15 +1,15 @@
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))), object(const(noun),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),conjunct(const(det),const(det)),const(adj_or_adv)))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),conjunct(const(prep),const(det)),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),const(adj_or_adv)), object(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),conjunct(const(det),const(det)),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),conjunct(const(prep),const(det)),const(adj_or_adv)))):[4].
 
-#modeh(action(verb(comp(const(verb_name),const(verb_name)),comp(const(main_verb),const(aux_verb))), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(comp(const(verb_name),const(verb_name)),comp(const(main_verb),const(aux_verb))), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))))):[4].
-#modeh(action(verb(comp(const(verb_name),const(verb_name)),comp(const(main_verb),const(aux_verb))), subject(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))), object(const(noun),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(comp(const(verb_name),const(verb_name)),comp(const(main_verb),const(aux_verb))), subject(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(comp(const(main_verb),const(aux_verb)),comp(const(main_form),const(aux_form))), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(comp(const(main_verb),const(aux_verb)),comp(const(main_form),const(aux_form))), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))))):[4].
+#modeh(action(verb(comp(const(main_verb),const(aux_verb)),comp(const(main_form),const(aux_form))), subject(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(comp(const(main_verb),const(aux_verb)),comp(const(main_form),const(aux_form))), subject(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
 
 #bias(":- head(holds_at_node(action(verb(_,_),subject(0,_,_),object(_,_,_)),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(0,0,0)),var__(1))).").

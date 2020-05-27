@@ -1,8 +1,3 @@
-## TODO
-
-- Email to Alessandra
-- Check if in top summaries for NN output
-
 ## For report
 
 - Do same as project (main core with acronym like SumASG, then SumASG* to fix/build on top of foundation)

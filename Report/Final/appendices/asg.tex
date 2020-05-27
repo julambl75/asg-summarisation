@@ -16,13 +16,20 @@ s_group -> {
   count(0).
 }
 
-s_group -> s_group s ". " {
+s_group -> s_group s ``. " {
   count(X+1) :- count(X)@1.
 
   % Reject output summaries with duplicate sentences
   sentence(X,V,O,S) :- output(_,V,O,S)@2, count(X).
   sentence(X,V,O,S) :- sentence(X,V,O,S)@1.
   :- sentence(X1,V,O,S), sentence(X2,V,O,S), X1 != X2.
+}
+
+s -> np vp {
+  subject :- subject(S_N,S_D,S_A)@1.
+  :- not subject.
+  object :- object(S_N,S_D,S_A)@2.
+  :- not object.
 }
 
 vp -> vbn np {
@@ -45,7 +52,7 @@ vp -> vbd vbn np {
   object(N,D,A) :- object(N,D,A)@3.
 }
 
-vp -> vbd "to " vb np {
+vp -> vbd ``to " vb np {
   verb(comp(N1,N2),comp(T1,base)) :- verb(N1,T1)@1, verb(N2,base)@3.
   object(N,D,A) :- object(N,D,A)@4.
 }
@@ -65,7 +72,7 @@ vp -> vbp vbn np {
   object(N,D,A) :- object(N,D,A)@3.
 }
 
-vp -> vbp "to " vb np {
+vp -> vbp ``to " vb np {
   verb(comp(N1,N2),comp(T1,base)) :- verb(N1,T1)@1, verb(N2,base)@3.
   object(N,D,A) :- object(N,D,A)@4.
 }
@@ -85,7 +92,7 @@ vp -> vbz vbn np {
   object(N,D,A) :- object(N,D,A)@3.
 }
 
-vp -> vbz "to " vb np {
+vp -> vbz ``to " vb np {
   verb(comp(N1,N2),comp(T1,base)) :- verb(N1,T1)@1, verb(N2,base)@3.
   object(N,D,A) :- object(N,D,A)@4.
 }
@@ -151,91 +158,91 @@ np -> in {
   object(0,D,0) :- det(D)@1.
 }
 
-np -> prp "and " nnp {
+np -> prp ``and " nnp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
   :- object(conjunct(N,N),0,0).
 }
 
-np -> nnp "and " prp {
+np -> nnp ``and " prp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
   :- object(conjunct(N,N),0,0).
 }
 
-np -> dt nn "and " prp {
+np -> dt nn ``and " prp {
   subject(conjunct(N1,N2),D,0) :- det(D)@1, noun(N1)@2, noun(N2)@4.
   object(conjunct(N1,N2),D,0) :- det(D)@1, noun(N1)@2, noun(N2)@4.
   :- subject(conjunct(N,N),_,0).
   :- object(conjunct(N,N),_,0).
 }
 
-np -> prp "and " dt nn {
+np -> prp ``and " dt nn {
   subject(conjunct(N1,N2),D,0) :- noun(N1)@1, det(D)@3, noun(N2)@4.
   object(conjunct(N1,N2),D,0) :- noun(N1)@1, det(D)@3, noun(N2)@4.
   :- subject(conjunct(N,N),_,0).
   :- object(conjunct(N,N),_,0).
 }
 
-np -> dt nn "and " nnp {
+np -> dt nn ``and " nnp {
   subject(conjunct(N1,N2),D,0) :- det(D)@1, noun(N1)@2, noun(N2)@4.
   object(conjunct(N1,N2),D,0) :- det(D)@1, noun(N1)@2, noun(N2)@4.
   :- subject(conjunct(N,N),_,0).
   :- object(conjunct(N,N),_,0).
 }
 
-np -> nnp "and " dt nn {
+np -> nnp ``and " dt nn {
   subject(conjunct(N1,N2),D,0) :- noun(N1)@1, det(D)@3, noun(N2)@4.
   object(conjunct(N1,N2),D,0) :- noun(N1)@1, det(D)@3, noun(N2)@4.
   :- subject(conjunct(N,N),_,0).
   :- object(conjunct(N,N),_,0).
 }
 
-np -> nnp "and " nnp {
+np -> nnp ``and " nnp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
   :- object(conjunct(N,N),0,0).
 }
 
-np -> nn "and " nn {
+np -> nn ``and " nn {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
   :- object(conjunct(N,N),0,0).
 }
 
-np -> nn "and " nns {
+np -> nn ``and " nns {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
   :- object(conjunct(N,N),0,0).
 }
 
-np -> nns "and " nn {
+np -> nns ``and " nn {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
   :- object(conjunct(N,N),0,0).
 }
 
-np -> nns "and " nns {
+np -> nns ``and " nns {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
   :- object(conjunct(N,N),0,0).
 }
 
-np -> prp "and " prp {
+np -> prp ``and " prp {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
   :- object(conjunct(N,N),0,0).
 }
 
-np -> rb "and " rb {
+np -> rb ``and " rb {
   subject(0,0,conjunct(A1,A2)) :- adj_or_adv(A1)@1, adj_or_adv(A2)@3.
   object(0,0,conjunct(A1,A2)) :- adj_or_adv(A1)@1, adj_or_adv(A2)@3.
   :- subject(0,0,conjunct(A,A)).
@@ -246,7 +253,7 @@ np -> jj {
   object(0,0,A) :- adj_or_adv(A)@1.
 }
 
-np -> jj "and " jj {
+np -> jj ``and " jj {
   object(0,0,conjunct(A1,A2)) :- adj_or_adv(A1)@1, adj_or_adv(A2)@3.
   :- object(0,0,conjunct(A,A)).
 }
@@ -355,7 +362,7 @@ np -> jj in nn {
   object(N,D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N)@3.
 }
 
-np -> jj in nn "and " nn {
+np -> jj in nn ``and " nn {
   object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
 }
 
@@ -363,7 +370,7 @@ np -> jj in nns {
   object(N,D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N)@3.
 }
 
-np -> jj in nns "and " nns {
+np -> jj in nns ``and " nns {
   object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
 }
 
@@ -371,7 +378,7 @@ np -> jj in nnp {
   object(N,D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N)@3.
 }
 
-np -> jj in nnp "and " nnp {
+np -> jj in nnp ``and " nnp {
   object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
 }
 
@@ -379,15 +386,15 @@ np -> jj in prp {
   object(N,D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N)@3.
 }
 
-np -> jj in prp "and " prp {
+np -> jj in prp ``and " prp {
   object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
 }
 
-np -> jj in nn "and " nns {
+np -> jj in nn ``and " nns {
   object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
 }
 
-np -> jj in nns "and " nn {
+np -> jj in nns ``and " nn {
   object(conjunct(N1,N2),D,A) :- adj_or_adv(A)@1, det(D)@2, noun(N1)@3, noun(N2)@5.
 }
 
@@ -428,26 +435,23 @@ np -> dt jj cd {
 
 \begin{lstlisting}
 s -> np vp {
-  :- not action(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), verb(V_N,V_T)@2, subject(S_N,S_D,S_A)@1, object(O_N,O_D,O_A)@2.
+  ...
   
-  subject :- subject(S_N,S_D,S_A)@1.
-  :- not subject.
-  object :- object(S_N,S_D,S_A)@2.
-  :- not object.
+  :- not action(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), verb(V_N,V_T)@2, subject(S_N,S_D,S_A)@1, object(O_N,O_D,O_A)@2.
 }
 
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))), object(const(noun),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),conjunct(const(det),const(det)),const(adj_or_adv)))):[4].
-#modeh(action(verb(const(verb_name),const(verb_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),conjunct(const(prep),const(det)),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),const(adj_or_adv)), object(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),conjunct(const(det),const(det)),const(adj_or_adv)))):[4].
+#modeh(action(verb(const(main_verb),const(main_form)), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),conjunct(const(prep),const(det)),const(adj_or_adv)))):[4].
 
-#modeh(action(verb(comp(const(verb_name),const(verb_name)),comp(const(main_verb),const(aux_verb))), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(comp(const(verb_name),const(verb_name)),comp(const(main_verb),const(aux_verb))), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))))):[4].
-#modeh(action(verb(comp(const(verb_name),const(verb_name)),comp(const(main_verb),const(aux_verb))), subject(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))), object(const(noun),const(det),const(adj_or_adv)))):[4].
-#modeh(action(verb(comp(const(verb_name),const(verb_name)),comp(const(main_verb),const(aux_verb))), subject(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(comp(const(main_verb),const(aux_verb)),comp(const(main_form),const(aux_form))), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(comp(const(main_verb),const(aux_verb)),comp(const(main_form),const(aux_form))), subject(const(noun),const(det),const(adj_or_adv)), object(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))))):[4].
+#modeh(action(verb(comp(const(main_verb),const(aux_verb)),comp(const(main_form),const(aux_form))), subject(const(noun),const(det),conjunct(const(adj_or_adv),const(adj_or_adv))), object(const(noun),const(det),const(adj_or_adv)))):[4].
+#modeh(action(verb(comp(const(main_verb),const(aux_verb)),comp(const(main_form),const(aux_form))), subject(conjunct(const(noun),const(noun)),const(det),const(adj_or_adv)), object(const(noun),const(det),const(adj_or_adv)))):[4].
 
 #bias(":- head(holds_at_node(action(verb(_,_),subject(0,_,_),object(_,_,_)),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(0,0,0)),var__(1))).").
@@ -491,10 +495,7 @@ s -> np vp {
 
 \begin{lstlisting}
 s -> np vp {
-  subject :- subject(S_N,S_D,S_A)@1.
-  :- not subject.
-  object :- object(S_N,S_D,S_A)@2.
-  :- not object.
+  ...
 
   summary(0, V, S, O) :- action(_, V, S, O).
 
