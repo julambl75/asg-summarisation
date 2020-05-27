@@ -1,0 +1,25 @@
+\section{Achievements}
+
+\textsc{SumASG*} is a symbolic system which is able to generate \textit{generic}, \textit{informative} and partially-\textit{abstractive} summaries given a simple story about a paragraph in length.
+
+Internally, it relies on the ASG engine, which is used for both for understanding text and creating summary sentences. This is an \textit{entity level} approach to the task of text summarization, whereby the \textsc{Preprocessor} makes use of the \textit{similarity} between words and sentences, and creates a \textit{text relationship map} to aid in simplifying the given input story.
+
+The core accomplishments of this project are the following:
+
+\begin{itemize}
+\item Created a context-free grammar that models the structure of basic English sentences, and can be used both for semantic learning, as well as generating grammatically-correct text.
+\item Implemented an algorithm that dramatically reduces the complexity in the structure of English sentences, without losing too much information.
+\item Implemented an algorithm which uses \textit{similarity} to remove irrelevant sentences from a short story.
+\item Implemented a scoring mechanism prioritizing information density, while taking into account words which may appear frequently in English, can be considered as the \textit{topic} of the original text.
+\item Created a framework to automatically generate topical short stories for evaluating the system, based on a dataset of words and a particular sentence structure.
+\end{itemize}
+
+\section{Future Work}
+
+\textcolor{red}{\textbf{\hl{TODO}}}
+
+- domain-specific, not scalable
+- longer text
+- more complex structure
+- better verification methods
+- more efficient
