@@ -12,18 +12,8 @@ start -> s_group {
    :- count(X)@1, X = 0.
 }
 
-s_group -> {
-  count(0).
-}
-
-s_group -> s_group s ``. " {
-  count(X+1) :- count(X)@1.
-
-  % Reject output summaries with duplicate sentences
-  sentence(X,V,O,S) :- output(_,V,O,S)@2, count(X).
-  sentence(X,V,O,S) :- sentence(X,V,O,S)@1.
-  :- sentence(X1,V,O,S), sentence(X2,V,O,S), X1 != X2.
-}
+s_group -> { count(0). }
+s_group -> s_group s ``. " { count(X+1) :- count(X)@1. }
 
 s -> np vp {
   subject :- subject(S_N,S_D,S_A)@1.
@@ -534,7 +524,7 @@ s -> np vp {
   summary(I, V, S, object(N,D,conjunct(A1,A3))) :- summary(I, V, S, object(N,D,conjunct(conjunct(A1,A2),A3))).
   summary(I, V, S, object(N,D,conjunct(A1,A3))) :- summary(I, V, S, object(N,D,conjunct(A1,conjunct(A2,A3)))).
 
-  % Pick exactly one summary derivation for each sentence
+  % Pick exactly one summary sentence for each applicable rule
   0{output(I,V,S,O)}1 :- summary(I,V,S,O).
   :- not output(_,_,_,_).
 

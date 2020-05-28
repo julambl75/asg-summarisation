@@ -21,6 +21,7 @@
 \usepackage{enumitem}
 \usepackage{listings}
 \usepackage{color,soul}
+\usepackage{multirow}
 
 \usetikzlibrary{shapes,arrows,trees,positioning}
 \tikzstyle{block}=[draw, fill=blue!20, minimum size=2em]
@@ -55,7 +56,7 @@
 % https://tex.stackexchange.com/questions/7032/good-way-to-make-textcircled-numbers
 %\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
             %\node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
-\newcommand*\circled[1]{\raisebox{.5pt}{\textcircled{\raisebox{-.5pt} {#1}}}}
+\newcommand*\circled[1]{\raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {#1}}}}
 
 \renewcommand*\thesection{\arabic{section}}
 \newpagestyle{Headings}{
@@ -121,11 +122,6 @@
 
 \chapter{ASG}
 \input{chapters/asg}
-
-- Learning is not really learning (ASG never learns how to summarize, we build in rules of feature extraction)
-
-action(INDEX, VERB, SUBJECT, OBJECT)
-summary(VERB, SUBJECT, OBJECT)
 
 \chapter{Post-Processing / Scoring}
 \input{chapters/postprocess}

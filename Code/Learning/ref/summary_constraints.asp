@@ -28,7 +28,7 @@
   summary(I, V, S, object(N,D,conjunct(A1,A3))) :- summary(I, V, S, object(N,D,conjunct(conjunct(A1,A2),A3))).
   summary(I, V, S, object(N,D,conjunct(A1,A3))) :- summary(I, V, S, object(N,D,conjunct(A1,conjunct(A2,A3)))).
 
-  % Pick exactly one summary derivation for each sentence
+  % Pick exactly one summary sentence for each applicable rule
   0{output(I,V,S,O)}1 :- summary(I,V,S,O).
   :- not output(_,_,_,_).
 

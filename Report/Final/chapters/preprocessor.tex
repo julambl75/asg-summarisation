@@ -193,13 +193,13 @@ The result of running the simplification transformations is illustrated below in
 \caption{Sentences after applying transformations}
 \end{displayquote}
 \end{subfigure}
-\caption{Example of applying simplification to the story of Peter Little}
+\caption{Example of applying \textit{simplification} to the story of Peter Little}
 \label{fig:simplification_example}
 \end{figure}
 
 \section{Sentence Pruning And Homogenization}
 
-Once the sentence structure of the story has been simplified, one of the main jobs of the \textsc{Preprocessor} is to remove irrelevant semantic complexity from the story.
+Once the sentence structure of the story has been \textit{simplified}, one of the main jobs of the \textsc{Preprocessor} is to remove irrelevant semantic complexity from the story.
 
 In order to understand what is relevant in a story and what is not, the \textsc{Preprocessor} looks at the semantic similarity between words with the same POS tag (or a related one, i.e. singular noun and plural noun, or verbs with a different tense).
 
@@ -233,11 +233,11 @@ This is what we call \textit{story homogenization}, and it helps \textsc{SumASG}
 
 \subsection{Example}
 
-An example is shown below in Figure \ref{fig:preprocessor_example} for the story of Peter Little, where the weight between two nodes denotes \textit{similarity}. In this example, we consider words to be synonyms whenever their \textit{similarity} is at least 20. The labels of the nodes (starting from 0) for sentence \textit{similarity} correspond to the index of the sentence in the simplified story (see Subsection \ref{subsec:simplification_example}).
+An example is shown below in Figure \ref{fig:preprocessor_example} for the story of Peter Little, where the weight between two nodes denotes \textit{similarity}. In this example, we consider words to be synonyms whenever their \textit{similarity} is at least 20. The labels of the nodes (starting from 0) for sentence \textit{similarity} correspond to the index of the sentence in the \textit{simplified story} (see Subsection \ref{subsec:simplification_example}).
 
 As you can see, sentences 5 and 6 are deemed irrelevant and will be pruned, while sentences 0, 1 and 2 are thought as being very important.
 
-Moreover, {homework, school} and {interested, curious} are considered synonym sets, and homogenization will replace occurrences of these words with their shortest synonym (which may be itself).
+Moreover, {homework, school} and {interested, curious} are considered synonym sets, and \textit{homogenization} will replace occurrences of these words with their shortest synonym (which may be itself).
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
@@ -269,9 +269,9 @@ Importance & 40.7 & 24.4 & 18.8 & 14.8 & 12.5 & 11.3 & 6 & 0 & 0 \\ \bottomrule
 \begin{displayquote}
 there was a curious little boy. the curious little boy was named PeterLittle. PeterLittle was curious in astronomy. PeterLittle was serious in school. PeterLittle did school always. PeterLittle became a astrophysicist. PeterLittle is famous now.
 \end{displayquote}
-\caption{Homogenized story}
+\caption{\textit{Homogenized} story}
 \end{subfigure}
-\caption{Example of applying sentence pruning and homogenization to the simplified story of Peter Little}
+\caption{Example of applying sentence pruning and \textit{homogenization} to the \textit{simplified} story of Peter Little}
 \label{fig:preprocessor_example}
 \end{figure}
 

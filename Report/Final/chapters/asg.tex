@@ -186,6 +186,8 @@ We first need to convert the preprocessed story's sentences from English into ou
 
 We can formalize the task of learning an action as \textsc{SumASG\textsubscript{1}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes (\textsc{BK}), and a grammar-conforming sentence (\textsc{E}), its goal is to return the \textit{action} corresponding to this sentence, which should have the format \texttt{action(\underline{verb},\underline{subject},\underline{object})}.
 
+However this is not a learning task in the true sense, as we are only interested in generating ground facts \textit{ground facts}. More to the point, we make use of the built-in learning mechanism offered by ASG to translate the input into our internal representation.
+
 \subsection{Implementation}
 
 \subsubsection{Positive Example}
@@ -213,7 +215,7 @@ s -> np vp {
 
 In order guide the learning task, we must also specify a \textit{mode bias} as part of the program for \textsc{SumASG\textsubscript{1}}, which essentially tells ASG the format of the rules which can be learned.
 
-Since we are only interested in learning facts here, it is enough to provide \textit{mode bias} rules of the following form (where \texttt{[4]} restricts the learning task to the fourth derivation):
+Since we are only interested in learning \textit{facts} (rules with an empty \textit{body)}, it is enough to provide \textit{mode bias} rules of the following form (where \texttt{[4]} restricts the learning task to the fourth derivation):
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]
@@ -229,7 +231,7 @@ For the most basic of sentences (ones where there is no need to use any \texttt{
 \end{lstlisting}
 \end{displayquote}
 
-As you can see, this would require defining ILASP \textit{constants} corresponding to possible \textit{tokens}. To this end, we do so for each word in the simplified text.
+As you can see, this would require defining ILASP \textit{constants} corresponding to possible \textit{tokens}. To this end, we do so for each word in the \textit{simplified} text.
 
 For the sentence ``they drove a race-car fast", these would look like this:
 
@@ -250,7 +252,7 @@ Once we have augmented our general grammar with all of this information, it is n
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none, escapechar=\%]
-asg action.asg --mode=%\underline{learn}%--depth=7
+asg action.asg --mode=%\underline{learn}% --depth=7
 \end{lstlisting}
 \end{displayquote}
 
@@ -266,11 +268,19 @@ action(verb(drive, past), subject(they, 0, 0), object(race_car, a, fast)).
 
 The set of rules that a task in ILASP is able to learn, as defined by the \textit{mode bias}, is called the \textit{search space}. The more complex the structure of the rules we can learn, the more of these the engine can generate, and so the larger the \textit{search space}. The more leaf nodes we add, the more combinations of \textit{lemmas} we can create, thereby exponentially growing the \textit{search space}. Since ASG tries to run the program with every single rule in the \textit{search space}, we need to keep this as small as possible.
 
+Throughout the development of \textsc{SumASG\textsubscript{1}}, it was very helpful to view the \textit{search space} via the following command:
+
+\begin{displayquote}
+\begin{lstlisting}[numbers=none, escapechar=\%]
+asg action.asg --mode=%\underline{ss}% --depth=7
+\end{lstlisting}
+\end{displayquote}
+
 \subsubsection{Learning Actions Individually}
 
 With this in mind, it is preferable to feed in each sentence separately to \textsc{SumASG\textsubscript{1}}. Although it might seem easier at first to learn them all in one go, doing so individually limits the number of leaf nodes we need to add to the program.
 
-Using this optimization, learning the \textit{actions} from the simplified story of Peter Little takes just a few minutes, rather than many hours.
+Using this optimization, learning the \textit{actions} from the \textit{simplified} and \textit{homogenized} story of Peter Little takes just a few minutes, rather than many hours.
 
 \subsubsection{Cutting Out Rules}
 
@@ -299,7 +309,7 @@ For instance, the phrase ``are eating" would require the following \textit{const
 \end{lstlisting}
 \end{displayquote}
 
-Without the optimization, we would end up with a \textit{search space} size of 176 for the sentence ``they are eating apples". We can reduce this number to 20 thanks to a \textit{mode bias} that enforces learned continuous verbs to be exactly as they appear in the simplified story:
+Without the optimization, we would end up with a \textit{search space} size of 176 for the sentence ``they are eating apples". We can reduce this number to 20 thanks to a \textit{mode bias} that enforces learned continuous verbs to be exactly as they appear in the \textit{simplified} and \textit{homogenized} story:
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]
@@ -337,7 +347,7 @@ summary(0, V, S, O) :- action(_, V, S, O).
 \end{lstlisting}
 \end{displayquote}
 
-We can create much more complex rules, allowing us to combine information from two \textit{actions} into a single \textit{summary sentence}. In the case where we have two \textit{actions} that share a common \textit{subject} and \textit{verb}, we can define a rule that combines these into a single \textit{summary sentence}:
+We can create much more complex rules, allowing us to combine information from two \textit{actions} into a single \textit{summary sentence}. In the case where we have two \textit{actions} that share a common \textit{subject} and \textit{verb}, we can define a rule that combines these into a single \textit{summary sentence}, preserving the order in which these \textit{objects} appear originally:
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]
@@ -345,7 +355,18 @@ summary(7, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,D,_)
 \end{lstlisting}
 \end{displayquote}
 
-\textcolor{red}{\textbf{\hl{TODO continue}}}
+After having defined a suite of such summarization rules, we now need to apply them using our general grammar. To this end, we add to the derivation for sentences (\texttt{s -> np vp}) a \textit{choice rule}, enforcing with the predicate \texttt{output} that the program must output every derivable \textit{summary sentence} exactly once. Using constraints, an \texttt{s} node can require that its children contain the required information.
+
+\begin{displayquote}
+\begin{lstlisting}
+0{output(I,V,S,O)}1 :- summary(I,V,S,O).
+:- not output(_,_,_,_).
+
+:- output(_,verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), not verb(V_N,V_T)@2.
+:- output(_,verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), not subject(S_N,S_D,S_A)@1.
+:- output(_,verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), not object(O_N,O_D,O_A)@2.
+\end{lstlisting}
+\end{displayquote}
 
 \subsubsection{Running}
 
@@ -353,13 +374,73 @@ Once we have augmented the fourth rule of our general grammar (\texttt{s -> np v
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none, escapechar=\%]
-asg summary.asg --mode=%\underline{run}%--depth=7
+asg summary.asg --mode=%\underline{run}% --depth=7
 \end{lstlisting}
 \end{displayquote}
 
 \section{Example}
 
-\textcolor{red}{\textbf{\hl{TODO}}}
+Figure \ref{fig:asg_example} shows the different steps of running \textsc{SumASG} on the \textit{simplified} and \textit{homogenized} story of Peter Little, along with a breakdown of the runtime.
+
+After passing in each sentence individually to \textsc{SumASG\textsubscript{1}}, we end up with a list of \textit{actions}, which is essentially the original story translated into our internal representation.
+
+From these \textit{actions}, we then apply \textsc{SumASG\textsubscript{2}} to generate all possible \textit{summary sentences} which we can use to summarize Peter Little's story.
+
+\begin{figure}[H]
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+\begin{lstlisting}[language=]
+action(0, verb(be, past), subject(there, 0, 0), object(boy, a, conjunct(curious, little))).
+action(1, verb(comp(be, name), comp(past, past_part)), subject(boy, the, conjunct(curious, little)), object(peterlittle, 0, 0)).
+action(2, verb(be, past), subject(peterlittle, 0, 0), object(astronomy, in, curious)).
+action(3, verb(be, past), subject(peterlittle, 0, 0), object(school, in, serious)).
+action(4, verb(do, past), subject(peterlittle, 0, 0), object(school, 0, always)).
+action(5, verb(be, present_third), subject(peterlittle, 0, 0), object(0, 0, conjunct(famous, now))).
+\end{lstlisting}
+\end{displayquote}
+\caption{Results from \textsc{SumASG\textsubscript{1}}}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
+\vspace{\baselineskip}
+\begin{displayquote}
+\circled{0} PeterLittle was serious in school .\\
+\circled{0} PeterLittle was curious in astronomy .\\
+\circled{4} PeterLittle was curious and serious .\\
+\circled{0} PeterLittle did school always .\\
+\circled{0} there was a curious little boy .\\
+\circled{0} the curious little boy was named PeterLittle .\\
+\circled{0} PeterLittle is famous now .
+\end{displayquote}
+\caption{Results from \textsc{SumASG\textsubscript{2}} (where the numbers indicate a summary generation rule)}
+\end{subfigure}
+\setcounter{subfigure}{0}
+\begin{subfigure}{\textwidth}
+\vspace{\baselineskip}
+\begin{subfigure}{0.5\textwidth}
+\renewcommand\thesubfigure{\roman{subfigure}}
+\centering
+\begin{tabular}{@{}lllllll@{}}
+\toprule
+\textit{Action}         & 0  & 1  & 2 & 3 & 4 & 5 \\ \midrule
+Running time (s) & 18 & 32 & 9 & 9 & 7 & 9 \\ \bottomrule
+\end{tabular}
+\caption{\textsc{SumASG\textsubscript{1}}}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\renewcommand\thesubfigure{\roman{subfigure}}
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+Running time (s) & 20 \\ \bottomrule
+\end{tabular}
+\caption{\textsc{SumASG\textsubscript{2}}}
+\end{subfigure}
+\setcounter{subfigure}{2}
+\caption{Runtime for each step}
+\end{subfigure}
+\caption{Example of running \textsc{SumASG} for the story of Peter Little}
+\label{fig:asg_example}
+\end{figure}
 
 \section{Expandability}
 
@@ -374,6 +455,8 @@ By greatly simplifying the input story using the \textsc{Preprocessor}, we were 
 \subsection{Missing Summarization Rules}
 
 In its current implementation, \textsc{SumASG\textsubscript{2}} only uses 11 summary generation rules, one of which simply repeats the given \textit{action}. While this is largely sufficient to demonstrate the potential of our approach, in no way can it be used as-is in a production text summarization tool.
+
+In order to augment this suite of rules, it would be simple to define a \textit{mode bias} to learn summary generation rules. With just a single example of a story and its corresponding summary, ASG could generate multiple such rules, allowing us to build up a large collection of these. Unfortunately, this is infeasible due to performance reasons.
 
 \subsection{Speed}
 
