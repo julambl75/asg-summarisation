@@ -29,7 +29,6 @@ DATAMUSE_MAX_NOUNS = 10
 DATAMUSE_MAX_VERBS = 20
 DATAMUSE_MAX_ADJECTIVES = 1
 
-SUBJECT_TYPE_COMMON_NOUN = 'common_noun'
 SUBJECT_TYPE_PROPER_NOUN = 'proper_noun'
 SUBJECT_TYPE_PRONOUN = 'pronoun'
 
@@ -367,6 +366,6 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(story_length=4, num_stories=1, irrelevant_sentence=True)
+    gen_actions.generate_stories(story_length=4, num_stories=2000, irrelevant_sentence=True)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(TEST_PROPORTION, EVAL_NUM)
