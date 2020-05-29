@@ -54,7 +54,11 @@ Since we don't know how general or specific this randomly selected \textit{topic
 
 \subsubsection{Subject}
 
-For the \textit{subject} of a sentence, we draw a noun from our \textit{lexical common nouns}. If this word is singular, then we need a determiner, which can be either ``the" or ``a". We also ask the \textbf{Datamuse API} to find us an adjective which is often modified by the chosen \textit{subject} noun, and is part of our dataset of words. If none is found, then we do not need to use an adjective.
+For the \textit{subject} of a sentence, we draw a noun from our \textit{lexical common nouns}.
+
+If this word is singular, then we need a determiner, which can be either ``the" or ``a".
+
+We also ask the \textbf{Datamuse API} to find us an adjective which is often modified by the chosen \textit{subject} noun, and is part of our dataset of words. If none is found, then we do not need to use an adjective.
 
 \subsubsection{Verb}
 
@@ -62,14 +66,52 @@ We chose a verb at random from our set of \textit{lexical verbs}, conjugating it
 
 \subsubsection{Object}
 
-For the \textit{object} of our sentence, we look at the \textit{subject} and \textit{verb}. Using the \textbf{Datamuse API} we try and find a word...
+For the \textit{object} of our sentence, we look at the \textit{subject} and \textit{verb}. Using the \textbf{Datamuse API} we try and find a noun which often appears after the chosen \textit{verb}, and which is related to our \textit{topic} as well as all nouns we have used thus far in the story. With 50\% probability we ask it to be a \textit{holonym} of the \textit{subject} noun, otherwise it should be a \textit{meronym}.
+
+In the same way as we did for the \textit{subject}, we try and find an adjective often modified by the chosen noun. Sometimes it will be the case that no noun was found, but it is possible in English to have an adjective as the only word in the \textit{object}.
+
+The determiner is added as for the \textit{subject}; if there is no noun we do not use one.
 
 \subsubsection{Example}
 
+We take the example of generating a sentence for a story whose \textit{topic} is ``soccer". In this case, the \textit{lexical common nouns} are a singleton set containing the word ``football". Here also have two \textit{lexical verbs}: ``to match" and ``to pitch".
+
+For the \textit{subject}, we can choose the \textit{lexical common noun} ``football"; an adjective commonly used to modify it is ``professional". Since the noun here is singular, we can use the determiner ``a".
+
+We can then pick ``to pitch" as the \textit{verb}, which becomes ``pitched" when conjugated in the past tense.
+
+For the \textit{object}, we take into account our \textit{topic} ``soccer", to find a \textit{holonym} of ``football" which often appears after the \textit{verb} ``pitched". In this case the \textbf{Datamuse API} returns the word ``reception", resulting in the adjective ``warm" being chosen to accompany it.
+
+After repeating this process three more times, we end up with the below story. As you can see, \textsc{SumASG\textsubscript{2}} would be able to combine the two last sentences, but the result of this may or may not make it into the summary we choose.
+
+\begin{displayquote}
+The professional football matched a place. A professional football pitched the warm reception. A professional football matched a warm reception. A professional football matched a wonder.
+\end{displayquote}
+
 \subsection{Action Creation}
+
+Using a Python script, we generate the corresponding \textit{actions} as would \textsc{SumASG\textsubscript{1}}, creating the necessary additional leaf nodes for our general grammar in ASG. We do not use \textsc{SumASG\textsubscript{1}} to do this mainly for performance reasons, but also as it is not necessary. Because of the way in which we have created our stories, \textit{simplification} would not change the sentence structure whatsoever, and no sentences would be considered irrelevant (or off-topic) by the \textsc{Preprocessor}.
+
+\subsection{Summary Generation}
+
+For each story, we feed the generated \textit{actions} and leaf nodes directly into \textsc{SumASG\textsubscript{2}}, skipping the first half of the \textsc{SumASG*} pipeline. After \textit{scoring}, we pick an entry at random from the \textit{top summaries}.
 
 \section{Training}
 
+\subsection{Datasets}
+
+Using the mechanism described above, we generate a number of story/summary pairs: 1796 to be used for training, 199 as test and 5 for validation.
+
+\subsection{Tools}
+
+To allow for greater flexibility, we have chosen to use a highly versatile open-source framework called \textbf{\href{https://github.com/OpenNMT/OpenNMT-py}{OpenNMT-py}} for training our neural network.
+
+In addition, we preprocess the data using Stanford's \textbf{\href{https://nlp.stanford.edu/projects/glove/}{GloVe}} pre-trained word embeddings, giving our network a head-start when it comes to semantics.
+
+\subsection{Encode-Decoder Architecture}
+
 \section{Results}
+
+\section{Takeaways}
 
 \textcolor{red}{\textbf{\hl{TODO}}}

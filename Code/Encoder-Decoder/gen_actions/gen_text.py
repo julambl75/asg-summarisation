@@ -285,7 +285,7 @@ class GenActions:
         joined_tokens = ' '.join(self.curr_story_tokens)
         return self.language_checker.correct(joined_tokens)
 
-    def generate_stories(self, story_length, num_stories, irrelevant_sentence=False):
+    def generate_stories(self, story_length, num_stories):
         last_print_time = start = time.time()
 
         for i in range(num_stories):
@@ -327,7 +327,7 @@ class GenActions:
                 text_to_summary = TextToSummary(story, proper_nouns, print_results=False)
                 summaries = text_to_summary.gen_summary()
             if summaries:
-                self.training_pairs.append((story, summaries[0][0]))
+                self.training_pairs.append((story, random.choice(summaries)[0]))
         print(f'[{num_stories}/{num_stories}]: Summarised generated stories...')
 
     @staticmethod
@@ -366,6 +366,6 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(story_length=4, num_stories=2000, irrelevant_sentence=True)
+    gen_actions.generate_stories(story_length=4, num_stories=2000)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(TEST_PROPORTION, EVAL_NUM)
