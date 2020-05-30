@@ -302,4 +302,17 @@ bs -> \{ \\
 
 \subsection{Encoder-Decoder}
 
-\textcolor{red}{\textbf{\hl{TODO}}}
+A recurrent neural network (RNN) is a chain-like neural network that is applied once for each token in the input sequence. At each timestep (i.e., for each item in the sequence), the current \textit{hidden state} is computed as a function of the previous \textit{hidden state} and the current input token, using a non-linear \textit{activation function} (usually sigmoid). \cite{cho_learning_2014}
+
+A long short-term memory (LSTM) is a particular kind of RNN, motivated by the problems of vanishing and exploding gradients which sometimes occur due to the chain-like nature of RNNs. The solution here is to at each timestep use what is called a \textit{memory block}, which has at it center a linear unit named ``constant error carousel" (CEC) that is connected to itself. In addition, it has three gates
+
+The input,forget,andoutputgatecanbetrainedtolearn,respectively,whatinformationto storeinthememory,howlongtostoreit,andwhentoreaditout
+\cite{gers_learning_2000}
+
+An \textit{encoder-decoder} is a neural network consisting of two recurrent neural networks (RNN)
+
+\subsection{Attention}
+
+\subsection{BLEU Score}
+
+\textcolor{red}{\textbf{\hl{TODO neural network, encoder-decoder, LSTM (stacked), global attention}}}

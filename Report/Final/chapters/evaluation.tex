@@ -8,17 +8,17 @@ More specifically, we should generate a set of stories which we can give to our 
 
 If the neural network is able to learn to generate similar summaries, then we can consider our framework to be sane.
 
-\section{Datasets}
+\section{Story Generation}
 
-In order to generate the required number of stories, we have used words from \href{http://www.wordfrequency.info/}{wordfrequency.info}. This database contains 5,000 individual English words, of which 1,001 are verbs, 2,542 nouns and 839 adjectives.
-
-\section{Libraries}
+\subsection{Libraries}
 
 For this task, we have chosen to use a library called \textbf{\href{http://web.archive.org/web/20190516161631/https://www.clips.uantwerpen.be/pages/pattern-en}{Pattern}}, which allows us to conjugate verbs, as well as toggle nouns between singular and plural.
 
 We also take advantage of the \textbf{\href{https://www.datamuse.com/api/}{Datamuse API}}, which lets us find words which are semantically related to a given word in a certain way.
 
-\section{Story Generation}
+\subsection{Datasets}
+
+In order to generate the required number of stories, we have used words from \href{http://www.wordfrequency.info/}{wordfrequency.info}. This database contains 5,000 individual English words, of which 1,001 are verbs, 2,542 nouns and 839 adjectives.
 
 For each story we chose a noun from our dataset, which we shall refer to as the \textit{topic}. We then construct four sentences which revolve around this \textit{topic}.
 
@@ -96,7 +96,7 @@ Using a Python script, we generate the corresponding \textit{actions} as would \
 
 For each story, we feed the generated \textit{actions} and leaf nodes directly into \textsc{SumASG\textsubscript{2}}, skipping the first half of the \textsc{SumASG*} pipeline. After \textit{scoring}, we pick an entry at random from the \textit{top summaries}.
 
-\section{Training}
+\section{Neural Network}
 
 \subsection{Datasets}
 
@@ -108,9 +108,17 @@ To allow for greater flexibility, we have chosen to use a highly versatile open-
 
 In addition, we preprocess the data using Stanford's \textbf{\href{https://nlp.stanford.edu/projects/glove/}{GloVe}} pre-trained word embeddings, giving our network a head-start when it comes to semantics.
 
-\subsection{Encode-Decoder Architecture}
+\subsection{Encoder-Decoder Architecture}
 
-\section{Results}
+The \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of size 7295, which is internally represented using a vector of size 100.
+
+On the encoder side, we use a two layer LSTM with a \textit{dropout} of 0.4. The decoder side is the same, except that \textit{global attention} is applied at the end.
+
+\subsection{Training}
+
+We train our neural network using an Adam optimizer and a \textit{learning rate} of 0.0005. This is done over a period of 10,000 epochs, running on test data every 100 epochs.
+
+\subsection{Results}
 
 \section{Takeaways}
 
