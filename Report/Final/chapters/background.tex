@@ -49,8 +49,7 @@ Yellow warnings of strong winds were put in place for parts of the UK. These ver
 
 \section{Syntactic Parsing}
 
-Given a text, \textit{syntactic parsing} \cite{noauthor_syntactic_nodate} describes the process of tokenization, whereby the grammatical link between parts of speech is established.
-Two of the most prominent syntactic parsers are \textbf{\href{https://corenlp.run}{CoreNLP}} (developed by Stanford) and \textbf{\href{https://spacy.io}{spaCy}}.
+Given a text, \textit{syntactic parsing} \cite{noauthor_syntactic_nodate} describes the process of tokenization, whereby the grammatical link between parts of speech is established. Two of the most prominent syntactic parsers are \textbf{\href{https://corenlp.run}{CoreNLP}} (developed by Stanford) and \textbf{\href{https://spacy.io}{spaCy}}.
 
 This tokenization can then be visualized in the form of a \textit{parse tree}, which makes it possible to identify different parts of speech, such as nouns, verbs and adjectives. Additionally, each of these \textit{tokens} is assigned a \textit{lemma}, which is essentially the ``neutral" form for a word, be it the singular of a noun or the base form of a verb.
 
@@ -300,19 +299,50 @@ bs -> \{ \\
 
 \section{Neural Networks}
 
-\subsection{Encoder-Decoder}
+\subsection{RNNs}
 
-A recurrent neural network (RNN) is a chain-like neural network that is applied once for each token in the input sequence. At each timestep (i.e., for each item in the sequence), the current \textit{hidden state} is computed as a function of the previous \textit{hidden state} and the current input token, using a non-linear \textit{activation function} (usually sigmoid). \cite{cho_learning_2014}
+A recurrent neural network (RNN) is a chain-like neural network that is applied once for each \textit{token} in the input sequence. At each timestep $t$ in a ``vanilla" RNN (i.e., for each item in the sequence), the current \textit{hidden state} $h_t$ is computed as a function of the previous \textit{hidden state} $h_{t-1}$ and the current input \textit{token} $x_t$, using a non-linear \textit{activation function} (usually sigmoid). \cite{cho_learning_2014}
 
-A long short-term memory (LSTM) is a particular kind of RNN, motivated by the problems of vanishing and exploding gradients which sometimes occur due to the chain-like nature of RNNs. The solution here is to at each timestep use what is called a \textit{memory block}, which has at it center a linear unit named ``constant error carousel" (CEC) that is connected to itself. In addition, it has three gates
+\subsection{LSTMs}
 
-The input,forget,andoutputgatecanbetrainedtolearn,respectively,whatinformationto storeinthememory,howlongtostoreit,andwhentoreaditout
-\cite{gers_learning_2000}
+A long short-term memory (LSTM) is a particular kind of RNN, motivated by the problems of vanishing and exploding gradients which sometimes occur due to the chain-like nature of RNNs. The solution here is to at each timestep use what is called a \textit{memory block}, which holds at it center a linear unit that is connected to itself. In addition, it has three \textit{gates}: input ($i$), forget ($f$) and output ($o$). Respectively, these three \textit{gates} are concerned with which information to store, how long to store it, and when it should be passed on. \cite{gers_learning_2000}
 
-An \textit{encoder-decoder} is a neural network consisting of two recurrent neural networks (RNN)
+Finally, each \textit{memory block} also stores a \textit{cell state} $c_t$, which combines information from the previous \textit{cell state} $c_{t-1}$ and from the \textit{candidate state} $g_t$ (defined as per the \textit{hidden state} in a vanilla RNN), using the \textit{forget} and \textit{input} \textit{gates} to regulate information flow. The \textit{hidden state} $h_t$ is then defined as a function of this \textit{cell state}, controlled by the \textit{output gate}. Figure \ref{fig:memory_block} shows this diagrammatically. \cite{graves_hybrid_2013}
+
+\begin{equation}
+\begin{aligned}
+i_t &= \sigma(W_{xi} \cdot x_t + W_{hi} \cdot h_{t-1} + W_{ci} \cdot c_{t-1} + b_i) \\
+f_t &= \sigma(W_{xf} \cdot x_t + W_{hf} \cdot h_{t-1} + W_{cf} \cdot c_{t-1} + b_f) \\
+o_t &= \sigma(W_{xo} \cdot x_t + W_{ho} \cdot h_{t-1} + W_{co} \cdot c_t + b_o) \\
+g_t &= tanh(W_{xg} \cdot x_t + W_{hg} \cdot h_{t-1} + b_g) \\
+c_t &= f_t \cdot c_{t-1} + i_t \cdot g_t \\
+h_t &= tanh(c_t)
+\end{aligned}
+\end{equation}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.62\textwidth]{memory_block.eps}
+\caption{\cite{graves_hybrid_2013} Diagram showing the flow of information in an LSTM \textit{memory block}}
+\label{fig:memory_block}
+\end{figure}
+
+\subsection{Encoder-Decoders}
+
+An \textit{encoder-decoder} is a neural network consisting of two eponymous RNNs, are often LSTMs. The \textit{encoder}'s job is to translate any variable-length sequence given as input into a fixed-length vector representation, while the \textit{decoder}'s role is to transform this into a new variable-length sequence. Together, they are trained to maximize the probability of generating a target sequence given the corresponding input sequence. \cite{cho_learning_2014}
 
 \subsection{Attention}
 
-\subsection{BLEU Score}
+In the context of neural machine translation (NMT) systems such as \textit{encoder-decoders}, the driver behind \textit{attention} is to improve performance by selectively looking at sub-portions of the input sequence, which becomes especially important for long sequences of text. \cite{yao_dual_2018}
 
-\textcolor{red}{\textbf{\hl{TODO neural network, encoder-decoder, LSTM (stacked), global attention}}}
+\subsubsection{Global Attention}
+
+On top of being dependant on the last \textit{hidden state} $d_{t-1}$ and output \textit{token} $y_{i-1}$, every \textit{hidden state} $d_t$ in a \textit{decoder} with \textit{global attention} is computed also in function of its \textit{context vector} $c_t$. For each timestep $t$, the \textit{context vector} $c_t$ is defined as a weighted sum of the \textit{encoder}'s \textit{hidden states} $h_i$. The $h_i$ that are assigned a higher weight are those which are more similar to $d_t$; this is done using a trainable \textit{alignment model} $a$. \cite{bahdanau_neural_2016}
+
+\begin{equation}
+\begin{aligned}
+c_t &= \sum_{i} \alpha_{ti} \cdot h_t \\
+\mbox{where } \alpha_{ti} &= softmax(\{s_{t1}, ..., s_{tS}\}) \\
+s_{ti} &= a(d_{t-1},h_i)
+\end{aligned}
+\end{equation}

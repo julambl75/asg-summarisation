@@ -64,7 +64,7 @@ In order to provide \textsc{SumASG} with a consistent format for parsing adverbs
 
 \subsubsection{Determiners}
 
-In the English language, the determiners ``a" and ``an" are semantically identical, so to makes sense to only use one of the two, with the intention of reducing the number of tokens that \textsc{SumASG has to process}. We can always correct the output of \textsc{SumASG} to make it grammatically-correct.
+In the English language, the determiners ``a" and ``an" are semantically identical, so to makes sense to only use one of the two, with the intention of reducing the number of \textit{tokens} that \textsc{SumASG has to process}. We can always correct the output of \textsc{SumASG} to make it grammatically-correct.
 
 \subsubsection{Possessive Pronouns, Interjections And Prepositions}
 
@@ -120,7 +120,7 @@ For example, the words ``chicken" and ``goose" both belong to the lexical field 
 
 \subsection{Case And Proper Nouns}
 
-We want to ensure that all occurrences of a word are treated as the same token. Since \textsc{SumASG} will be generating new sentences from scratch, the simplest solution is to convert the entire story to lower-case, apart from proper nouns.
+We want to ensure that all occurrences of a word are treated as the same \textit{token}. Since \textsc{SumASG} will be generating new sentences from scratch, the simplest solution is to convert the entire story to lower-case, apart from proper nouns.
 
 In the case of complex proper nouns (i.e., those constructed from multiple words), we should remove inner spaces so that we end up with a camel-case string. For instance, the sequence ``Peter Little" will become ``PeterLittle".
 
@@ -229,7 +229,7 @@ Another use for \textit{word similarity} is to find out if the author of the sto
 
 For every set of synonyms we find, we can choose a unique \textit{representative} for the set, and replace occurrences of the other words in that set with our \textit{representative}. For simplicity, we choose the \textit{representative} as the shortest word in its synonym set.
 
-This is what we call \textit{story homogenization}, and it helps \textsc{SumASG} link words that would otherwise be considered completely different tokens in the story.
+This is what we call \textit{story homogenization}, and it helps \textsc{SumASG} link words that would otherwise be considered completely different \textit{tokens} in the story.
 
 \subsection{Example}
 
