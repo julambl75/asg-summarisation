@@ -27,15 +27,15 @@ By doing so we can lose some information, or worse: convey a false meaning due t
 \begin{figure}[H]\
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-John and Mary are siblings. Today is Monday 25 May 2020. Unless it rains, which is highly likely, John's sister is going running and then buying a pain au chocolat tomorrow. However what she doesn't know is that her favorite bakery is closed as of 24 May.
+John and Mary are siblings. Today is Monday 25 May. Unless it rains in London, which is highly likely, John's sister is going running and then buying a brioche feuilletée aux pralines roses tomorrow. However she doesn't know that her favorite bakery doesn't make pastries on Tuesdays.
 \end{displayquote}
 \caption{Story}
 \vspace{\baselineskip}
 \end{subfigure}
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-Unless is rains, Mary is going running and then buying a pain au chocolat on Tuesday 26 May. However what she doesn't know is that her favorite bakery is now closed.
-\caption{``Ideal" partially-\textit{abstractive} summary}
+Unless is rains, Mary is going running and then buying a pastry on Tuesday. However she doesn't know that her favorite bakery doesn't make pastries on that day of the week.
+\caption{``Ideal" partially-\textit{abstractive} and \textit{informative} summary}
 \end{displayquote}
 \end{subfigure}
 \caption{Example of a short story with complex semantics}
@@ -44,13 +44,25 @@ Unless is rains, Mary is going running and then buying a pain au chocolat on Tue
 
 With the way things are currently set up, the \textsc{Preprocessor} might remove the second sentence, getting rid of all useful temporal information from the story. It could also remove the last sentence, which is crucial in the narrative. Finally, it would definitely delete the first two clauses from the third sentence, missing out on an important \textit{nuance}.
 
-Even if all this information had been preserved and passed through to \textit{SumASG}, it would be unable to understand it in a contextually-aware enough manner. More to the point, it has
+Even if all this information had been preserved and passed through to \textsc{SumASG}, it would be unable to understand it in a contextually-aware enough manner. More to the point, the following facts are relevant to create a good summary:
 
-\begin{itemize}[nolisstep]
-
+\begin{itemize}
+\item John and Mary are siblings, so ``John's sister" refers to Mary.
+\item The current day of the week is Monday, so Mary is thinking of going running on a Tuesday.
+\item It is probably going to rain on Tuesday, so there is a slim chance Mary will carry out her plans.
+\item The bakery where she was planning on getting her pastry not be selling any that day (inference is necessary here).
 \end{itemize}
 
-In order to understand such a story, we would therefore need to strengthen \textsc{SumASG*} at each step in the pipeline.
+Even though they are essential to comprehend the story, there is also a set of facts that should not appear in the summary:
+
+\begin{itemize}
+\item John is Mary's brother.
+\item The current date is 25 May.
+\item Mary is in London.
+\item She is interested specifically in a brioche feuilletée aux pralines roses.
+\end{itemize}
+
+In order to understand such a story, we would therefore need to strengthen \textsc{SumASG*} at each step in the pipeline. As well as much better parsing, this would require creating a more complex set of predicates to better capture the meaning in a story. Finally, we would also have the change the \textit{scoring} mechanism, so that it looks for summaries which lose as little meaning as possible from the original story.
 
 \subsection{Longer Stories}
 
@@ -65,5 +77,3 @@ There are many domains where a certain background knowledge is assumed, such as 
 In the case of reading a paper, the \textit{extension} would include the relevant encyclopedic knowledge translated into logic. By combining this with the information contained in the paper, a machine would be able to understand what the author is talking about.
 
 When it comes to understanding a play, we would need encode into the parsing mechanism the difference in format between reading narrative and dialog (from various characters). By carefully keeping track of the timeline, and using \textit{action} predicates that know who is speaking, we would be able to programmatically learn about the evolution of the characters in the story.
-
-\textcolor{red}{\textbf{\hl{TODO}}}
