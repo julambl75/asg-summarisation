@@ -11,38 +11,59 @@ The core accomplishments of this project are the following:
 \item Implemented an algorithm that dramatically reduces the complexity in the structure of English sentences, without losing too much information.
 \item Implemented an algorithm which uses \textit{similarity} to remove irrelevant sentences from a short story.
 \item Implemented a scoring mechanism prioritizing information density, while taking into account words which may appear frequently in English, can be considered as the \textit{topic} of the original text.
-\item Created a framework to automatically generate topical short stories for evaluating the system, based on a dataset of words and a particular sentence structure.
+\item Created a framework to automatically generate topical short stories to evaluate \textsc{SumASG*}, based on a dataset of words and particular sentence structure.
 \end{itemize}
 
 \section{Future Work}
 
-Text summarization is a highly involved task in NLP, bringing together many different fields of study. For this reason, there any many ways in which we could take the overall pipeline forward, the most beneficial of which we shall discuss in what follows.
+Text summarization is a highly involved task in NLP, bringing together many different fields of study. For this reason, there any many ways in which we could take the overall pipeline forward, the most beneficial of which we shall discuss in what follows. Although the ideas which follow may seem rather involved, it is easy to reduce them to a more manageable task.
 
 \subsection{Better Semantic Understanding}
 
 By way of the \textsc{Preprocessor}, \textsc{SumASG*} is able to transform complex sentence structures into simple ones. Unfortunately, this comes at the cost of removing connectors, as well many auxiliary clauses whose structure \textsc{SumASG} cannot parse.
 
-By doing so we can lose some information, or worse: convey a false meaning due to the intricacy of English semantics. To illustrate this, consider the following story:
+By doing so we can lose some information, or worse: convey a false meaning due to the intricacy of English semantics. To illustrate this consider the following story, as shown in Figure \ref{fig:complex_summary}.
 
+\begin{figure}[H]\
+\begin{subfigure}{\textwidth}
 \begin{displayquote}
-
+John and Mary are siblings. Today is Monday 25 May 2020. Unless it rains, which is highly likely, John's sister is going running and then buying a pain au chocolat tomorrow. However what she doesn't know is that her favorite bakery is closed as of 24 May.
 \end{displayquote}
+\caption{Story}
+\vspace{\baselineskip}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+Unless is rains, Mary is going running and then buying a pain au chocolat on Tuesday 26 May. However what she doesn't know is that her favorite bakery is now closed.
+\caption{``Ideal" partially-\textit{abstractive} summary}
+\end{displayquote}
+\end{subfigure}
+\caption{Example of a short story with complex semantics}
+\label{fig:complex_summary}
+\end{figure}
 
-This would require changes at all levels of the pipeline.
+With the way things are currently set up, the \textsc{Preprocessor} might remove the second sentence, getting rid of all useful temporal information from the story. It could also remove the last sentence, which is crucial in the narrative. Finally, it would definitely delete the first two clauses from the third sentence, missing out on an important \textit{nuance}.
+
+Even if all this information had been preserved and passed through to \textit{SumASG}, it would be unable to understand it in a contextually-aware enough manner. More to the point, it has
+
+\begin{itemize}[nolisstep]
+
+\end{itemize}
+
+In order to understand such a story, we would therefore need to strengthen \textsc{SumASG*} at each step in the pipeline.
 
 \subsection{Longer Stories}
 
-As we have seen, runtime is one of the major bottlenecks of \textsc{SumASG}.
+What we would like it to use this mechanism to summarize longer texts, such as newspaper articles or even whole books. Using a supercomputer, we could run a much more advanced and polished version of \textsc{SumASG*} in order to generate a summary of one or more pages in length.
+
+As we have seen, runtime is one of the major bottlenecks of \textsc{SumASG}, which is why \textsc{SumASG*} is limited to very succinct stories. What we would therefore need to do is to carefully reason about the most efficient implementation of our logic program. This could involve separately running \textsc{SumASG*} on each paragraph or page, and then gathering the results together to construct the final summary.
 
 \subsection{Domain-Specific Understanding}
 
-There are many domains where a certain background knowledge is assumed, such as research papers in Computer Science. A possible improvement to \textsc{SumASG*} could be a suite of \textit{extensions}, each providing background knowledge...
+There are many domains where a certain background knowledge is assumed, such as research papers in Computer Science, or scripts for plays. With an enhanced version of \textsc{SumASG*}, we could help authors by automating (or at least partially) their respective tasks of writing abstracts and loglines. A way to accomplish this would be to create a suite of \textit{extensions}, each providing background knowledge to help understand a particular subject.
+
+In the case of reading a paper, the \textit{extension} would include the relevant encyclopedic knowledge translated into logic. By combining this with the information contained in the paper, a machine would be able to understand what the author is talking about.
+
+When it comes to understanding a play, we would need encode into the parsing mechanism the difference in format between reading narrative and dialog (from various characters). By carefully keeping track of the timeline, and using \textit{action} predicates that know who is speaking, we would be able to programmatically learn about the evolution of the characters in the story.
 
 \textcolor{red}{\textbf{\hl{TODO}}}
-
-- domain-specific, not scalable
-- longer text
-- more complex structure
-- better verification methods
-- better understanding of connectors and chronology
-- more efficient
