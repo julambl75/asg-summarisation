@@ -1,5 +1,6 @@
 .
 a
+an
 the
 and
 i

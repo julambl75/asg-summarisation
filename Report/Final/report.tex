@@ -128,22 +128,6 @@
 \chapter{Evaluation}
 \input{chapters/evaluation}
 
-For for each story:
-1. Pick predefined lexical field (topic)
-2. Pick a single pronoun (p)
-3. Pick a single proper noun (pn)
-4. For each sentence:
-    - Subject: p, pn, or synonym/hyponym/hypernym of topic with optional common adjective for it
-    - Verb: verb from same lexical field as topic if possible, otherwise random
-    - Object: p, pn, or holonym/meronym of subject with lexical field of currently used common nouns
-    
-
-- Compare with NN
-    1. Randomize action(...) to generate summary(...) on trained ASG
-    2. Train NN to generate same summary(...)
-    3. Show framework is sane and expandable (computationally tractable)
-    4. Compute Rouge score (PyRouge, must clone repo into project) on ASG and NN
-
 \chapter{Literature Review}
 \input{chapters/literature_review}
 

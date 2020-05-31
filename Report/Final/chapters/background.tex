@@ -337,12 +337,14 @@ In the context of neural machine translation (NMT) systems such as \textit{encod
 
 \subsubsection{Global Attention}
 
-On top of being dependant on the last \textit{hidden state} $d_{t-1}$ and output \textit{token} $y_{i-1}$, every \textit{hidden state} $d_t$ in a \textit{decoder} with \textit{global attention} is computed also in function of its \textit{context vector} $c_t$. For each timestep $t$, the \textit{context vector} $c_t$ is defined as a weighted sum of the \textit{encoder}'s \textit{hidden states} $h_i$. The $h_i$ that are assigned a higher weight are those which are more similar to $d_t$; this is done using a trainable \textit{alignment model} $a$. \cite{bahdanau_neural_2016}
+On top of being dependant on the last \textit{hidden state} $d_{t-1}$ and output \textit{token} $y_{i-1}$, every \textit{hidden state} $d_t$ in a \textit{decoder} with \textit{global attention} is computed also in function of its \textit{context vector} $c_t$. Each \textit{context vector} $c_t$ is defined as a weighted sum of the \textit{encoder}'s \textit{hidden states} $h_i$. The $h_i$ that are assigned a higher weight are that which are more similar to $d_t$, which is done using a trainable \textit{alignment model} $a$. \cite{bahdanau_neural_2016}
 
 \begin{equation}
 \begin{aligned}
 c_t &= \sum_{i} \alpha_{ti} \cdot h_t \\
-\mbox{where } \alpha_{ti} &= softmax(\{s_{t1}, ..., s_{tS}\}) \\
+\mbox{where } \alpha_{ti} &= \frac{exp(s_{ti})}{\sum_{j} exp(s_{tj})} \\
 s_{ti} &= a(d_{t-1},h_i)
 \end{aligned}
 \end{equation}
+
+Here the idea is that $\alpha_{ti}$ tells us how important each $h_i$ is with respect to the current timestep $t$, influencing the value of $d_t$ and hence the decision of the generated output \textit{token} $y_t$. Essentially, this is a way of telling the \textit{decoder} which parts of the input sequence to pay attention to. Thanks to this mechanism, the \textit{encoder} is no longer forced to compress all the useful information from an input sequence into a fixed-length vector, thus improving performance for longer sequences of \textit{tokens}. \cite{bahdanau_neural_2016}

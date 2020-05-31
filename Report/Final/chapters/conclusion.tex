@@ -16,17 +16,27 @@ The core accomplishments of this project are the following:
 
 \section{Future Work}
 
-Text summarization is a highly involved task in NLP, bringing together many different fields of study. For this reason, there any many ways in which we could take this project forward, the most beneficial of which we shall discuss in what follows.
-
-\subsection{Support For More Complex Structures}
+Text summarization is a highly involved task in NLP, bringing together many different fields of study. For this reason, there any many ways in which we could take the overall pipeline forward, the most beneficial of which we shall discuss in what follows.
 
 \subsection{Better Semantic Understanding}
 
-\subsection{Automatic Leaning of Summary Generation Rules}
+By way of the \textsc{Preprocessor}, \textsc{SumASG*} is able to transform complex sentence structures into simple ones. Unfortunately, this comes at the cost of removing connectors, as well many auxiliary clauses whose structure \textsc{SumASG} cannot parse.
 
-\subsection{Performance Improvements}
+By doing so we can lose some information, or worse: convey a false meaning due to the intricacy of English semantics. To illustrate this, consider the following story:
+
+\begin{displayquote}
+
+\end{displayquote}
+
+This would require changes at all levels of the pipeline.
+
+\subsection{Longer Stories}
 
 As we have seen, runtime is one of the major bottlenecks of \textsc{SumASG}.
+
+\subsection{Domain-Specific Understanding}
+
+There are many domains where a certain background knowledge is assumed, such as research papers in Computer Science. A possible improvement to \textsc{SumASG*} could be a suite of \textit{extensions}, each providing background knowledge...
 
 \textcolor{red}{\textbf{\hl{TODO}}}
 
