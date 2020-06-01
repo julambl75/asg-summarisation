@@ -1,3 +1,5 @@
+\label{chapter:preprocessor}
+
 \section{Overview}
 
 In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we have created the \textsc{Preprocessor}. As we will loose information in summary anyway, it is completely acceptable to... which steps are shown below in Figure \ref{fig:preprocessor_pipeline}.
@@ -22,6 +24,7 @@ In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we
 \end{figure}
 
 \section{Tokenization And Simplification}
+\label{sec:tokenization_scoring}
 
 With the help of \textbf{CoreNLP}, we can assign a POS tag to each word, or \textit{token}, from the input story. Using this information, we can now make a number of simplifications which will make the sentence structure more consistent throughout.
 

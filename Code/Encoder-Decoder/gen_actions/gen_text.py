@@ -220,7 +220,7 @@ class GenActions:
         if noun:
             self.create_asg_leaf(COMMON_NOUN_POS, noun, NOUN_PREDICATE)
             self.topics.add(noun)
-        if determiner:
+        if determiner and determiner != EMPTY_TOKEN:
             self.create_asg_leaf(DETERMINER_POS, determiner, DETERMINER_PREDICATE)
         if adjective:
             self.create_asg_leaf(ADJECTIVE_POS, adjective, ADJECTIVE_PREDICATE)

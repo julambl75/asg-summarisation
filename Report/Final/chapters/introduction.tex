@@ -28,9 +28,9 @@ Although the bulk of the summarization logic should revolve around ASGs, pre- an
 
 \section{Approach Overview}
 
-The central part of the pipeline, which performs story summarization, revolves around the ASG task of \textsc{SumASG}. To build on top of this foundation, we also have the \textsc{Preprocessor}, as well as some final post-processing and scoring mechanisms, all written in Python. We will call this augmented task \textsc{SumASG*}, and describe each step in the following chapters. A diagram of the entire pipeline can be seen in Figure \ref{fig:main_pipeline}.
+In what follows, we shall give a brief overview of the various tasks that were undertaken and completed as part of the project. Where relevant, references to the corresponding sections are provided.
 
-\textcolor{red}{\textbf{\hl{TODO more in-depth}}}
+The approach described in this paper can be diagrammatically represented as a three step pipeline, as seen in Figure \ref{fig:main_pipeline}. Although the focus of this project is a mechanism written in ASG, it relies on a number of Python scripts to coordinate the flow of information.
 
 \begin{figure}[H]
 \centering
@@ -48,6 +48,11 @@ The central part of the pipeline, which performs story summarization, revolves a
 \caption{Main Pipeline}
 \label{fig:main_pipeline}
 \end{figure}
+
+We begin by describing the essential role of the \textsc{Preprocessor} in (Chapter \ref{chapter:preprocessor}). Given an input story, its goal is to simplify the story's sentences into a simpler and more consistent structure that will then be easier to parse by ASG (Section \ref{sec:tokenization_scoring}).
+
+%The central part of the pipeline, which performs story summarization, revolves around the ASG task of \textsc{SumASG}. To build on top of this foundation, we also have the \textsc{Preprocessor}, as well as some final post-processing and scoring mechanisms, all written in Python. We will call this augmented task \textsc{SumASG*}, and describe each step in the following chapters. A diagram of the entire pipeline can be seen in 
+
 
 \subsection{Example}
 
