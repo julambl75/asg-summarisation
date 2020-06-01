@@ -35,6 +35,7 @@ Our use ASG is two-fold. Firstly, we pass in each sentence from the story to ASG
 \end{figure}
 
 \section{Internal Representation}
+\label{sec:internal_representation}
 
 In order to model the structure of sentences the English language, we have created a CFG that has a similar hierarchy to that of an NLP parse tree. The ASG code for this general structure can be seen in Appendix \ref{appendix:asg}. Throughout this description of \textsc{SumASG}, please refer to Chapter \ref{chapter:background} for information on how to interpret an ASG program. Also, a table listing the possible POS tags is available in Appendix \ref{appendix:pos}.
 
@@ -179,6 +180,7 @@ start -> s_group {
 \end{displayquote}
 
 \section{Learning Actions}
+\label{sec:learn_actions}
 
 We first need to convert the preprocessed story's sentences from English into our internal structure. In other words, we need to learn about the \textit{actions} described by the sentences in our story, which can be thought of as high-level semantic descriptors.
 
@@ -320,6 +322,7 @@ Without the optimization, we would end up with a \textit{search space} size of 1
 Another way to solve this would have been to add a \textit{mode bias} constraint ruling out cases where both verbs in a continuous form are the same. However, we would usually end up with a \textit{search space} at least as large, since any verb could appear in continuous fo. Also, we would have to handle the edge case where both verbs are ``to be", as ``is being" is a perfectly acceptable phrase in English.
 
 \section{Generating Summary Sentences}
+\label{sec:gen_summary_sentences}
 
 \subsection{Formalization}
 

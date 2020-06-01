@@ -12,25 +12,29 @@ However to learn what is a summary, these systems require a very large amount of
 
 The main goal of this project is to explore the task of text summarization via logic-based learning with Answer Set Grammars (ASG). Below you will find the principal objectives which were established as being vital to achieving this goal.
 
-\begin{objective}[TODO]
-TODO
+\begin{objective}[Extract Important Semantic Information]
+
 \end{objective}
 
-Given a brief paragraph of text, for example a short story aimed at young children, we should be able to provide a summary in multiple sentences. The goal here is to extract the most important information from all the relevant sentences, and from this generate one or more grammatically-correct summaries.
+\begin{objective}[Translate English Into ASG]
 
-Although the bulk of the summarization logic should revolve around ASGs, pre- and/or post-processing may reveal itself beneficial in obtaining better-quality results.
+\end{objective}
 
-%In almost all these papers, the first step is to generate a parse tree in order to identify the different parts of speech and get a better understanding of a text. Once a parse tree is obtained, the task becomes to find out which details are important, and which can be omitted from the summary. Finally, the summary must be grammatically correct and provide enough information such that it serves a purpose to the reader.
-%
-%To know what is important...
+\begin{objective}[Generate Summaries Automatically]
+Given a brief paragraph of text, for example a short story aimed at young children, we should be able to provide a summary in multiple sentences. This should be fully-automated and not require any human intervention during the process.
+\end{objective}
 
+\begin{objective}[Create Grammatically-Correct Summaries]
+
+\end{objective}
+ 
 \textcolor{red}{\textbf{\hl{TODO fix}}}
 
 \section{Approach Overview}
 
 In what follows, we shall give a brief overview of the various tasks that were undertaken and completed as part of the project. Where relevant, references to the corresponding sections are provided.
 
-The approach described in this paper can be diagrammatically represented as a three step pipeline, as seen in Figure \ref{fig:main_pipeline}. Although the focus of this project is a mechanism written in ASG, it relies on a number of Python scripts to coordinate the flow of information.
+The approach described in this paper, known as \textsc{SumASG*}, can be diagrammatically represented as a three step pipeline, as seen in Figure \ref{fig:main_pipeline}. Although the focus of this project is a mechanism written in ASG, it relies on a number of Python scripts to process information and coordinate its flow.
 
 \begin{figure}[H]
 \centering
@@ -49,10 +53,11 @@ The approach described in this paper can be diagrammatically represented as a th
 \label{fig:main_pipeline}
 \end{figure}
 
-We begin by describing the essential role of the \textsc{Preprocessor} in (Chapter \ref{chapter:preprocessor}). Given an input story, its goal is to simplify the story's sentences into a simpler and more consistent structure that will then be easier to parse by ASG (Section \ref{sec:tokenization_scoring}).
+We begin by describing the essential role of the \textsc{Preprocessor} in Chapter \ref{chapter:preprocessor}. Given an input story, its goal is to simplify the story's sentences into a simpler and more consistent structure that will then be easier to parse by ASG (Section \ref{sec:tokenization_scoring}). On top of this, the \textsc{Preprocessor} also removes irrelevant sentences from the story and reduces the lexical diversity (Section \ref{sec:pruning_homogenization}), which helps increase the chances of generating a high-quality summary.
 
-%The central part of the pipeline, which performs story summarization, revolves around the ASG task of \textsc{SumASG}. To build on top of this foundation, we also have the \textsc{Preprocessor}, as well as some final post-processing and scoring mechanisms, all written in Python. We will call this augmented task \textsc{SumASG*}, and describe each step in the following chapters. A diagram of the entire pipeline can be seen in 
+In Chapter \ref{chapter:asg} we discuss the use of ASG in the context of this project, forming a procedure we call \textsc{SumASG}. It all revolves around a purpose-built internal representation of English sentences, represented as a tree (Section \ref{sec:internal_representation}). The first of two steps, \textsc{SumASG\textsubscript{1}}, involves translating sentences from the input story into our internal representation using ASG's learning abilities (Section \ref{sec:learn_actions}). From this, we then use a number of logic-based rules to generate sentences which may be used to form a summary (Section \ref{sec:gen_summary_sentences}).
 
+The third part of the pipeline, as outlined in Chapter \ref{chapter:postprocessing}, serves to turn the output of \textsc{SumASG} into usable summaries. To begin, we post-process the summary sentences given to us as output, and combine them in different ways so as to form potential summaries (Section \ref{sec:summary_creation}). Afterwards, we discuss a mechanism used to score these summaries (Section \ref{sec:scoring}), and explore ways in which to select those that are optimal (Section \ref{sec:summary_selection}).
 
 \subsection{Example}
 
