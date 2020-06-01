@@ -69,12 +69,12 @@ PAST_TENSE_POS = 'vbd'
 
 TRAIN = 'train'
 TEST = 'test'
-EVAL = 'val'
+VALID = 'val'
 
 PRINT_EVERY_ITERS = 5
 PRINT_EVERY_SECONDS = 150
-TEST_PROPORTION = 0.1
-EVAL_NUM = 5
+VALID_PROPORTION = 0.1
+TEST_NUM = 5
 
 
 class GenActions:
@@ -347,25 +347,25 @@ class GenActions:
         with open(summaries_dest, 'w') as summaries_file:
             summaries_file.write(summaries)
 
-    def write_training_data(self, proportion_of_test, num_eval, shuffle=True):
-        assert 0 <= proportion_of_test < 1
-        assert 0 <= num_eval < len(self.training_pairs) / 10
+    def write_training_data(self, proportion_of_valid, num_test, shuffle=True):
+        assert 0 <= proportion_of_valid < 1
+        assert 0 <= num_test < len(self.training_pairs) / 10
 
-        num_not_eval = len(self.training_pairs) - num_eval
-        num_test = int(proportion_of_test * num_not_eval)
+        num_not_test = len(self.training_pairs) - num_test
+        num_valid = int(proportion_of_valid * num_not_test)
         if shuffle:
             print('Shuffling story/summary pairs...')
             random.shuffle(self.training_pairs)
-        train_pairs = self.training_pairs[num_eval+num_test:]
-        test_pairs = self.training_pairs[num_eval:num_eval+num_test]
-        eval_pairs = self.training_pairs[:num_eval]
+        train_pairs = self.training_pairs[num_test + num_valid:]
+        valid_pairs = self.training_pairs[num_test:num_test + num_valid]
+        test_pairs = self.training_pairs[:num_test]
         self._write_training_data(train_pairs, TRAIN)
+        self._write_training_data(valid_pairs, VALID)
         self._write_training_data(test_pairs, TEST)
-        self._write_training_data(eval_pairs, EVAL)
 
 
 if __name__ == '__main__':
     gen_actions = GenActions()
     gen_actions.generate_stories(story_length=4, num_stories=2000)
     gen_actions.summarise_generated_stories()
-    gen_actions.write_training_data(TEST_PROPORTION, EVAL_NUM)
+    gen_actions.write_training_data(VALID_PROPORTION, TEST_NUM)

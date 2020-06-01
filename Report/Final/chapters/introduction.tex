@@ -1,6 +1,6 @@
 \label{chapter:introduction}
 
-In general, the task of summarization in NLP (natural language processing) is to produce a shortened text which covers the main points expressed in a longer text (given as input). In order to do this, a system performing such a task must analyse/process the input to be able to extract from it the most important information.
+In general, the task of summarization in NLP (Natural Language Processing) is to produce a shortened text which covers the main points expressed in a longer text given as input. To this end, a system performing such a task must analyse and process the input in order to extract from it the most important information.
 
 \section{Motivations}
 
@@ -12,23 +12,21 @@ However to learn what is a summary, these systems require a very large amount of
 
 The main goal of this project is to explore the task of text summarization via logic-based learning with Answer Set Grammars (ASG). Below you will find the principal objectives which were established as being vital to achieving this goal.
 
-\begin{objective}[Extract Important Semantic Information]
-
+\begin{objective}[Research Existing Summarization Methods]
+Before diving into the task of logic-based summary generation, we should investigate the approaches used by existing state-of-the-art systems. Even if these are not logic-based, they might rely on techniques that could be beneficial to use for this project.
 \end{objective}
 
 \begin{objective}[Translate English Into ASG]
-
+Our system should be capable of taking a text written in English and converting it into some logic-based form that can be interpreted by ASG. Moreover, this internal representation should capture as much of the semantics from the original text as possible, and not be limited to a particular domain.
 \end{objective}
 
 \begin{objective}[Generate Summaries Automatically]
-Given a brief paragraph of text, for example a short story aimed at young children, we should be able to provide a summary in multiple sentences. This should be fully-automated and not require any human intervention during the process.
+Given a brief paragraph of text, for example a short story aimed at young children, we should be able to provide a grammatically correct summary in multiple sentences. This should be fully-automated and not require any human intervention during the process.
 \end{objective}
 
-\begin{objective}[Create Grammatically-Correct Summaries]
-
+\begin{objective}[Evaluate The Approach]
+Once we have implemented the basic approach, we should run our system on a suite of examples to verify that it can produce summaries that closely resemble the corresponding human-generated ones. On a larger scale, it is important to also run it against a popular summarization approach to ensure the sanity of our logic-based mechanism.
 \end{objective}
- 
-\textcolor{red}{\textbf{\hl{TODO fix}}}
 
 \section{Approach Overview}
 
