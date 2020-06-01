@@ -110,11 +110,11 @@ In addition, we preprocess the data using Stanford's \textbf{\href{https://nlp.s
 
 \subsection{Encoder-Decoder Architecture}
 
-Our \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of size 7295, which is internally represented using a vector of size 100. They both use a two-layer LSTM with \textit{dropout} of 0.25. Additionally, our \textit{decoder} uses \textit{global attention}.
+Our \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of size 7295, which is internally represented using a vector of size 250. They both use a two-layer LSTM with \textit{dropout} of 0.25. Additionally, our \textit{decoder} uses \textit{global attention}.
 
 \subsection{Training}
 
-The neural network was trained using an Adam optimizer with a \textit{learning rate} of 0.0005. This was done over a period of 10,000 epochs, validating every 100 epochs. It took 2,050 epochs for training accuracy to reach above 99\%, while validation accuracy slowly increased over time to reach about 53\% at the end.
+The neural network was trained using an Adam optimizer with a \textit{learning rate} of 0.0005 and \textit{batch size} of 50. This was done over a period of 10,000 steps (i.e., 200 epochs), validating every 10 epochs. It took about 30 epochs for training accuracy to reach above 99\%, while validation accuracy slowly increased over time to reach about 53\% at the end.
 
 \subsection{Results}
 
