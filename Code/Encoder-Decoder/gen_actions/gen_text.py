@@ -342,9 +342,9 @@ class GenActions:
         mkpath(EXPORT_PATH)
         stories_dest = self.get_export_file('stories', nn_step)
         summaries_dest = self.get_export_file('summaries', nn_step)
-        with open(stories_dest, 'a') as stories_file:
+        with open(stories_dest, 'w') as stories_file:
             stories_file.write(stories)
-        with open(summaries_dest, 'a') as summaries_file:
+        with open(summaries_dest, 'w') as summaries_file:
             summaries_file.write(summaries)
 
     def write_training_data(self, proportion_of_test, num_eval, shuffle=True):
