@@ -22,6 +22,7 @@
 \usepackage{listings}
 \usepackage{color,soul}
 \usepackage{multirow}
+\usepackage{array}
 
 \usetikzlibrary{shapes,arrows,trees,positioning}
 \tikzstyle{block}=[draw, fill=blue!20, minimum size=2em]
@@ -78,6 +79,9 @@
 
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
 \newcommand{\floor}[1]{\lfloor #1 \rfloor}
+
+% https://tex.stackexchange.com/questions/54069/table-with-text-wrapping/414580
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}p{#1}}
 
 \graphicspath{ {media/} }
 
