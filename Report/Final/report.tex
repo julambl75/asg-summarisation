@@ -74,6 +74,7 @@
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 \newtheorem{objective}{Objective}
+\newtheorem{contribution}{Contribution}
 
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
 \newcommand{\floor}[1]{\lfloor #1 \rfloor}
@@ -90,6 +91,8 @@
 
 \begin{document}
 
+\pagenumbering{roman}
+
 \pagestyle{empty}
 \input{title}
 
@@ -99,9 +102,11 @@
 \input{acknowledgements}
 \newpage
 
-\pagenumbering{roman}
-
+\pagestyle{PageNum}
 \tableofcontents
+\thispagestyle{PageNum}
+
+\newpage
 
 \titleformat{\chapter}
 {\normalfont\huge}{\chaptertitlename{} \thechapter}{20pt}{\bfseries\huge}
@@ -137,6 +142,7 @@
 \begin{appendices}
 \titleformat{\chapter}{\normalfont\huge}{\appendixname{} \thechapter.}{20pt}{\bfseries\huge}
 \input{appendices/pos}
+\input{appendices/stories}
 \input{appendices/asg}
 \end{appendices}
 
