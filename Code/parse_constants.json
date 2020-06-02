@@ -26,6 +26,7 @@
     "prp": "noun",
     "rb": "adj_or_adv",
     "rp": "adj_or_adv",
+    "vb": "main_verb",
     "vbd": "main_verb",
     "vbg": "main_verb",
     "vbn": "main_verb",
@@ -33,6 +34,7 @@
     "vbz": "main_verb"
   },
   "tenses": {
+    "vb": "base",
     "vbd": "past",
     "vbg": "gerund",
     "vbn": "past_part",
@@ -40,6 +42,6 @@
     "vbz": "present_third"
   },
   "main_verb_forms": ["present", "present_third", "past"],
-  "aux_verb_forms": ["past_part", "gerund"],
+  "aux_verb_forms": ["base", "past_part", "gerund"],
   "prepositions": ["in"]
 }
