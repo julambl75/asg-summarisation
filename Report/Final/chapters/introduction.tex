@@ -84,10 +84,23 @@ There was a curious little boy named Peter Little. He was interested in stars an
 
 \section{Contributions}
 
-The main contribution of this project to the field of NLP is the creation of an end-to-end logic-based system capable of text summarization, without the need of any training whatsoever, as would be the case with a typical Machine Learning-based approach these days. More specifically, the fundamental achievements are as follows:
+The main contribution of this project to the field of NLP is the creation of an end-to-end logic-based system capable of text summarization, without the need of any training whatsoever, as would be the case with a typical Machine Learning-based approach these days. Going more into depth, we shall discuss some specific contributions in what follows.
 
-\begin{contribution}
-TODO
+\begin{contribution}[Representation Of English In ASG]
+Created a context-free grammar that models the structure of basic English sentences, and can be used both for semantic learning, as well as generating grammatically-correct text.
 \end{contribution}
 
-\textcolor{red}{\textbf{\hl{TODO more in-depth}}}
+\begin{contribution}[Simplification Of Complex Structures]
+Implemented an algorithm that dramatically reduces the complexity in the structure of English sentences, without losing too much information.
+\end{contribution}
+
+\begin{contribution}[Removal Of Irrelevant Sentences]
+Implemented an algorithm which uses \textit{similarity} to remove irrelevant sentences from a short story.
+\end{contribution}
+
+\begin{itemize}
+\item Implemented a scoring mechanism prioritizing information density, while taking into account words which may appear frequently in English, can be considered as the \textit{topic} of the original text.
+\item Created a framework to automatically generate topical short stories to evaluate \textsc{SumASG*}, based on a dataset of words and particular sentence structure.
+\end{itemize}
+
+\textcolor{red}{\textbf{\hl{TODO cleanup}}}
