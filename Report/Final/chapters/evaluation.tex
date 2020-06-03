@@ -110,7 +110,7 @@ In addition, we preprocess the data using Stanford's \textbf{\href{https://nlp.s
 
 \subsection{Encoder-Decoder Architecture}
 
-Our \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of size 7295, which is internally represented using a vector of size 250. They both use a two-layer LSTM with \textit{dropout} of 0.25. Additionally, our \textit{decoder} uses \textit{global attention}.
+Our \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of size 4239, its contents being internally represented using a vector of size 500. They both use a two-layer LSTM with \textit{dropout} of 0.25. Additionally, our \textit{decoder} uses \textit{global attention}.
 
 \subsection{Training}
 
@@ -144,10 +144,22 @@ Unfortunately, due to framework constraints, it is impossible to provide the tra
 \end{subfigure}
 \begin{subfigure}{\textwidth}
 \vspace{\baselineskip}
-
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Story & Predicted summary BLEU & Closest \textsc{SumASG*} summary BLEU \\ \midrule
+\textbf{1}     & 0                      & 0                                                      \\
+\textbf{2}     & 0                      & 0                                                      \\
+\textbf{3}     & 0                      & 0                                                      \\
+\textbf{4}     & 0                      & 0                                                      \\ \bottomrule
+\end{tabular}
+\end{table}
 \caption{Maximum BLEU scores between \textit{encoder-decoder} summary and \textsc{SumASG*} summaries}
 \end{subfigure}
-\caption{TODO}
+\caption{Evaluation results}
 \label{fig:neural_network_testing}
 \end{figure}
 
