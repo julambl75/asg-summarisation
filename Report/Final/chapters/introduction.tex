@@ -84,23 +84,28 @@ There was a curious little boy named Peter Little. He was interested in stars an
 
 \section{Contributions}
 
-The main contribution of this project to the field of NLP is the creation of an end-to-end logic-based system capable of text summarization, without the need of any training whatsoever, as would be the case with a typical Machine Learning-based approach these days. Going more into depth, we shall discuss some specific contributions in what follows.
-
-\begin{contribution}[Representation Of English In ASG]
-Created a context-free grammar that models the structure of basic English sentences, and can be used both for semantic learning, as well as generating grammatically-correct text.
-\end{contribution}
+The main contribution of this project to the field of NLP is the creation of an end-to-end, fully-automated logic-based system capable of text summarization, without the need of any training whatsoever, as would be the case with a typical Machine Learning-based approach these days. Going more into depth, we shall discuss some specific contributions in what follows.
 
 \begin{contribution}[Simplification Of Complex Structures]
 Implemented an algorithm that dramatically reduces the complexity in the structure of English sentences, without losing too much information.
 \end{contribution}
 
-\begin{contribution}[Removal Of Irrelevant Sentences]
-Implemented an algorithm which uses \textit{similarity} to remove irrelevant sentences from a short story.
+\begin{contribution}[Removal Of Irrelevant Sentences And Homogenization]
+Implemented an algorithm which uses \textit{similarity} to remove irrelevant sentences from a short story, and replaces synonyms with a single representative in each set of synonyms.
 \end{contribution}
 
-\begin{itemize}
-\item Implemented a scoring mechanism prioritizing information density, while taking into account words which may appear frequently in English, can be considered as the \textit{topic} of the original text.
-\item Created a framework to automatically generate topical short stories to evaluate \textsc{SumASG*}, based on a dataset of words and particular sentence structure.
-\end{itemize}
+\begin{contribution}[Representation Of English In ASG]
+Created a context-free grammar that models the structure of basic English sentences, and can be used both for semantic learning, as well as generating grammatically-correct text.
+\end{contribution}
 
-\textcolor{red}{\textbf{\hl{TODO cleanup}}}
+\begin{contribution}[Translation Of English Into ASG]
+Wrote an ASG learning task capable of taking English text and turning it into set of chronologically-ordered \textit{actions} which convey in ASP what occurs in the text.
+\end{contribution}
+
+\begin{contribution}[Automatic Generation Of Summaries]
+Developed a set of rules which, given \textit{actions} from a story, allow ASG to generate both \textit{extractive} and \textit{abstractive} summary sentences.
+\end{contribution}
+
+\begin{contribution}[Scoring Mechanism]
+Implemented a scoring mechanism prioritizing information density, while taking into account words which may appear frequently in English and can be considered the \textit{topic} of the original text.
+\end{contribution}
