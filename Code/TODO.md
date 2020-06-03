@@ -1,3 +1,8 @@
+## For Report
+
+- change to only use singular
+- reduce vocabulary to 4388
+
 ## Datasets
 
 https://analyticsindiamag.com/10-question-answering-datasets-to-build-robust-chatbot-systems/

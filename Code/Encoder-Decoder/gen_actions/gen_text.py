@@ -210,10 +210,9 @@ class GenActions:
 
         if not noun and (token_type == SUBJECT_TOKEN or not adjective):
             noun = random.choice(self.nouns)
-        if noun and self.query_pattern.is_plural_noun(noun):
-            determiner = EMPTY_TOKEN
-            person, number = CONJUGATION_GROUP
-        else:
+        elif noun:
+            if self.query_pattern.is_plural_noun(noun):
+                self.query_pattern.get_singular_noun(noun)
             determiner = random.choice(DETERMINERS) if noun else None
             person, number = CONJUGATION_INDIVIDUAL
 
