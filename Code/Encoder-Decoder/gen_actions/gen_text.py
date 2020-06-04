@@ -226,16 +226,18 @@ class GenActions:
         return noun or EMPTY_TOKEN, determiner or EMPTY_TOKEN, adjective or EMPTY_TOKEN, person, number
 
     def _subject_object_to_story_tokens(self, noun, determiner, adjective_part):
+        new_story_tokens = []
         for clause_part in [determiner, adjective_part, noun]:
             inner_token_idx = clause_part.find('(') + 1
             if inner_token_idx > 0:
                 inner_tokens = clause_part[inner_token_idx:-1].split(',')
                 for i, inner_token in enumerate(inner_tokens):
                     if i > 0:
-                        self.curr_story_tokens.append(CONJUNCT_KEYWORD)
-                    self.curr_story_tokens.append(inner_token.strip())
+                        new_story_tokens.append(CONJUNCT_KEYWORD)
+                    new_story_tokens.append(inner_token.strip())
             elif clause_part != EMPTY_TOKEN:
-                self.curr_story_tokens.append(clause_part)
+                new_story_tokens.append(clause_part)
+        return new_story_tokens
 
     def get_random_subject_object(self, token_type):
         determiner = adjective_part = EMPTY_TOKEN
@@ -251,10 +253,13 @@ class GenActions:
             noun, determiner, adjective_part, person, number = self._get_random_common_noun(token_type)
             self.subject_type = None
 
-        self._subject_object_to_story_tokens(noun, determiner, adjective_part)
         token = f'{token_type}({noun}, {determiner}, {adjective_part})'
+        new_story_tokens = self._subject_object_to_story_tokens(noun, determiner, adjective_part)
+
+        # Return subject story tokens so they can be added at start of each sentence
         if token_type == SUBJECT_TOKEN:
-            return token, noun, adjective_part, person, number
+            return token, new_story_tokens
+        self.curr_story_tokens.extend(new_story_tokens)
         return token
 
     def get_random_verb(self, person, number):
@@ -273,9 +278,8 @@ class GenActions:
         leaf_node = f'{pos_tag} -> "{value} " {{ {predicate}({lemma}). }}'
         self.leaf_nodes.add(leaf_node)
 
-    def generate_action(self, index):
-        subject, noun, adjective, person, number = self.get_random_subject_object(SUBJECT_TOKEN)
-        verb = self.get_random_verb(person, number)
+    def generate_action(self, index, subject):
+        verb = self.get_random_verb(*CONJUGATION_INDIVIDUAL)
         object = self.get_random_subject_object(OBJECT_TOKEN)
         self.curr_story_tokens.append(PUNCTUATION)
         return f'action({index}, {verb}, {subject}, {object}).'.replace('-', '_').lower()
@@ -295,8 +299,12 @@ class GenActions:
                 print(f'{time_ind} - [{i}/{num_stories}]: Generating stories of length {story_length}...')
 
             story_actions = []
+            subject, start_sent_tokens = self.get_random_subject_object(SUBJECT_TOKEN)
+
             for action_idx in range(story_length):
-                story_actions.append(self.generate_action(action_idx))
+                self.curr_story_tokens.extend(start_sent_tokens)
+                action = self.generate_action(action_idx, subject)
+                story_actions.append(action)
             self._reset_for_new_lexical_field()
 
             self.story_actions.append(story_actions)
