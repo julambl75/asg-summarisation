@@ -1,4 +1,3 @@
-Changes: fix word embeddings, wordvecsize, hiddensize
 To write: smaller hidden size and very slow training force learning to be more general
 
 1. dropout 0.25; lr 0.001; batchsize 50; wordvecsize 500; hiddensize 500

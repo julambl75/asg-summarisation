@@ -56,9 +56,11 @@ Since we don't know how general or specific this randomly selected \textit{topic
 
 For the \textit{subject} of a sentence, we draw a noun from our \textit{lexical common nouns}.
 
-If this word is singular, then we need a determiner, which can be either ``the" or ``a".
+If this word is singular, then we need a determiner, which can be ``the" or ``a".
 
 We also ask the \textbf{Datamuse API} to find us an adjective which is often modified by the chosen \textit{subject} noun, and is part of our dataset of words. If none is found, then we do not need to use an adjective.
+
+In order to avoid making the data too hard to learn, the same \textit{subject} is used in every sentence of the same story. However, the \textit{verb} and \textit{object} may differ.
 
 \subsubsection{Verb}
 
@@ -100,7 +102,7 @@ For each story, we feed the generated \textit{actions} and leaf nodes directly i
 
 \subsection{Datasets}
 
-Using the mechanism described above, we generate a number of story/summary pairs: 1796 to be used for training, 199 for validation and 5 for testing.
+Using the mechanism described above, we generate a number of story/summary pairs: 1796 to be used for training, 199 for validation and 10 for testing.
 
 \subsection{Tools}
 
@@ -110,11 +112,13 @@ In addition, we preprocess the data using Stanford's \textbf{\href{https://nlp.s
 
 \subsection{Encoder-Decoder Architecture}
 
-Our \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of size 4239, its contents being internally represented using a vector of size 500. They both use a two-layer LSTM with \textit{dropout} of 0.25. Additionally, our \textit{decoder} uses \textit{global attention}.
+Our \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of size 4239, its contents being internally represented using a vector of size 500. They both use a two-layer LSTM with \textit{dropout} of 0.25 and \textit{hidden size} of 500. Additionally, our \textit{decoder} uses \textit{global attention}.
 
 \subsection{Training}
 
-The neural network was trained using an Adam optimizer with a \textit{learning rate} of 0.0005 and \textit{batch size} of 50. This was done over a period of 10,000 steps (i.e., 200 epochs), validating every 10 epochs. It took 39 epochs for training accuracy to reach 99\%, while validation accuracy slowly increased over time to reach about 53\%.
+The neural network was trained using an Adam optimizer with a \textit{learning rate} of 0.001 and \textit{batch size} of 50. In order to preserve the GloVe word embeddings across training, we fix them at the start and use them for both the \textit{encoder} and \textit{decoder}. Training was done over a period of 10,000 steps (i.e., 200 epochs), validating every 10 epochs. It took 39 epochs for training accuracy to reach 99\%, while validation accuracy slowly increased over time to reach about 53\%.
+
+\textcolor{red}{\textbf{\hl{TODO}}}
 
 \subsection{Results}
 
