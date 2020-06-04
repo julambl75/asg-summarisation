@@ -44,9 +44,9 @@ A \textit{holonym} of something is one of its constituents; ``lightbulb" is a \t
 A \textit{meronym} is an object which something is part of; ``house" is a \textit{meronym} of ``kitchen".
 \end{definition}
 
-\subsubsection{Lexical Common Nouns}
+\subsubsection{Lexical Nouns}
 
-Along with the story's \textit{topic}, we also generate a set of \textit{lexical common nouns}. If the \textbf{Datamuse API} is able to find \textit{synonyms} of our \textit{topic} which also belong to our dataset of nouns, then these become the story's \textit{lexical common nouns}.
+Along with the story's \textit{topic}, we also generate a set of \textit{lexical nouns}. If the \textbf{Datamuse API} is able to find \textit{synonyms} of our \textit{topic} which also belong to our dataset of nouns, then these become the story's \textit{lexical nouns}.
 
 In addition, we query from the \textbf{Datamuse API} for verbs that are related to the chosen \textit{topic}. This becomes our set of \textit{lexical verbs}. If it is empty, then we make it the singleton set containing the verb ``to be".
 
@@ -54,7 +54,7 @@ Since we don't know how general or specific this randomly selected \textit{topic
 
 \subsubsection{Subject}
 
-For the \textit{subject} of a sentence, we draw a noun from our \textit{lexical common nouns}.
+For the \textit{subject} of a sentence, we draw a noun from our \textit{lexical nouns}.
 
 If this word is singular, then we need a determiner, which can be ``the" or ``a".
 
@@ -76,9 +76,9 @@ The determiner is added as for the \textit{subject}; if there is no noun we do n
 
 \subsubsection{Example}
 
-We take the example of generating a sentence for a story whose \textit{topic} is ``soccer". In this case, the \textit{lexical common nouns} are a singleton set containing the word ``football". Here also have two \textit{lexical verbs}: ``to match" and ``to pitch".
+We take the example of generating a sentence for a story whose \textit{topic} is ``soccer". In this case, the \textit{lexical nouns} are a singleton set containing the word ``football". Here also have two \textit{lexical verbs}: ``to match" and ``to pitch".
 
-For the \textit{subject}, we can choose the \textit{lexical common noun} ``football"; an adjective commonly used to modify it is ``professional". Since the noun here is singular, we can use the determiner ``a".
+For the \textit{subject}, we can choose the \textit{lexical noun} ``football"; an adjective commonly used to modify it is ``professional". Since the noun here is singular, we can use the determiner ``a".
 
 We can then pick ``to pitch" as the \textit{verb}, which becomes ``pitched" when conjugated in the past tense.
 

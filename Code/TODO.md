@@ -1,14 +1,22 @@
-To write: smaller hidden size and very slow training force learning to be more general
+## TODO
 
-1. dropout 0.25; lr 0.001; batchsize 50; wordvecsize 500; hiddensize 500
-2. dropout 0.25; lr 0.0002; batchsize 50; wordvecsize 100; hiddensize 50
-3. dropout 0.25; lr 0.0005; batchsize 50; wordvecsize 100; hiddensize 50
-4. dropout 0.25; lr 0.001; batchsize 50; wordvecsize 200; hiddensize 50
-5. dropout 0.25; lr 0.001; batchsize 50; wordvecsize 200; hiddensize 100
-6. dropout 0.25; lr 0.001; batchsize 50; wordvecsize 200; hiddensize 1000
-7. dropout 0.25; lr 0.001; batchsize 50; wordvecsize 500; hiddensize 500
+- refactor GenActions (now use same subject and verb per story, no more pronouns or names; remove bad code)
+- idea: try test data combining both structures
+- use smaller max for Datamuse
+- pick longest top summary
 
-Ideas: train first on super consistent data then on normal data
+S V O1. S V O2. S V O3.
+S V O. it was A O
+
+the [chief] [engineer] [organized] a [number] . it was a [large] [number] . 
+
+## For Report
+
+To write: smaller hidden size and very slow training force learning to be more general, no more names
+
+Params: dropout 0.25; lr 0.001; batchsize 50; wordvecsize 500; hiddensize 500
+Same nothing: final validation accuracy 53%
+Same subject: final validation accuracy 64%
 
 ## Datasets
 

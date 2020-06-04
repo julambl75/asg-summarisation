@@ -11,12 +11,12 @@ from parse_core_nlp import ParseCoreNLP
 from score_summary import SummaryScorer
 
 DIR = os.path.dirname(os.path.realpath(__file__)) + '/Learning/'
-REF_DIR = DIR + '/ref/'
+RULES_DIR = DIR + '/rules/'
 
-LANGUAGE_ASG = REF_DIR + 'general.asg'
-LEARN_ACTIONS_CONSTRAINTS = REF_DIR + 'action_constraints.asg'
-LEARN_SUMMARIES_CONSTRAINTS = REF_DIR + 'summary_constraints.asp'
-LEARN_ACTIONS_BIAS = REF_DIR + 'action_mode_bias.ilasp'
+LANGUAGE_ASG = RULES_DIR + 'general.asg'
+LEARN_ACTIONS_CONSTRAINTS = RULES_DIR + 'action_constraints.asg'
+LEARN_SUMMARIES_CONSTRAINTS = RULES_DIR + 'summary_constraints.asp'
+LEARN_ACTIONS_BIAS = RULES_DIR + 'action_mode_bias.ilasp'
 
 SENTENCE_RULE_IDX = 3
 ACTION_RULE_SPLIT_STR = '\n\n'
