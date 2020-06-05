@@ -9,7 +9,6 @@ import language_check
 from datamuse import datamuse
 from pattern.en import SG
 
-from preprocessor import Preprocessor
 from query_pattern import QueryPattern
 from score_summary import SummaryScorer
 from text_to_summary import TextToSummary
@@ -28,9 +27,6 @@ DATAMUSE_MAX_NOUNS = 10
 DATAMUSE_MAX_VERBS = 20
 DATAMUSE_MAX_ADJECTIVES = 1
 
-SUBJECT_TYPE_PROPER_NOUN = 'proper_noun'
-SUBJECT_TYPE_PRONOUN = 'pronoun'
-
 DETERMINERS = ['a', 'the']
 CONJUNCT_KEYWORD = 'and'
 DEFAULT_VERB = 'be'
@@ -48,10 +44,15 @@ NOUN_PREDICATE = 'noun'
 DETERMINER_PREDICATE = 'det'
 ADJECTIVE_PREDICATE = 'adj_or_adv'
 
-COMMON_NOUN_POS = 'nn'
+NOUN_POS = 'nn'
+PREPOSITION_POS = 'prp'
 DETERMINER_POS = 'dt'
 ADJECTIVE_POS = 'jj'
 PAST_TENSE_POS = 'vbd'
+
+# See README
+CONJUNCTIVE_SUMMARY = 1
+DESCRIPTIVE_SUMMARY = 2
 
 TRAIN = 'train'
 TEST = 'test'
@@ -95,11 +96,9 @@ class GenActions:
         return list(map(itemgetter(0), filter(lambda e: e[1] == word_type, self.words)))
 
     def _reset_for_new_lexical_field(self):
-        self.topic, self.lexical_nouns = self._get_lexical_nouns()
-        self.lexical_verbs = self._get_lexical_verbs()
-
-        self.topics = {self.topic}
-        self.subject_type = None
+        self.topic = random.choice(self.nouns)
+        self.lexical_verb = self._get_lexical_verb()
+        self.used_nouns = {self.topic}
 
     def _reset_for_new_story(self):
         self.leaf_nodes = set()
@@ -115,23 +114,9 @@ class GenActions:
             words = [w for w in words if w in self.adjectives]
         return words
 
-    def _get_lexical_nouns(self):
-        # Try to get synonyms
-        topic = random.choice(self.nouns)
-        nouns = self._extract_from_datamuse(self.datamuse_api.words(rel_syn=topic, max=DATAMUSE_MAX_NOUNS), NOUN_FILTER)
-        if not nouns:
-            # Try to get hypernyms
-            nouns = self._extract_from_datamuse(self.datamuse_api.words(rel_spc=topic, max=DATAMUSE_MAX_NOUNS), NOUN_FILTER)
-        if not nouns:
-            # Try to get hyponyms
-            nouns = self._extract_from_datamuse(self.datamuse_api.words(rel_gen=topic, max=DATAMUSE_MAX_NOUNS), NOUN_FILTER)
-        if not nouns:
-            return self._get_lexical_nouns()
-        return topic, nouns
-
-    def _get_lexical_verbs(self):
+    def _get_lexical_verb(self):
         verbs = self._extract_from_datamuse(self.datamuse_api.words(topics=self.topic, max=DATAMUSE_MAX_VERBS), VERB_FILTER)
-        return verbs if verbs else [DEFAULT_VERB]
+        return random.choice(verbs) if verbs else DEFAULT_VERB
 
     def _get_random_noun(self, token_type):
         determiner = adjective = None
@@ -142,10 +127,10 @@ class GenActions:
 
             if self.helper.random_bool():
                 # Get holonyms of subject appearing after verb in lexical field of topic
-                response = self.datamuse_api.words(rel_com=prev_noun, topics=self.topics, lc=prev_verb, max=DATAMUSE_MAX_NOUNS)
+                response = self.datamuse_api.words(rel_com=prev_noun, topics=self.used_nouns, lc=prev_verb, max=DATAMUSE_MAX_NOUNS)
             else:
                 # Get meronyms of subject appearing after verb in lexical field of topic
-                response = self.datamuse_api.words(rel_par=prev_noun, topics=self.topics, lc=prev_verb, max=DATAMUSE_MAX_NOUNS)
+                response = self.datamuse_api.words(rel_par=prev_noun, topics=self.used_nouns, lc=prev_verb, max=DATAMUSE_MAX_NOUNS)
             nouns = self._extract_from_datamuse(response, NOUN_FILTER)
             noun = random.choice(nouns) if nouns else None
         else:
@@ -164,8 +149,8 @@ class GenActions:
             determiner = random.choice(DETERMINERS)
 
         if noun:
-            self.create_asg_leaf(COMMON_NOUN_POS, noun, NOUN_PREDICATE)
-            self.topics.add(noun)
+            self.create_asg_leaf(NOUN_POS, noun, NOUN_PREDICATE)
+            self.used_nouns.add(noun)
         if determiner:
             self.create_asg_leaf(DETERMINER_POS, determiner, DETERMINER_PREDICATE)
         if adjective:
@@ -197,8 +182,7 @@ class GenActions:
         self.curr_story_tokens.extend(new_story_tokens)
         return token
 
-    def get_random_verb(self):
-        verb = random.choice(self.lexical_verbs)
+    def conjugate_verb(self, verb=DEFAULT_VERB):
         tense = PAST_TENSE
         conjugated = self.query_pattern.conjugate(verb, person=3, tense=PAST_TENSE, number=SG)
         self.create_asg_leaf(PAST_TENSE_POS, conjugated, VERB_PREDICATE, verb, tense)
@@ -221,7 +205,32 @@ class GenActions:
         joined_tokens = ' '.join(self.curr_story_tokens)
         return self.language_checker.correct(joined_tokens)
 
-    def generate_stories(self, story_length, num_stories):
+    def generate_story(self, story_type, story_length=None):
+        story_actions = []
+        subject, start_sent_tokens = self.get_random_subject_object(SUBJECT_TOKEN)
+        verb, verb_token = self.conjugate_verb(self.lexical_verb)
+        start_sent_tokens.append(verb_token)
+
+        if story_type == CONJUNCTIVE_SUMMARY:
+            assert story_length
+
+            for action_idx in range(story_length):
+                self.curr_story_tokens.extend(start_sent_tokens)
+                action = self.generate_action(action_idx, subject, verb)
+                story_actions.append(action)
+        elif story_type == DESCRIPTIVE_SUMMARY:
+            action = self.generate_action(0, subject, verb)
+        else:
+            return
+
+
+        self._reset_for_new_lexical_field()
+
+        self.story_actions.append(story_actions)
+        self.story_leaf_nodes.append(sorted(self.leaf_nodes))
+        self.stories.append(self.format_story())
+
+    def generate_stories(self, story_type, num_stories, story_length=None):
         last_print_time = start = time.time()
 
         for i in range(num_stories):
@@ -231,20 +240,7 @@ class GenActions:
                 time_ind = self.helper.time_since(start, i / num_stories)
                 print(f'{time_ind} - [{i}/{num_stories}]: Generating stories of length {story_length}...')
 
-            story_actions = []
-            subject, start_sent_tokens = self.get_random_subject_object(SUBJECT_TOKEN)
-            verb, verb_token = self.get_random_verb()
-            start_sent_tokens.append(verb_token)
-
-            for action_idx in range(story_length):
-                self.curr_story_tokens.extend(start_sent_tokens)
-                action = self.generate_action(action_idx, subject, verb)
-                story_actions.append(action)
-            self._reset_for_new_lexical_field()
-
-            self.story_actions.append(story_actions)
-            self.story_leaf_nodes.append(sorted(self.leaf_nodes))
-            self.stories.append(self.format_story())
+            self.generate_story(story_type, story_length)
             self._reset_for_new_story()
         print(f'[{num_stories}/{num_stories}]: Generated stories of length {story_length}...')
 
@@ -308,6 +304,7 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(story_length=3, num_stories=5)
+    gen_actions.generate_stories(CONJUNCTIVE_SUMMARY, num_stories=500, story_length=3)
+    gen_actions.generate_stories(DESCRIPTIVE_SUMMARY, num_stories=500)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(VALID_PROPORTION, TEST_NUM)

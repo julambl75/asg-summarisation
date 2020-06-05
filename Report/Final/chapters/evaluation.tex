@@ -20,7 +20,9 @@ We also take advantage of the \textbf{\href{https://www.datamuse.com/api/}{Datam
 
 In order to generate the required number of stories, we have used words from \href{http://www.wordfrequency.info/}{wordfrequency.info}. This database contains 5,000 individual English words, of which 1,001 are verbs, 2,542 nouns and 839 adjectives.
 
-For each story we chose a noun from our dataset, which we shall refer to as the \textit{topic}. We then construct four sentences which revolve around this \textit{topic}.
+For each story we chose a noun from our dataset, which we shall refer to as the \textit{topic}. We then construct three sentences which revolve around this \textit{topic}.
+
+\textcolor{red}{\textbf{\hl{TODO}}}
 
 \subsection{Sentence Generation}
 
@@ -44,13 +46,13 @@ A \textit{holonym} of something is one of its constituents; ``lightbulb" is a \t
 A \textit{meronym} is an object which something is part of; ``house" is a \textit{meronym} of ``kitchen".
 \end{definition}
 
-\subsubsection{Lexical Nouns}
+\subsubsection{Lexical Verb}
 
 Along with the story's \textit{topic}, we also generate a set of \textit{lexical nouns}. If the \textbf{Datamuse API} is able to find \textit{synonyms} of our \textit{topic} which also belong to our dataset of nouns, then these become the story's \textit{lexical nouns}.
 
 In addition, we query from the \textbf{Datamuse API} for verbs that are related to the chosen \textit{topic}. This becomes our set of \textit{lexical verbs}. If it is empty, then we make it the singleton set containing the verb ``to be".
 
-Since we don't know how general or specific this randomly selected \textit{topic} is, we may not find any. In this case, we try the same procedure for \textit{hypernyms} and finally \textit{hyponyms}. If we still are unable to find any (which is very rare), then we pick a new random \textit{topic}.
+\textcolor{red}{\textbf{\hl{TODO}}}
 
 \subsubsection{Subject}
 
@@ -58,7 +60,7 @@ For the \textit{subject} of a sentence, we draw a noun from our \textit{lexical 
 
 If this word is singular, then we need a determiner, which can be ``the" or ``a".
 
-We also ask the \textbf{Datamuse API} to find us an adjective which is often modified by the chosen \textit{subject} noun, and is part of our dataset of words. If none is found, then we do not need to use an adjective.
+We also ask the \textbf{Datamuse API} to find us an adjective which is often modified by the chosen \textit{subject} noun, and is part of our dataset of words. If none are found, then we do not need to use an adjective.
 
 In order to avoid making the data too hard to learn, the same \textit{subject} is used in every sentence of the same story. However, the \textit{verb} and \textit{object} may differ.
 

@@ -2,8 +2,6 @@
 
 - refactor GenActions (now use same subject and verb per story, no more pronouns or names; remove bad code)
 - idea: try test data combining both structures
-- use smaller max for Datamuse
-- pick longest top summary
 
 S V O1. S V O2. S V O3.
 S V O. it was A O
