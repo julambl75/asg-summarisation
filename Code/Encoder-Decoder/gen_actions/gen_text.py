@@ -141,7 +141,7 @@ class GenActions:
         determiner = None
         adjective = self._find_popular_adjective(noun)
 
-        if not noun and (token_type == SUBJECT_TOKEN or not adjective):
+        if not noun and not adjective:
             noun = random.choice(self.nouns)
         if noun:
             determiner = random.choice(DETERMINERS)

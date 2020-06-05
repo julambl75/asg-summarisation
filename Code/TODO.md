@@ -1,13 +1,3 @@
-## TODO
-
-- refactor GenActions (now use same subject and verb per story, no more pronouns or names; remove bad code)
-- idea: try test data combining both structures
-
-S V O1. S V O2. S V O3.
-S V O. it was A O
-
-the [chief] [engineer] [organized] a [number] . it was a [large] [number] . 
-
 ## For Report
 
 To write: smaller hidden size and very slow training force learning to be more general, no more names
