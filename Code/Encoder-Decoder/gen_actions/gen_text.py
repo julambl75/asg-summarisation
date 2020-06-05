@@ -87,19 +87,16 @@ class GenActions:
     def _get_words_of_type(self, word_type):
         return list(map(itemgetter(0), filter(lambda e: e[1] == word_type, self.words)))
 
-    def _reset_for_new_lexical_field(self):
+    def _reset_for_new_story(self):
         self.topic = random.choice(self.nouns)
         self.lexical_verb = self._get_lexical_verb()
         self.used_nouns = {self.topic}
+        self.leaf_nodes = set()
 
         self.story_subject, self.start_sent_tokens = self._create_subject_object(SUBJECT_TOKEN)
         self.story_verb, verb_tokens = self._conjugate_verb(self.lexical_verb)
         self.start_sent_tokens.append(verb_tokens)
-
-    def _reset_for_new_story(self):
-        self.leaf_nodes = set()
-        self.curr_story_tokens = []
-        self._reset_for_new_lexical_field()
+        self.curr_story_tokens = self.start_sent_tokens
 
     def _extract_from_datamuse(self, response, filter_type):
         words = [x['word'] for x in response if 'word' in x.keys()]
@@ -128,9 +125,7 @@ class GenActions:
 
     def _get_random_subject_object(self, token_type):
         if token_type == OBJECT_TOKEN:
-            prev_verb = self.curr_story_tokens[-1]
-            prev_noun = self.curr_story_tokens[-2] if self.curr_story_tokens[-2] in self.nouns else None
-
+            prev_verb, prev_noun = set(self.curr_story_tokens[-2:])
             if self.helper.random_bool():
                 # Get holonyms of subject appearing after verb in lexical field of topic
                 response = self.datamuse_api.words(rel_com=prev_noun, topics=self.used_nouns, lc=prev_verb, max=DATAMUSE_MAX_NOUNS)
@@ -159,8 +154,10 @@ class GenActions:
 
     def _create_subject_object(self, token_type, noun=None, determiner=None, adjective=None):
         if not noun:
+            # We need to pick a random noun
             noun, determiner, adjective = self._get_random_subject_object(token_type)
         elif not adjective and noun != DESCRIPTIVE_PREP:
+            # A noun has already been chosen and if it's not the preposition 'it' we look for a relevant adjective
             adjective = self._find_popular_adjective(noun, must_return=True)
             determiner = random.choice(DETERMINERS)
         rule = f'{token_type}({noun or EMPTY_TOKEN}, {determiner or EMPTY_TOKEN}, {adjective or EMPTY_TOKEN})'
@@ -193,7 +190,8 @@ class GenActions:
         self.curr_story_tokens.append(PUNCTUATION)
         return f'action({index}, {verb}, {subject}, {object}).'.replace('-', '_').lower()
 
-    def _generate_descriptive_action(self):
+    def _generate_descriptive_action(self, index):
+        assert index > 0
         described_noun = self.curr_story_tokens[-2]
 
         subject, subject_tokens = self._create_subject_object(SUBJECT_TOKEN, noun=DESCRIPTIVE_PREP)
@@ -204,29 +202,27 @@ class GenActions:
         self.curr_story_tokens.append(verb_token)
 
         object = self._create_subject_object(OBJECT_TOKEN, noun=described_noun)
-        action = self._generate_action(1, subject, verb, object)
+        action = self._generate_action(index, subject, verb, object)
 
         return action
 
     def generate_story(self, story_type, story_length=None):
         self._reset_for_new_story()
 
-        if story_type == CONJUNCTIVE_SUMMARY:
+        if story_type == DESCRIPTIVE_SUMMARY:
+            main_action = self._generate_action(0, self.story_subject, self.story_verb)
+            descriptive_action = self._generate_descriptive_action(1)
+
+            story_actions = [main_action, descriptive_action]
+        else:
             assert story_length
             story_actions = []
+
             for action_idx in range(story_length):
-                self.curr_story_tokens.extend(self.start_sent_tokens)
+                if action_idx > 0:
+                    self.curr_story_tokens.extend(self.start_sent_tokens)
                 action = self._generate_action(action_idx, self.story_subject, self.story_verb)
                 story_actions.append(action)
-        elif story_type == DESCRIPTIVE_SUMMARY:
-            self.curr_story_tokens.extend(self.start_sent_tokens)
-
-            action1 = self._generate_action(0, self.story_subject, self.story_verb)
-            action2 = self._generate_descriptive_action()
-
-            story_actions = [action1, action2]
-        else:
-            return
 
         self.story_actions.append(story_actions)
         self.story_leaf_nodes.append(sorted(self.leaf_nodes))
@@ -308,7 +304,7 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(CONJUNCTIVE_SUMMARY, num_stories=5, story_length=3)
-    gen_actions.generate_stories(DESCRIPTIVE_SUMMARY, num_stories=5)
+    gen_actions.generate_stories(CONJUNCTIVE_SUMMARY, num_stories=500, story_length=3)
+    gen_actions.generate_stories(DESCRIPTIVE_SUMMARY, num_stories=500)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(VALID_PROPORTION, TEST_NUM)
