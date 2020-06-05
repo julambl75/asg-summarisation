@@ -2,11 +2,11 @@
 
 \section{General Idea}
 
-As the vast majority of modern text summarization frameworks are based on machine learning, it makes sense to compare the performance \textsc{SumASG*} with that of a neural network.
+As the vast majority of modern text summarization frameworks are based on machine learning, it makes sense to evaluate \textsc{SumASG*} against a neural network.
 
-More specifically, we should generate a set of stories which we can give to our framework in order to obtain corresponding summaries. We can then use this as training data for an encoder-decoder, to see if it is able to learn how \textsc{SumASG*} creates summaries.
+More specifically, we should generate a set of stories which we can give to our framework in order to obtain corresponding summaries. We can then use this as training data for an \textit{encoder-decoder}, to see if it is able to learn how \textsc{SumASG*} creates summaries.
 
-If the neural network is able to learn to generate similar summaries, then we can consider our framework to be sane.
+If the neural network is able to learn how to generate these summaries, then we can consider our framework and the summarization rules it uses to be sane.
 
 \section{Story Generation}
 
