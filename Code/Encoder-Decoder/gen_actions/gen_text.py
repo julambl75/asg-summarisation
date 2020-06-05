@@ -24,9 +24,9 @@ VERB_FILTER = 'verb_filter'
 ADJECTIVE_FILTER = 'adjective_filter'
 DATAMUSE_MAX_NOUNS = 10
 DATAMUSE_MAX_VERBS = 20
-DATAMUSE_MAX_ADJECTIVES = 1
 
 DETERMINERS = ['a', 'the']
+DESCRIPTIVE_PREP = 'it'
 DEFAULT_VERB = 'be'
 PUNCTUATION = '.'
 
@@ -48,8 +48,8 @@ ADJECTIVE_POS = 'jj'
 PAST_TENSE_POS = 'vbd'
 
 # See README
-CONJUNCTIVE_SUMMARY = 1
-DESCRIPTIVE_SUMMARY = 2
+CONJUNCTIVE_SUMMARY = 'conjunctive'
+DESCRIPTIVE_SUMMARY = 'descriptive'
 
 TRAIN = 'train'
 TEST = 'test'
@@ -92,7 +92,7 @@ class GenActions:
         self.lexical_verb = self._get_lexical_verb()
         self.used_nouns = {self.topic}
 
-        self.story_subject, self.start_sent_tokens = self._get_random_subject_object(SUBJECT_TOKEN)
+        self.story_subject, self.start_sent_tokens = self._create_subject_object(SUBJECT_TOKEN)
         self.story_verb, verb_tokens = self._conjugate_verb(self.lexical_verb)
         self.start_sent_tokens.append(verb_tokens)
 
@@ -115,9 +115,18 @@ class GenActions:
         verbs = self._extract_from_datamuse(self.datamuse_api.words(topics=self.topic, max=DATAMUSE_MAX_VERBS), VERB_FILTER)
         return random.choice(verbs) if verbs else DEFAULT_VERB
 
-    def _get_random_noun(self, token_type):
-        determiner = adjective = None
+    def _find_popular_adjective(self, noun, must_return=False):
+        adjectives = self._extract_from_datamuse(self.datamuse_api.words(rel_jjb=noun, max=1), ADJECTIVE_FILTER)
+        if adjectives:
+            adjective = adjectives[0]
+        elif must_return:
+            adjective = random.choice(self.adjectives)
+        else:
+            return None
+        self._create_asg_leaf(ADJECTIVE_POS, adjective, ADJECTIVE_PREDICATE)
+        return adjective
 
+    def _get_random_subject_object(self, token_type):
         if token_type == OBJECT_TOKEN:
             prev_verb = self.curr_story_tokens[-1]
             prev_noun = self.curr_story_tokens[-2] if self.curr_story_tokens[-2] in self.nouns else None
@@ -133,11 +142,8 @@ class GenActions:
         else:
             noun = self.topic
 
-        # Get popular adjectives modified by chosen noun
-        adjectives = self._extract_from_datamuse(self.datamuse_api.words(rel_jjb=noun, max=1), ADJECTIVE_FILTER)
-        if adjectives:
-            adjective = random.choice(adjectives)
-            self._create_asg_leaf(ADJECTIVE_POS, adjective, ADJECTIVE_PREDICATE)
+        determiner = None
+        adjective = self._find_popular_adjective(noun)
 
         if not noun and (token_type == SUBJECT_TOKEN or not adjective):
             noun = random.choice(self.nouns)
@@ -145,16 +151,20 @@ class GenActions:
             determiner = random.choice(DETERMINERS)
             if self.query_pattern.is_plural_noun(noun):
                 self.query_pattern.get_singular_noun(noun)
-            self._create_asg_leaf(NOUN_POS, noun, NOUN_PREDICATE)
             self.used_nouns.add(noun)
+
+            self._create_asg_leaf(NOUN_POS, noun, NOUN_PREDICATE)
             self._create_asg_leaf(DETERMINER_POS, determiner, DETERMINER_PREDICATE)
+        return noun, determiner, adjective
 
-        return noun or EMPTY_TOKEN, determiner or EMPTY_TOKEN, adjective or EMPTY_TOKEN
-
-    def _get_random_subject_object(self, token_type):
-        noun, determiner, adjective = self._get_random_noun(token_type)
-        rule = f'{token_type}({noun}, {determiner}, {adjective})'
-        words = list(filter(lambda t: t != EMPTY_TOKEN, (determiner, adjective, noun)))
+    def _create_subject_object(self, token_type, noun=None, determiner=None, adjective=None):
+        if not noun:
+            noun, determiner, adjective = self._get_random_subject_object(token_type)
+        elif not adjective and noun != DESCRIPTIVE_PREP:
+            adjective = self._find_popular_adjective(noun, must_return=True)
+            determiner = random.choice(DETERMINERS)
+        rule = f'{token_type}({noun or EMPTY_TOKEN}, {determiner or EMPTY_TOKEN}, {adjective or EMPTY_TOKEN})'
+        words = list(filter(lambda t: t, (determiner, adjective, noun)))
 
         # Return subject story tokens so they can be added at start of each sentence
         if token_type == SUBJECT_TOKEN:
@@ -177,27 +187,44 @@ class GenActions:
         self.leaf_nodes.add(leaf_node)
         return leaf_rule
 
-    def _generate_action(self, index, subject, verb):
-        object = self._get_random_subject_object(OBJECT_TOKEN)
+    def _generate_action(self, index, subject, verb, object=None):
+        if not object:
+            object = self._create_subject_object(OBJECT_TOKEN)
         self.curr_story_tokens.append(PUNCTUATION)
         return f'action({index}, {verb}, {subject}, {object}).'.replace('-', '_').lower()
+
+    def _generate_descriptive_action(self):
+        described_noun = self.curr_story_tokens[-2]
+
+        subject, subject_tokens = self._create_subject_object(SUBJECT_TOKEN, noun=DESCRIPTIVE_PREP)
+        self._create_asg_leaf(NOUN_POS, DESCRIPTIVE_PREP, NOUN_PREDICATE)
+        self.curr_story_tokens.extend(subject_tokens)
+
+        verb, verb_token = self._conjugate_verb(DEFAULT_VERB)
+        self.curr_story_tokens.append(verb_token)
+
+        object = self._create_subject_object(OBJECT_TOKEN, noun=described_noun)
+        action = self._generate_action(1, subject, verb, object)
+
+        return action
 
     def generate_story(self, story_type, story_length=None):
         self._reset_for_new_story()
 
-        story_actions = []
-
         if story_type == CONJUNCTIVE_SUMMARY:
             assert story_length
-
+            story_actions = []
             for action_idx in range(story_length):
                 self.curr_story_tokens.extend(self.start_sent_tokens)
                 action = self._generate_action(action_idx, self.story_subject, self.story_verb)
                 story_actions.append(action)
         elif story_type == DESCRIPTIVE_SUMMARY:
             self.curr_story_tokens.extend(self.start_sent_tokens)
-            action = self._generate_action(0, self.story_subject, self.story_verb)
-            story_actions.append(action)
+
+            action1 = self._generate_action(0, self.story_subject, self.story_verb)
+            action2 = self._generate_descriptive_action()
+
+            story_actions = [action1, action2]
         else:
             return
 
@@ -206,6 +233,9 @@ class GenActions:
         self.stories.append(' '.join(self.curr_story_tokens))
 
     def generate_stories(self, story_type, num_stories, story_length=None):
+        status_detail = f'stories of type {story_type}'
+        if story_length:
+            status_detail += f' and length {story_length}'
         last_print_time = start = time.time()
 
         for i in range(num_stories):
@@ -213,10 +243,10 @@ class GenActions:
             if (i % PRINT_EVERY_ITERS == 0 or time_since_print > PRINT_EVERY_SECONDS) and i > 0:
                 last_print_time = time.time()
                 time_ind = self.helper.time_since(start, i / num_stories)
-                print(f'{time_ind} - [{i}/{num_stories}]: Generating stories of length {story_length}...')
+                print(f'{time_ind} - [{i}/{num_stories}]: Generating {status_detail}...')
             self.generate_story(story_type, story_length)
 
-        print(f'[{num_stories}/{num_stories}]: Generated stories of length {story_length}...')
+        print(f'[{num_stories}/{num_stories}]: Generated {status_detail}...')
 
     def summarise_generated_stories(self):
         last_print_time = start = time.time()
@@ -278,7 +308,7 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    # gen_actions.generate_stories(CONJUNCTIVE_SUMMARY, num_stories=500, story_length=3)
-    gen_actions.generate_stories(DESCRIPTIVE_SUMMARY, num_stories=500)
+    gen_actions.generate_stories(CONJUNCTIVE_SUMMARY, num_stories=5, story_length=3)
+    gen_actions.generate_stories(DESCRIPTIVE_SUMMARY, num_stories=5)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(VALID_PROPORTION, TEST_NUM)

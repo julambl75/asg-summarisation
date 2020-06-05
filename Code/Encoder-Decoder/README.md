@@ -28,4 +28,4 @@ Using this tool it is possible to generate stories which lead to two types of su
 
 ## Conjunctive Summaries
 
-These are stories which consist of multiple sentences, all having the story's topic as a subject, as well as sharing the same verb.
+These are stories which consist of multiple sentences, all having the story's topic as a subject, as well as sharing the same verb. For a 3 sentence story, the format would be as follows: ```S V O1. S V O2. S V O3```.
