@@ -12,7 +12,11 @@ If the neural network is able to learn how to generate these summaries, then we 
 
 To give a more generalized representation of what \textsc{SumASG*} can do, we shall create two different types of stories: those with \textit{conjunctive summaries}, and those with \textit{descriptive summaries}.
 
-The former stories
+Stories in the former category result in summaries where \textit{objects} of sentences sharing the same \textit{subject} and \textit{verb} have been joined together using the conjunction ``and".
+
+In contrast, the latter category consists of stories where the first sentence introduces an \textit{object} and the second sentence gives additional information about it. The resulting summary will then be the first sentence, where the \textit{object} has been augmented with information from the second sentence coming from the story.
+
+In this section, we go more into depth about these two types of randomly-generated stories, and discuss how they are created.
 
 \subsection{Libraries}
 
@@ -28,9 +32,9 @@ For each story we chose a noun from our dataset, which we shall refer to as the 
 
 In addition, we query from the \textbf{Datamuse API} for what we call a \textit{lexical verb}, i.e. one that is related to the story's \textit{topic}. If one cannot be found, then we default to the verb ``to be".
 
-\subsection{Sentence Generation}
+\subsection{Main Sentence Generation}
 
-We will begin by detailing how each sentence is generated, starting with a few necessary definitions. Throughout this section, it is important to keep in mind that the goal here is to create a story that is as lexically and semantically coherent as possible, which is tricky to do algorithmically.
+We will begin by detailing how sentences are generated, starting with a few necessary definitions. Throughout this section, it is important to keep in mind that the goal here is to create a story that is as lexically and semantically coherent as possible, which is tricky to do algorithmically.
 
 \subsubsection{Definitions}
 
@@ -80,9 +84,11 @@ After repeating this process three more times, we end up with the below story. A
 The professional football matched a place. A professional football pitched the warm reception. A professional football matched a warm reception. A professional football matched a wonder.
 \end{displayquote}
 
+\textcolor{red}{\textbf{\hl{TODO}}}
+
 \subsection{Action Creation}
 
-Using a Python script, we generate the corresponding \textit{actions} as would \textsc{SumASG\textsubscript{1}}, creating the necessary additional leaf nodes for our general grammar in ASG. We do not use \textsc{SumASG\textsubscript{1}} to do this mainly for performance reasons, but also as it is not necessary. Because of the way in which we have created our stories, \textit{simplification} would not change the sentence structure whatsoever, and no sentences would be considered irrelevant (or off-topic) by the \textsc{Preprocessor}.
+Using a Python script, we generate the corresponding \textit{actions} as would \textsc{SumASG\textsubscript{1}}, creating the necessary additional leaf nodes for our general grammar in ASG. We do not use \textsc{SumASG\textsubscript{1}} to do this mainly for performance reasons, but also as it is not necessary. Because of the way in which we have created our stories, \textit{simplification} would not change the sentence structure whatsoever.
 
 \subsection{Summary Generation}
 
@@ -92,7 +98,7 @@ For each story, we feed the generated \textit{actions} and leaf nodes directly i
 
 \subsection{Datasets}
 
-Using the mechanism described above, we generate a number of story/summary pairs: 1796 to be used for training, 199 for validation and 10 for testing.
+Using the mechanism described above, we generate a number of story/summary pairs: 3591 to be used for training, 399 for validation and 10 for testing.
 
 \subsection{Tools}
 
@@ -103,6 +109,8 @@ In addition, we preprocess the data using Stanford's \textbf{\href{https://nlp.s
 \subsection{Encoder-Decoder Architecture}
 
 Our \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of size 4239, its contents being internally represented using a vector of size 500. They both use a two-layer LSTM with \textit{dropout} of 0.25 and \textit{hidden size} of 500. Additionally, our \textit{decoder} uses \textit{global attention}.
+
+\textcolor{red}{\textbf{\hl{TODO}}}
 
 \subsection{Training}
 

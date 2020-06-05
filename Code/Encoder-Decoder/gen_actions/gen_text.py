@@ -276,7 +276,7 @@ class GenActions:
     def _write_training_data(self, story_summary_pairs, nn_step):
         print(f'Writing {len(story_summary_pairs)} story/summary pairs for {nn_step} data...')
         stories = '\n'.join(list(map(itemgetter(0), story_summary_pairs))).lower()
-        summaries = '\n'.join(list(map(itemgetter(1), story_summary_pairs))).lower()
+        summaries = '\n'.join(list(map(itemgetter(1), story_summary_pairs))).replace('.', ' .').lower()
 
         mkpath(EXPORT_PATH)
         stories_dest = self._get_export_file('stories', nn_step)
@@ -305,7 +305,7 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(CONJUNCTIVE_SUMMARY, num_stories=500, story_length=3)
-    gen_actions.generate_stories(DESCRIPTIVE_SUMMARY, num_stories=500)
+    gen_actions.generate_stories(CONJUNCTIVE_SUMMARY, num_stories=2000, story_length=2)
+    gen_actions.generate_stories(DESCRIPTIVE_SUMMARY, num_stories=2000)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(VALID_PROPORTION, TEST_NUM)
