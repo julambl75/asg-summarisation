@@ -52,7 +52,7 @@ class TextToSummary:
         self.pos_summaries = pos_summaries
         self.print_results = print_results
 
-        self.language_checker = language_check.LanguageTool('en-GB')
+        self.language_checker = language_check.LanguageTool('en')
         self.summary_scorer = SummaryScorer()
 
         # Define basic ASG for learning actions for each sentence separately (reduces search space)

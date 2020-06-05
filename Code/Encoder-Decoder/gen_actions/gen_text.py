@@ -91,12 +91,13 @@ class GenActions:
         self.topic = random.choice(self.nouns)
         self.lexical_verb = self._get_lexical_verb()
         self.used_nouns = {self.topic}
+
         self.leaf_nodes = set()
+        self.curr_story_tokens = []
 
         self.story_subject, self.start_sent_tokens = self._create_subject_object(SUBJECT_TOKEN)
         self.story_verb, verb_tokens = self._conjugate_verb(self.lexical_verb)
         self.start_sent_tokens.append(verb_tokens)
-        self.curr_story_tokens = self.start_sent_tokens
 
     def _extract_from_datamuse(self, response, filter_type):
         words = [x['word'] for x in response if 'word' in x.keys()]
@@ -184,7 +185,9 @@ class GenActions:
         self.leaf_nodes.add(leaf_node)
         return leaf_rule
 
-    def _generate_action(self, index, subject, verb, object=None):
+    def _generate_action(self, index, subject, verb, object=None, use_topic_subject_and_verb=True):
+        if use_topic_subject_and_verb:
+            self.curr_story_tokens.extend(self.start_sent_tokens)
         if not object:
             object = self._create_subject_object(OBJECT_TOKEN)
         self.curr_story_tokens.append(PUNCTUATION)
@@ -202,7 +205,7 @@ class GenActions:
         self.curr_story_tokens.append(verb_token)
 
         object = self._create_subject_object(OBJECT_TOKEN, noun=described_noun)
-        action = self._generate_action(index, subject, verb, object)
+        action = self._generate_action(index, subject, verb, object, use_topic_subject_and_verb=False)
 
         return action
 
@@ -219,8 +222,6 @@ class GenActions:
             story_actions = []
 
             for action_idx in range(story_length):
-                if action_idx > 0:
-                    self.curr_story_tokens.extend(self.start_sent_tokens)
                 action = self._generate_action(action_idx, self.story_subject, self.story_verb)
                 story_actions.append(action)
 
@@ -274,8 +275,8 @@ class GenActions:
 
     def _write_training_data(self, story_summary_pairs, nn_step):
         print(f'Writing {len(story_summary_pairs)} story/summary pairs for {nn_step} data...')
-        stories = '\n'.join(list(map(itemgetter(0), story_summary_pairs)))
-        summaries = '\n'.join(list(map(itemgetter(1), story_summary_pairs)))
+        stories = '\n'.join(list(map(itemgetter(0), story_summary_pairs))).lower()
+        summaries = '\n'.join(list(map(itemgetter(1), story_summary_pairs))).lower()
 
         mkpath(EXPORT_PATH)
         stories_dest = self._get_export_file('stories', nn_step)

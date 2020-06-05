@@ -2,15 +2,11 @@ import collections
 import string
 from operator import itemgetter
 
-import language_check
 import numpy as np
 
 from helper import Helper
 from parse_concept_net import ParseConceptNet
 
-# Cases:
-# - Find best ASG summary without reference: TTR
-# - Find best ASG summary with reference: TTR, reference BLEU
 
 TTR_IGNORE = {'a', 'the', 'be', 'being', 'is', 'am', 'are', 'is', 'was', 'were'}
 TTR_IGNORE_MIN_FREQU_RATIO = 0.4
@@ -25,7 +21,6 @@ class SummaryScorer:
     def __init__(self):
         self.pcn = ParseConceptNet(False)
         self.helper = Helper()
-        self.language_checker = language_check.LanguageTool('en-GB')
 
     def asg_score(self, story, summaries, references=None, proper_nouns=None):
         # Find common words in story which are find if repeated in summary
