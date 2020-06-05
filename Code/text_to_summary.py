@@ -46,7 +46,7 @@ RESTORE_PROPER_NOUNS_REGEX = (r'([a-z])([A-Z])', r'\1 \2')
 
 
 class TextToSummary:
-    def __init__(self, text, proper_nouns, pos_summaries=None, print_results=True):
+    def __init__(self, text, proper_nouns=set(), pos_summaries=None, print_results=True):
         self.text = text
         self.proper_nouns = proper_nouns
         self.pos_summaries = pos_summaries

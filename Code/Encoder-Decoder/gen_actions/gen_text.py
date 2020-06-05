@@ -5,7 +5,6 @@ import time
 from distutils.dir_util import mkpath
 from operator import itemgetter
 
-import language_check
 from datamuse import datamuse
 from pattern.en import SG
 
@@ -28,7 +27,6 @@ DATAMUSE_MAX_VERBS = 20
 DATAMUSE_MAX_ADJECTIVES = 1
 
 DETERMINERS = ['a', 'the']
-CONJUNCT_KEYWORD = 'and'
 DEFAULT_VERB = 'be'
 PUNCTUATION = '.'
 
@@ -36,7 +34,6 @@ EMPTY_TOKEN = '0'
 VERB_TOKEN = 'verb'
 SUBJECT_TOKEN = 'subject'
 OBJECT_TOKEN = 'object'
-CONJUNCT_TOKEN = 'conjunct'
 
 PAST_TENSE = 'past'
 VERB_PREDICATE = 'verb'
@@ -71,7 +68,6 @@ class GenActions:
         self.nouns = self._get_words_of_type('n')
         self.adjectives = self._get_words_of_type('j')
 
-        self.proper_nouns = set()
         self.story_actions = []
         self.story_leaf_nodes = []
         self.stories = []
@@ -80,11 +76,7 @@ class GenActions:
         self.query_pattern = QueryPattern()
         self.datamuse_api = datamuse.Datamuse()
         self.helper = Helper()
-        self.language_checker = language_check.LanguageTool('en-GB')
         self.summary_scorer = SummaryScorer()
-
-        self._reset_for_new_story()
-        self._reset_for_new_lexical_field()
 
     @staticmethod
     def _read_words():
@@ -100,9 +92,14 @@ class GenActions:
         self.lexical_verb = self._get_lexical_verb()
         self.used_nouns = {self.topic}
 
+        self.story_subject, self.start_sent_tokens = self._get_random_subject_object(SUBJECT_TOKEN)
+        self.story_verb, verb_tokens = self._conjugate_verb(self.lexical_verb)
+        self.start_sent_tokens.append(verb_tokens)
+
     def _reset_for_new_story(self):
         self.leaf_nodes = set()
         self.curr_story_tokens = []
+        self._reset_for_new_lexical_field()
 
     def _extract_from_datamuse(self, response, filter_type):
         words = [x['word'] for x in response if 'word' in x.keys()]
@@ -134,101 +131,79 @@ class GenActions:
             nouns = self._extract_from_datamuse(response, NOUN_FILTER)
             noun = random.choice(nouns) if nouns else None
         else:
-            noun = random.choice(self.lexical_nouns)
+            noun = self.topic
 
         # Get popular adjectives modified by chosen noun
         adjectives = self._extract_from_datamuse(self.datamuse_api.words(rel_jjb=noun, max=1), ADJECTIVE_FILTER)
         if adjectives:
             adjective = random.choice(adjectives)
+            self._create_asg_leaf(ADJECTIVE_POS, adjective, ADJECTIVE_PREDICATE)
 
         if not noun and (token_type == SUBJECT_TOKEN or not adjective):
             noun = random.choice(self.nouns)
         if noun:
+            determiner = random.choice(DETERMINERS)
             if self.query_pattern.is_plural_noun(noun):
                 self.query_pattern.get_singular_noun(noun)
-            determiner = random.choice(DETERMINERS)
-
-        if noun:
-            self.create_asg_leaf(NOUN_POS, noun, NOUN_PREDICATE)
+            self._create_asg_leaf(NOUN_POS, noun, NOUN_PREDICATE)
             self.used_nouns.add(noun)
-        if determiner:
-            self.create_asg_leaf(DETERMINER_POS, determiner, DETERMINER_PREDICATE)
-        if adjective:
-            self.create_asg_leaf(ADJECTIVE_POS, adjective, ADJECTIVE_PREDICATE)
+            self._create_asg_leaf(DETERMINER_POS, determiner, DETERMINER_PREDICATE)
+
         return noun or EMPTY_TOKEN, determiner or EMPTY_TOKEN, adjective or EMPTY_TOKEN
 
-    def _subject_object_to_story_tokens(self, noun, determiner, adjective_part):
-        new_story_tokens = []
-        for clause_part in [determiner, adjective_part, noun]:
-            inner_token_idx = clause_part.find('(') + 1
-            if inner_token_idx > 0:
-                inner_tokens = clause_part[inner_token_idx:-1].split(',')
-                for i, inner_token in enumerate(inner_tokens):
-                    if i > 0:
-                        new_story_tokens.append(CONJUNCT_KEYWORD)
-                    new_story_tokens.append(inner_token.strip())
-            elif clause_part != EMPTY_TOKEN:
-                new_story_tokens.append(clause_part)
-        return new_story_tokens
-
-    def get_random_subject_object(self, token_type):
-        noun, determiner, adjective_part = self._get_random_noun(token_type)
-        token = f'{token_type}({noun}, {determiner}, {adjective_part})'
-        new_story_tokens = self._subject_object_to_story_tokens(noun, determiner, adjective_part)
+    def _get_random_subject_object(self, token_type):
+        noun, determiner, adjective = self._get_random_noun(token_type)
+        rule = f'{token_type}({noun}, {determiner}, {adjective})'
+        words = list(filter(lambda t: t != EMPTY_TOKEN, (determiner, adjective, noun)))
 
         # Return subject story tokens so they can be added at start of each sentence
         if token_type == SUBJECT_TOKEN:
-            return token, new_story_tokens
-        self.curr_story_tokens.extend(new_story_tokens)
-        return token
+            return rule, words
+        self.curr_story_tokens.extend(words)
+        return rule
 
-    def conjugate_verb(self, verb=DEFAULT_VERB):
+    def _conjugate_verb(self, verb=DEFAULT_VERB):
         tense = PAST_TENSE
         conjugated = self.query_pattern.conjugate(verb, person=3, tense=PAST_TENSE, number=SG)
-        self.create_asg_leaf(PAST_TENSE_POS, conjugated, VERB_PREDICATE, verb, tense)
-        return f'verb({verb}, {tense})', conjugated
+        return self._create_asg_leaf(PAST_TENSE_POS, conjugated, VERB_PREDICATE, verb, tense), conjugated
 
-    def create_asg_leaf(self, pos_tag, value, predicate, verb_name=None, verb_form=None):
+    def _create_asg_leaf(self, pos_tag, value, predicate, verb_name=None, verb_form=None):
         if predicate == VERB_PREDICATE:
             lemma = f'{verb_name}, {verb_form}'
         else:
             lemma = value.lower().replace('-', '_')
-        leaf_node = f'{pos_tag} -> "{value} " {{ {predicate}({lemma}). }}'
+        leaf_rule = f'{predicate}({lemma})'
+        leaf_node = f'{pos_tag} -> "{value} " {{ {leaf_rule}. }}'
         self.leaf_nodes.add(leaf_node)
+        return leaf_rule
 
-    def generate_action(self, index, subject, verb):
-        object = self.get_random_subject_object(OBJECT_TOKEN)
+    def _generate_action(self, index, subject, verb):
+        object = self._get_random_subject_object(OBJECT_TOKEN)
         self.curr_story_tokens.append(PUNCTUATION)
         return f'action({index}, {verb}, {subject}, {object}).'.replace('-', '_').lower()
 
-    def format_story(self):
-        joined_tokens = ' '.join(self.curr_story_tokens)
-        return self.language_checker.correct(joined_tokens)
-
     def generate_story(self, story_type, story_length=None):
+        self._reset_for_new_story()
+
         story_actions = []
-        subject, start_sent_tokens = self.get_random_subject_object(SUBJECT_TOKEN)
-        verb, verb_token = self.conjugate_verb(self.lexical_verb)
-        start_sent_tokens.append(verb_token)
 
         if story_type == CONJUNCTIVE_SUMMARY:
             assert story_length
 
             for action_idx in range(story_length):
-                self.curr_story_tokens.extend(start_sent_tokens)
-                action = self.generate_action(action_idx, subject, verb)
+                self.curr_story_tokens.extend(self.start_sent_tokens)
+                action = self._generate_action(action_idx, self.story_subject, self.story_verb)
                 story_actions.append(action)
         elif story_type == DESCRIPTIVE_SUMMARY:
-            action = self.generate_action(0, subject, verb)
+            self.curr_story_tokens.extend(self.start_sent_tokens)
+            action = self._generate_action(0, self.story_subject, self.story_verb)
+            story_actions.append(action)
         else:
             return
 
-
-        self._reset_for_new_lexical_field()
-
         self.story_actions.append(story_actions)
         self.story_leaf_nodes.append(sorted(self.leaf_nodes))
-        self.stories.append(self.format_story())
+        self.stories.append(' '.join(self.curr_story_tokens))
 
     def generate_stories(self, story_type, num_stories, story_length=None):
         last_print_time = start = time.time()
@@ -239,9 +214,8 @@ class GenActions:
                 last_print_time = time.time()
                 time_ind = self.helper.time_since(start, i / num_stories)
                 print(f'{time_ind} - [{i}/{num_stories}]: Generating stories of length {story_length}...')
-
             self.generate_story(story_type, story_length)
-            self._reset_for_new_story()
+
         print(f'[{num_stories}/{num_stories}]: Generated stories of length {story_length}...')
 
     def summarise_generated_stories(self):
@@ -256,7 +230,7 @@ class GenActions:
                 time_ind = self.helper.time_since(start, num_summaries / num_stories)
                 print(f'{time_ind} - [{len(self.training_pairs)}/{num_stories}]: Summarising generated stories...')
 
-            text_to_summary = TextToSummary(story, self.proper_nouns, print_results=False)
+            text_to_summary = TextToSummary(story, print_results=False)
             summaries = text_to_summary.generate_summaries(action_set, (leaf_node_set,))
             if summaries:
                 # Prioritise summaries which contain more information
@@ -269,17 +243,17 @@ class GenActions:
         print(f'[{num_stories}/{num_stories}]: Summarised generated stories...')
 
     @staticmethod
-    def get_export_file(data_type, nn_step):
+    def _get_export_file(data_type, nn_step):
         return f'{EXPORT_PATH}/{data_type}_{nn_step}.txt'
 
     def _write_training_data(self, story_summary_pairs, nn_step):
         print(f'Writing {len(story_summary_pairs)} story/summary pairs for {nn_step} data...')
-        stories = '\n'.join(list(map(itemgetter(0), story_summary_pairs))).replace('.', ' .').lower()
-        summaries = '\n'.join(list(map(itemgetter(1), story_summary_pairs))).replace('.', ' .').lower()
+        stories = '\n'.join(list(map(itemgetter(0), story_summary_pairs)))
+        summaries = '\n'.join(list(map(itemgetter(1), story_summary_pairs)))
 
         mkpath(EXPORT_PATH)
-        stories_dest = self.get_export_file('stories', nn_step)
-        summaries_dest = self.get_export_file('summaries', nn_step)
+        stories_dest = self._get_export_file('stories', nn_step)
+        summaries_dest = self._get_export_file('summaries', nn_step)
         with open(stories_dest, 'w') as stories_file:
             stories_file.write(stories)
         with open(summaries_dest, 'w') as summaries_file:
@@ -304,7 +278,7 @@ class GenActions:
 
 if __name__ == '__main__':
     gen_actions = GenActions()
-    gen_actions.generate_stories(CONJUNCTIVE_SUMMARY, num_stories=500, story_length=3)
+    # gen_actions.generate_stories(CONJUNCTIVE_SUMMARY, num_stories=500, story_length=3)
     gen_actions.generate_stories(DESCRIPTIVE_SUMMARY, num_stories=500)
     gen_actions.summarise_generated_stories()
     gen_actions.write_training_data(VALID_PROPORTION, TEST_NUM)
