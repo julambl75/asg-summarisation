@@ -98,7 +98,7 @@ The publication printed a lightning. The publication printed a movement. The pub
 \end{subfigure}
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-The publication printed a lightning \underline{and} a movement. The publication printed the stereotype.
+The publication printed a lightning \textbf{and} a movement. The publication printed the stereotype.
 \end{displayquote}
 \caption{Summary}
 \end{subfigure}
@@ -172,9 +172,10 @@ The final training and validation accuracies are respectively 99.83\% and 92.07\
 \toprule
 Epochs                & 100 & 500 & 1000 & 1500 & 2000 \\ \midrule
 Training accuracy (\%)     & 60.68   & 98.73   & 99.45    & 99.82    & 99.83    \\
-Training perplexity (\%)   & 12.45   & 1.06   & 1.03    & 1.01    & 1.01    \\
-Validation accuracy   & 61.54   & 90.24   & 91.38    & 91.38    & 92.07    \\
-Validation perplexity & 16.73   & 2.07   & 2.15    & 2.23    & 2.36    \\ \bottomrule
+Validation accuracy (\%)   & 61.54   & 90.24   & 91.38    & 91.38    & 92.07    \\
+Training perplexity   & 12.45   & 1.06   & 1.03    & 1.01    & 1.01    \\
+Validation perplexity & 16.73   & 2.07   & 2.15    & 2.23    & 2.36    \\
+Test perplexity & -   & -   & -    & -    & 2.05    \\ \bottomrule
 \end{tabular}
 \caption{Evolution of accuracy and perplexity during training}
 \label{table:training_metrics}
@@ -198,14 +199,14 @@ A new approach attacked the \underline{lesson}. A new approach attacked the \und
 \end{subfigure}
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-A new approach attacked the \underline{lesson} and the \underline{league}. A new approach attacked the \underline{couple}.
+A new approach attacked the \underline{lesson} \textbf{and} the \underline{league}. A new approach attacked the \underline{patient}.
 \end{displayquote}
 \caption{Expected summary}
 \vspace{\baselineskip}
 \end{subfigure}
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-A new approach attacked the \underline{lesson} and the \underline{counseling}. A new approach attacked the \underline{league}.
+A new approach attacked the \underline{lesson} \textbf{and} the \underline{counseling}. A new approach attacked the \underline{league}.
 \end{displayquote}
 \caption{Predicted summary}
 \end{subfigure}
