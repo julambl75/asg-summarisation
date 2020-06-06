@@ -12,10 +12,6 @@ If the neural network is able to learn how to generate these summaries, then we 
 
 To give a more generalized representation of what \textsc{SumASG*} can do, we shall create two different types of stories: those with \textit{conjunctive summaries}, and those with \textit{descriptive summaries}.
 
-Stories in the former category result in summaries where \textit{objects} of sentences sharing the same \textit{subject} and \textit{verb} have been joined together using the conjunction ``and".
-
-In contrast, the latter category consists of stories where the first sentence introduces an \textit{object} and the second sentence gives additional information about it. The resulting summary will then be the first sentence, where the \textit{object} has been augmented with information from the second sentence coming from the story.
-
 In this section, we go more into depth about these two types of randomly-generated stories, and discuss how they are created.
 
 \subsection{Libraries}
@@ -34,7 +30,9 @@ In addition, we query from the \textbf{Datamuse API} for what we call a \textit{
 
 \subsection{Main Sentence Generation}
 
-We will begin by detailing how sentences are generated, starting with a few necessary definitions. Throughout this section, it is important to keep in mind that the goal here is to create a story that is as lexically and semantically coherent as possible, which is tricky to do algorithmically.
+We will begin by detailing how what we call \textit{main sentences} are generated, starting with a few necessary definitions. Throughout this section, it is important to keep in mind that the goal here is to create a story that is as lexically and semantically coherent as possible, which is tricky to do algorithmically.
+
+It is important to note that all \textit{main sentences} for the same story share a common \textit{subject} and \textit{verb}.
 
 \subsubsection{Definitions}
 
@@ -48,21 +46,17 @@ A \textit{meronym} is an object which something is part of; ``house" is a \texti
 
 \subsubsection{Subject}
 
-For the \textit{subject} of a sentence, we draw a noun from our \textit{lexical nouns}.
-
-If this word is singular, then we need a determiner, which can be ``the" or ``a".
+For the \textit{subject} of a \textit{main sentence}, we use the story's \textit{topic}. This being a singular noun, we need to add a determiner, which can be ``the" or ``a".
 
 We also ask the \textbf{Datamuse API} to find us an adjective which is often modified by the chosen \textit{subject} noun, and is part of our dataset of words. If none are found, then we do not need to use an adjective.
 
-In order to avoid making the data too hard to learn, the same \textit{subject} is used in every sentence of the same story. However, the \textit{verb} and \textit{object} may differ.
-
 \subsubsection{Verb}
 
-We chose a verb at random from our set of \textit{lexical verbs}, conjugating it in the past tense so that it agrees with the sentence's \textit{subject}.
+Here we use the \textit{lexical verb}, conjugating it in the past tense so that it agrees with the sentence's \textit{subject}.
 
 \subsubsection{Object}
 
-For the \textit{object} of our sentence, we look at the \textit{subject} and \textit{verb}. Using the \textbf{Datamuse API} we try and find a noun which often appears after the chosen \textit{verb}, and which is related to our \textit{topic} as well as all nouns we have used thus far in the story. With 50\% probability we ask it to be a \textit{holonym} of the \textit{subject} noun, otherwise it should be a \textit{meronym}.
+For the \textit{object} of our sentence, we look at the story's \textit{topic} and \textit{lexical verb}. Using the \textbf{Datamuse API} we try and find a noun which often appears right after this verb, and which is related to all of the nouns we have used thus far in the story. With 50\% probability we ask it to be a \textit{holonym} of the \textit{topic}, otherwise it should be a \textit{meronym}.
 
 In the same way as we did for the \textit{subject}, we try and find an adjective often modified by the chosen noun. Sometimes it will be the case that no noun was found, but it is possible in English to have an adjective as the only word in the \textit{object}.
 
@@ -70,21 +64,71 @@ The determiner is added as for the \textit{subject}; if there is no noun we do n
 
 \subsubsection{Example}
 
-We take the example of generating a sentence for a story whose \textit{topic} is ``soccer". In this case, the \textit{lexical nouns} are a singleton set containing the word ``football". Here also have two \textit{lexical verbs}: ``to match" and ``to pitch".
+We take the example of generating a sentence for a story whose \textit{topic} is ``football". In this case, we have two choices for our \textit{lexical verb}: ``to match" and ``to pitch".
 
-For the \textit{subject}, we can choose the \textit{lexical noun} ``football"; an adjective commonly used to modify it is ``professional". Since the noun here is singular, we can use the determiner ``a".
+For the \textit{subject}, we use the \textit{topic} ``football"; an adjective commonly used to modify it is ``professional". Here, we can use the determiner ``a".
 
-We can then pick ``to pitch" as the \textit{verb}, which becomes ``pitched" when conjugated in the past tense.
+We can then conjugate the verb ``to pitch" in the past tense, which becomes ``pitched".
 
-For the \textit{object}, we take into account our \textit{topic} ``soccer", to find a \textit{holonym} of ``football" which often appears after the \textit{verb} ``pitched". In this case the \textbf{Datamuse API} returns the word ``reception", resulting in the adjective ``warm" being chosen to accompany it.
+For the \textit{object}, we take into account our \textit{topic} ``football" to find a \textit{holonym} of this word which often appears after the \textit{verb} ``pitched". In this case the \textbf{Datamuse API} returns the word ``reception", resulting in the adjective ``warm" being chosen to accompany it.
 
-After repeating this process three more times, we end up with the below story. As you can see, \textsc{SumASG\textsubscript{2}} would be able to combine the two last sentences, but the result of this may or may not make it into the summary we choose.
+As a result, we end up with the following \textit{main sentence}:
 
 \begin{displayquote}
-The professional football matched a place. A professional football pitched the warm reception. A professional football matched a warm reception. A professional football matched a wonder.
+A professional football pitched the warm reception.
 \end{displayquote}
 
 \textcolor{red}{\textbf{\hl{TODO}}}
+
+\subsection{Conjunctive Summaries}
+
+Stories of this type consist of three \textit{main sentences}. Because of the way in which we have implemented the summarization rules in \textsc{SumASG}, one of the sentences in the corresponding summary should be a combination of two of two of the input story's. That is to say, its \textit{object} should consist of these two sentences' \textit{objects}, joined together using the conjunction ``and". An example is shown in Figure \ref{fig:conjunctive_summary_example}.
+
+\begin{figure}[H]\
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+The publication printed a lightning. The publication printed a movement. The publication printed the stereotype.
+\end{displayquote}
+\caption{Story}
+\vspace{\baselineskip}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+The publication printed a lightning and a movement. The publication printed the stereotype.
+\end{displayquote}
+\caption{Summary}
+\end{subfigure}
+\caption{Example of a story with a \textit{conjunctive summary}}
+\label{fig:conjunctive_summary_example}
+\end{figure}
+
+\textcolor{red}{\textbf{\hl{TODO underline important parts in example?}}}
+
+\subsection{Descriptive Summaries}
+
+In contrast, this type of story consists of a single \textit{main sentence}, one which does contain an adjective in the \textit{object} position.
+
+We use the second of its two sentences to expand on the first. To be more precise, the \textit{object} of this sentence is the same as in the first, apart from the fact that we assign an adjective as is done for typical \textit{main sentences}. However the \textit{subject} here is the preposition ``it", while the \textit{verb} is the verb ``to be" conjugated in the past tense.
+
+The idea for a \textit{descriptive summary} is that it will be identical to the first sentence of its corresponding story, but augmented with the adjective coming from the second sentence, as illustrated in Figure \ref{fig:descriptive_summary_example}.
+
+\begin{figure}[H]\
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+The heavy traffic transported the birthday. It was the isolated birthday.
+\end{displayquote}
+\caption{Story}
+\vspace{\baselineskip}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+The heavy traffic transported the isolated birthday.
+\end{displayquote}
+\caption{Summary}
+\end{subfigure}
+\caption{Example of a story with a \textit{descriptive summary}}
+\label{fig:descriptive_summary_example}
+\end{figure}
 
 \subsection{Action Creation}
 

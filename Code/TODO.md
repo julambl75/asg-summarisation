@@ -1,6 +1,6 @@
 ## For Report
 
-To write: smaller hidden size and very slow training force learning to be more general, no more names
+To write: smaller hidden size and very slow training force learning to be more general
 
 Params: dropout 0.25; lr 0.001; batchsize 50; wordvecsize 500; hiddensize 500
 Same nothing: final validation accuracy 53%
