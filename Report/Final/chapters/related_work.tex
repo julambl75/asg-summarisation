@@ -42,7 +42,7 @@ There also exists a \textit{morphological slash} \textbackslash\textbackslash, w
 \label{fig:ccg_derivations}
 \end{figure}
 
-There exist more advanced syntactic rules in CCG, which we shall not go into detail about for the purposes of brevity. However with the basic rules that we explained, you can easily see how this parsing mechanism could be an efficient way to get to the underlying semantics of a sentence. Although the \textit{syntactic type} may seem complicated, it would allows us to get a very precise understanding of English grammar, as well as obtain a simple and consistent \textit{logical form} at the end.
+There exist more advanced syntactic rules in CCG, which we shall not go into detail about for the purposes of brevity. However with the basic rules that we explained, you can easily see how this parsing mechanism could be an efficient way to get to the underlying semantics of a sentence. Although the \textit{syntactic type} may seem complicated, it allows for a very precise understanding of English grammar, as well as giving a simple and consistent \textit{logical form} at the end.
 
 \section{Existing Text Summarization Approaches}
 
@@ -93,11 +93,9 @@ Comparing the two approaches highlighted in the paper, it is mentioned that perf
 
 \mbox{}
 
-As our solution will rely on ASG, no machine learning will be needed. However, the first approach is still interesting in the sense that it uses a certain number of important features to identify the important sentences of a passage. In our approach, we may want to use some of these metrics to construct the summary.
+From the first approach, what is interesting is that it uses a certain number of important features to identify the most pertinent sentences of a passage.
 
-From the second approach, the main takeaways are the storage mechanisms in use such as the \textit{semantic matrix} and \textit{text relationship map}. In our system we may also want to use the idea that sentences or \textit{chunks} which are semantically similar to many others in the \textit{text relationship map} are likely to cover the main topics of a passage.
-
-Finally, we notice that the approach based on machine learning (MCBA) gives summaries of inferior quality in general, confirming that the use of ASG is a good choice. In addition, it was found that the longer the summary (higher CR), the more accurate it is, so we must be particularly careful when generating one to two sentence summaries.
+From the second approach, the main takeaways are the storage mechanisms in use such as the \textit{semantic matrix} and \textit{text relationship map}.
 
 \subsection{Lexical Chains}
 
@@ -202,11 +200,7 @@ If the user wants a shorter or longer summary, the system can simply return the 
 \label{fig:statistics_example}
 \end{figure}
 
-In their testing it was found that their algorithm has a conservative nature, promoting correctness over brevity, which sometimes has the consequence of not trimming any words away. Therefore, this implementation is highly unsuitable for our purposes, but we shall nonetheless keep in mind the notion of the \textit{shared-forest} structure, as well as the use of Bayesian probability theory.
-
-%In the decision-based model, they apply a sequence of shift-reduce-drop operations on the original sentence's parse tree \textit{t} in order to obtain the compressed sentence \textit{s} in the form of a stack. Starting from an empty stack, they are able to get a summary that can have a different ordering of words, which is not possible using the \textit{noisy-channel model}.
-
-%After training these models using a set of newspaper articles with abstracts, they found that both were significantly better than the baseline they were using, although performed worse than humans. When run on a different dataset, they found that the decision-based model produced sentences that were more grammatically correct, however they would often be slightly over-compressed.
+In their testing it was found that their algorithm has a conservative nature, promoting correctness over brevity, which sometimes has the consequence of not trimming any words away. Therefore, this implementation is highly unsuitable for creating short summaries, but we shall nonetheless keep in mind the notion of the \textit{shared-forest} structure, as well as the use of Bayesian probability theory.
 
 \subsection{Frame}
 
@@ -245,4 +239,4 @@ As we have seen above, these rules allow us to compose tokens together, and in t
 
 \mbox{}
 
-One of the criticisms with this approach \cite{clark_combining_nodate} is that it is domain-specific and not easily scalable. However more recent work (as with CCG) has shown that the latter issue is not necessarily the case any more, as we now have more powerful parsers. Should we choose to follow a symbolic approach, we shall hope to prove the former issue no longer relevant, once we have moved up from simpler examples.
+One of the criticisms with this type of approach \cite{clark_combining_nodate} is that it is domain-specific and not easily scalable. However more recent work (as with CCG) has shown that the latter issue is not necessarily the case any more, as we now have more powerful parsers.
