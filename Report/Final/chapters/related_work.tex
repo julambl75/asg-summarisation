@@ -56,7 +56,7 @@ In order to understand MCBA, we must first mention corpus-based approaches, whic
 
 The MCBA builds on the basic corpus-based approach (CBA) by ranking sentence positions and using the genetic algorithm (GA) to train the score function. In the first case, the idea is that the important sentences of a paragraph are likely to have the same position in different texts, such as the first sentence (introduction) and the last one (summary). Depending on a sentence's position, a \textit{rank} (from $1$ to some $R$) is assigned, and used to compute a score for this feature. The paper also discusses other features, whose corresponding scores, along with the aforementioned \textit{rank}, are used to compute a weighted sum of all scores. Only the highest scoring sentences are retained in order to form the summary.
 
-Moreover, the \textit{genetic algorithm} (GA) is used to obtain suitable weights, where a \textit{chromosome} is defined by a set of values for all the features weights. Using the notions of \textit{precision} (proportion of predicted positive cases that are correctly real positives) and \textit{recall} (proportion of real positive cases that are correctly predicted positive) \cite{powers_evaluation_2011}, a so-called \textit{F-score} is computed to define the fitness for each chromosome. By combing two \textit{chromosomes} to generate children, where the fittest parents are most likely to mate, we end up (after some number of generations) with a set of feature weights suitable for the corpus in question.
+Moreover, the \textit{genetic algorithm} (GA) is used to obtain suitable weights, where a \textit{chromosome} is defined by a set of values for all the features weights. Using the notions of \textit{precision} (proportion of predicted positive cases that are actually real positives) and \textit{recall} (proportion of real positive cases that are correctly predicted positive) \cite{powers_evaluation_2011}, a so-called \textit{F-score} is computed to define the fitness for each chromosome. By combing two \textit{chromosomes} to generate children, where the fittest parents are most likely to mate, we end up (after some number of generations) with a set of feature weights suitable for the corpus in question.
 
 \mbox{}
 
@@ -85,9 +85,9 @@ Finally, step (4) uses the \textit{text relationship map} to pick out the most i
 
 \textit{Compression rate} (CR) is a proportion describing the size of the summary with respect to the size of the original text.
 
-After evaluating both approaches on a news article corpus, it was found that MCBA outperforms the basic CBA by around 3\%, confirming the hypothesis that the position of a sentence plays a role in its importance. Furthermore, MCBA+GA performs around 10\% better than MCBA.% However, the difference in genre between the \textit{training corpus} and \textit{test corpus} has an influence on the performance of GA.
+After evaluating both approaches on a news article corpus, it was found that MCBA outperforms the basic CBA by around 3\%, confirming the hypothesis that the position of a sentence plays a role in its importance. Furthermore, MCBA+GA performs around 10\% better than MCBA.
 
-Concerning LSA+TRM, it was found that on a per-document level this approach outperformed simply using TRM with the sentence keywords rather than LSA by almost 30\%. It was thus concluded that LSA helps get a better semantic understanding of a text.% On a corpus-level, this performance improvement is only around 20\%.
+Concerning LSA+TRM, it was found that on a per-document level this approach outperformed simply using TRM with the sentence keywords rather than LSA by almost 30\%. It was thus concluded that LSA helps get a better semantic understanding of a text.
 
 Comparing the two approaches highlighted in the paper, it is mentioned that performance is similar, although LSA+TRM is easier to implement than MCBA in single-document level as it requires no preprocessing, and in some optimal cases performs up to 20\% better. Although the former approach is more computationally expensive, it is more adept at understanding the semantics of a text because it does not rely on the genre of the corpus that was used for training. In both cases though, performance improves as CR increases.
 
@@ -101,7 +101,7 @@ From the second approach, the main takeaways are the storage mechanisms in use s
 
 In a paper about \textit{lexical chains} \cite{barzilay_using_1997}, the authors describe a method which relies on semantic links between words. The idea is that we establish chains of related words, in order to learn what a text is about.
 
-In order to create such a chain, the algorithm begins by choosing a set of \textit{candidate words} for the chain. These \textit{candidate words} are either nouns, or \textit{noun compounds} (such as ``analog clock"). Starting from the first word, the task is to find the next related word which has a similar meaning (a dictionary is used here). If the word has multiple senses, then the chain gets split into multiple interpretations; this process continues until we have analysed all \textit{candidate words}.  For instance, the word ``person" can be interpreted as meaning a human being (\underline{interpretation 1}), or as a grammatical term used for pronouns (\underline{interpretation 2}). An example for the below text is shown in Figure \ref{fig:lexical_chain_example}.
+In order to create such a chain, the algorithm begins by choosing a set of \textit{candidate words} for the chain. These \textit{candidate words} are either nouns, or \textit{noun compounds} (such as ``analog clock"). Starting from the first word, the task is to find the next related word which has a similar meaning (a dictionary is used here). If the word has multiple meanings, then the chain gets split into multiple interpretations; this process continues until we have analysed all \textit{candidate words}.  For instance, the word ``person" can be interpreted as meaning a human being (\underline{interpretation 1}), or as a grammatical term used for pronouns (\underline{interpretation 2}). An example for the below text is shown in Figure \ref{fig:lexical_chain_example}.
 
 \begin{displayquote}
 \textbf{Mr.} Kenny is the \textbf{person} that invented an anesthetic \textbf{machine} which uses \textbf{micro-computers} to control the rate at which an anesthetic is pumped into the blood. Such \textbf{machines} are nothing new. But his \textbf{device} uses two \textbf{micro-computers} to achieve much closer monitoring of the \textbf{pump} feeding the anesthetic into the patient. \cite{barzilay_using_1997}
@@ -143,7 +143,7 @@ In the statistical approach, the methodology is to use probabilities in order to
 
 The authors of the paper \cite{knight_statistics-based_2000} envision what they call a \textit{noisy-channel model}, which at the time of writing was limited to single sentence summarization. For the  model, assume that there was at some point a (shorter) summary string $s$ for the (longer) string $t$ to summarize, from which optional words were removed. The idea is that optional details were added to produce $t$, and we want to know with what probability $s$ contained this information given $t$. At this stage, there a three problems to solve:
 \begin{enumerate}[noitemsep]
-\item To obtain the \textit{source model}, we must assign a probability $P(s)$ to every string $s$, which tells us how likely it is that this is the summary. If we assign a lower $P(s)$ to less grammatically correct strings, then it helps ensure that our final summary is well-formed.
+\item To obtain the \textit{source model}, we must assign a probability $P(s)$ to every string $s$, which tells us how likely it is that this is the summary. If we assign a lower $P(s)$ to less grammatically-correct strings, then it helps ensure that our final summary is well-formed.
 \item To obtain the \textit{channel model}, we now assign the probabilities $P(t \vert s)$ to every pair $\langle s, t \rangle$. This contributes to preserving important information, as we take into account the differences between $s$ and $t$ when computing the corresponding probability. In this case, we may want to assign a very low $P(t \vert s)$ when $s$ omits an important verb or negation (these are not optional to get the correct meaning), while this can sometimes be much higher if the only difference is the word ``that".
 \item For a given string $t$ the goal is now to maximize $P(s \vert t)$ which, because of \href{https://www.investopedia.com/terms/b/bayes-theorem.asp}{Bayes' theorem}, is equivalent to maximizing $P(s) \cdot P(t \vert s)$.
 \end{enumerate}
@@ -200,7 +200,7 @@ If the user wants a shorter or longer summary, the system can simply return the 
 \label{fig:statistics_example}
 \end{figure}
 
-In their testing it was found that their algorithm has a conservative nature, promoting correctness over brevity, which sometimes has the consequence of not trimming any words away. Therefore, this implementation is highly unsuitable for creating short summaries, but we shall nonetheless keep in mind the notion of the \textit{shared-forest} structure, as well as the use of Bayesian probability theory.
+In their testing it was found that their algorithm has a conservative nature, promoting correctness over brevity, which sometimes has the consequence of not trimming any words away. We can learn from this approach the notion of a \textit{shared-forest} structure, as well as the use of Bayesian probability theory.
 
 \subsection{Frame}
 
@@ -217,7 +217,7 @@ By combining sequences of \textit{affect links} (transitions) between \textit{af
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{frame_example.eps}
-\caption{Example of a narrative in the frame approach}
+\caption{\cite{lehnert_1980_nodate} Example of a narrative in the frame approach}
 \label{fig:frame_example}
 \end{figure}
 

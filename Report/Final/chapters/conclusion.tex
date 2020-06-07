@@ -13,7 +13,7 @@ The core accomplishments of this project are the following:
 \item Wrote an ASG learning task capable of taking English text and turning it into set of chronologically-ordered \textit{actions}.
 \item Developed a set of rules which, given \textit{actions} from a story, allow ASG to generate both \textit{extractive} and \textit{abstractive} summary sentences.
 \item Implemented a scoring mechanism prioritizing information density, while taking into account words which may appear frequently in English and can be considered the \textit{topic} of the original text.
-\item Created a framework to automatically generate topical short stories to evaluate \textsc{SumASG*}, based on a dataset of words and particular sentence structure.
+\item Created a framework to automatically generate topical short stories to evaluate \textsc{SumASG*}, based on a dataset of words and particular sentence structures.
 \end{itemize}
 
 \section{Future Work}
@@ -68,7 +68,7 @@ In order to understand such a story, we would therefore need to strengthen \text
 
 \subsection{Longer Stories}
 
-What we would like it to use this mechanism to summarize longer texts, such as newspaper articles or even whole books. Using a supercomputer, we could run a much more advanced and polished version of \textsc{SumASG*} in order to generate a summary of one or more pages in length.
+What we would like to do is use this mechanism to summarize longer texts, such as newspaper articles or even whole books. Using a supercomputer, we could run a much more advanced and polished version of \textsc{SumASG*} in order to generate a summary of one or more pages in length.
 
 As we have seen, runtime is one of the major bottlenecks of \textsc{SumASG}, which is why \textsc{SumASG*} is limited to very succinct stories. What we would therefore need to do is to carefully reason about the most efficient implementation of our logic program. This could involve separately running \textsc{SumASG*} on each paragraph or page, and then gathering the results together to construct the final summary.
 
