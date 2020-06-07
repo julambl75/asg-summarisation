@@ -2,7 +2,7 @@
 
 \section{Overview}
 
-In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we have created the \textsc{Preprocessor}. As we will loose information in summary anyway, it is completely acceptable to... which steps are shown below in Figure \ref{fig:preprocessor_pipeline}.
+In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we have created the \textsc{Preprocessor}, whose steps are shown below in Figure \ref{fig:preprocessor_pipeline}.
 
 \begin{figure}[H]
 \centering
@@ -67,7 +67,7 @@ In order to provide \textsc{SumASG} with a consistent format for parsing adverbs
 
 \subsubsection{Determiners}
 
-In the English language, the determiners ``a" and ``an" are semantically identical, so to makes sense to only use one of the two, with the intention of reducing the number of \textit{tokens} that \textsc{SumASG has to process}. We can always correct the output of \textsc{SumASG} to make it grammatically-correct.
+In the English language, the determiners ``a" and ``an" are semantically identical, so to makes sense to only use one of the two, with the intention of reducing the number of \textit{tokens} that \textsc{SumASG} has to process. We can always correct the output of \textsc{SumASG} to make it grammatically correct.
 
 \subsubsection{Possessive Pronouns, Interjections And Prepositions}
 
@@ -75,7 +75,7 @@ In most cases, possessive pronouns and interjections do not add much to the mean
 
 Prepositions which appear at the start of a sentence may be removed, as they are not integral to the meaning. For example, ``\underline{Besides} today is Sunday" gets transformed into ``Today is Sunday".
 
-Moreover, prepositions which come after the object in a sentence can sometimes cause it to become syntactically too complex. Rather than encoding such high-level of detail into the internal representation of \textsc{SumASG}, it is preferable to simply omit the final clause. In this case, ``They have a picnic \underline{under} a tree." becomes ``They have a picnic.". Although some information is thrown away, this loss will usually have no impact on the quality of the summary.
+Moreover, prepositions which come after the object in a sentence can sometimes cause it to become syntactically too complex. Rather than encoding such high level of detail into the internal representation of \textsc{SumASG}, it is preferable to simply omit the final clause. In this case, ``They have a picnic \underline{under} a tree." becomes ``They have a picnic.". Although some information is thrown away, this loss will usually have no impact on the quality of the summary.
 
 \subsection{Clause Transformations}
 
@@ -88,7 +88,7 @@ Examples of the transformations applied to different types of clauses can be see
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-\textit{Conjunctive Clause} We looked left \underline{and} they saw us.\\
+\textit{Conjunctive Clause}. We looked left \underline{and} they saw us.\\
 \textit{Conjunctive Clause}. Cars have wheels \underline{and} go fast.\\
 \textit{Subordinating Clause}. She never walks alone \underline{because} she is afraid.\\
 \textit{Dependant Clause}. I want to be President \underline{when I grow up}.\\
@@ -104,8 +104,8 @@ Examples of the transformations applied to different types of clauses can be see
 \textit{Subordinating Clause}. She never walks alone. she is afraid.\\
 \textit{Dependant Clause}. I want to be President.\\
 \textit{Dependant Clause}. I will have a garden.
-\caption{After transformation}
 \end{displayquote}
+\caption{After transformation}
 \end{subfigure}
 \caption{Examples of the splitting of multi-clause sentences}
 \label{fig:clause_transformations}
@@ -113,13 +113,11 @@ Examples of the transformations applied to different types of clauses can be see
 
 \subsubsection{Hypernym Substitution}
 
-However, in some cases we may be able to perform an optimization that allows us to collapse a conjunction of two words into a common \textit{hypernym} (i.e. superclass).
+However, in some cases we may be able to perform an optimisation that allows us to collapse a conjunction of two words into a common \textit{hypernym} (i.e., superclass).
 
 In practice, this involves using \textbf{\href{http://web.archive.org/web/20190516161631/https://www.clips.uantwerpen.be/pages/pattern-en}{Pattern}} to try and find a lexical field to which both words pertain.
 
 For example, the words ``chicken" and ``goose" both belong to the lexical field of ``poultry". Similarly, ``cars" and ``trucks" have common hypernym ``motor-vehicles".
-
-\textcolor{red}{\textbf{\hl{TODO give more details about how chosen?}}}
 
 \subsection{Case And Proper Nouns}
 
@@ -159,7 +157,7 @@ To clarify this, an example is shown in Figure \ref{fig:pronoun_substitution}.
 \subsection{Example}
 \label{subsec:simplification_example}
 
-The result of running the simplification transformations is illustrated below in Figure \ref{fig:simplification_example}. Please refer to Chapter \ref{chapter:contributions} for the original story.
+The result of running the simplification transformations is illustrated below in Figure \ref{fig:simplification_example}. Please refer to Chapter \ref{chapter:introduction} for the original story.
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
@@ -209,7 +207,7 @@ In order to understand what is relevant in a story and what is not, the \textsc{
 
 \subsection{Word Similarity}
 
-It uses a loop to iterate over each sentence, and compares each word with every word from other sentences which have the same or a related POS tag. For each comparison, word \textit{similarity} is computed using the tool \href{http://www.conceptnet.io}{ConceptNet}, a semantic knowledge network.
+It uses a loop to iterate over each sentence, and compares each word with every word from other sentences which have the same or a related POS tag. For each comparison, word \textit{similarity} is computed using the tool \textbf{\href{http://www.conceptnet.io}{ConceptNet}}, a semantic knowledge network.
 
 As you might imagine, having such nesting of loops can be quite expensive, which is why we keep a cache of previously requested similarities, and use the fact that this \textit{similarity} relation is symmetric.
 
@@ -239,9 +237,9 @@ This is what we call \textit{story homogenization}, and it helps \textsc{SumASG}
 
 An example is shown below in Figure \ref{fig:preprocessor_example} for the story of Peter Little, where the weight between two nodes denotes \textit{similarity}. In this example, we consider words to be synonyms whenever their \textit{similarity} is at least 20. The labels of the nodes (starting from 0) for sentence \textit{similarity} correspond to the index of the sentence in the \textit{simplified story} (see Subsection \ref{subsec:simplification_example}).
 
-As you can see, sentences 5 and 6 are deemed irrelevant and will be pruned, while sentences 0, 1 and 2 are thought as being very important.
+As you can see, sentences 5 and 6 are deemed irrelevant and will be pruned, while sentences 0, 1 and 2 are identified as being very important.
 
-Moreover, {homework, school} and {interested, curious} are considered synonym sets, and \textit{homogenization} will replace occurrences of these words with their shortest synonym (which may be itself).
+Moreover, \{``homework", ``school"\} and \{``interested", ``curious"\} are considered synonym sets, and \textit{homogenization} will replace occurrences of these words with their shortest synonym (which may be itself).
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
@@ -293,4 +291,4 @@ After having implemented this, the phrase ``not happy" would be transformed into
 
 At the moment, \textsc{SumASG} can parse a list of length 2 at the most, i.e. a conjunction of two items. By adding a transformation to the \textsc{Preprocessor} before we modify the punctuation (see Subsection \ref{subsec:punctuation}), we could overcome this limitation. Intuitively, this would mean going from a sentence with a an $n$-item list, to $\floor{\frac{n}{2}}$ sentences with two objects and one sentence with a single object (if $n$ is odd).
 
-For instance, the sentence ``Bob had a book, a computer and a chair." would be split into ``Bob had a book and a computer. Bob had a chair".
+For instance, the sentence ``Bob had a book, a computer and a chair." would be split into ``Bob had a book and a computer. Bob had a chair.".

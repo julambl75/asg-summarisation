@@ -22,7 +22,7 @@ We also take advantage of the \textbf{\href{https://www.datamuse.com/api/}{Datam
 
 \subsection{Datasets}
 
-In order to generate the required number of stories, we have used words from \href{http://www.wordfrequency.info/}{wordfrequency.info}. This database contains 5,000 individual English words, of which 1,001 are verbs, 2,542 nouns and 839 adjectives.
+In order to generate the required number of stories, we have used words from \textbf{\href{http://www.wordfrequency.info/}{wordfrequency.info}}. This database contains 5,000 individual English words, of which 1,001 are verbs, 2,542 nouns and 839 adjectives.
 
 For each story we chose a noun from our dataset, which we shall refer to as the \textit{topic}. We will later construct sentences that revolve around this \textit{topic}.
 
@@ -86,7 +86,7 @@ A professional football pitched a place.
 
 \subsection{Conjunctive Summaries}
 
-Stories of this type consist of three \textit{main sentences}. Because of the way in which we have implemented the summarization rules in \textsc{SumASG}, one of the sentences in the corresponding summary should be a combination of two of two of the input story's. That is to say, its \textit{object} should consist of these two sentences' \textit{objects}, joined together using the conjunction ``and". An example is shown in Figure \ref{fig:conjunctive_summary_example}.
+Stories of this type consist of three \textit{main sentences}. Because of the way in which we have implemented the summarization rules in \textsc{SumASG}, one of the sentences in the corresponding summary should be a combination of two of the input story's sentences. That is to say, its \textit{object} should consist of these two sentences' \textit{objects}, joined together using the conjunction ``and". An example is shown in Figure \ref{fig:conjunctive_summary_example}.
 
 \begin{figure}[H]\
 \begin{subfigure}{\textwidth}
@@ -144,17 +144,17 @@ For each story, we feed the generated \textit{actions} and leaf nodes directly i
 
 \subsection{Datasets}
 
-Using the mechanism described above, we generate 4000 story/summary pairs: 3582 to be used for training, 398 for validation and 20 for testing.
+Using the mechanism described above, we generate 4,000 story/summary pairs: 3,582 to be used for training, 398 for validation and 20 for testing.
 
 \subsection{Tools}
 
 To allow for greater flexibility, we have chosen to use a highly versatile open-source framework called \textbf{\href{https://github.com/OpenNMT/OpenNMT-py}{OpenNMT-py}} for training our neural network.
 
-In addition, we preprocess the data using Stanford's \textbf{\href{https://nlp.stanford.edu/projects/glove/}{GloVe}} pre-trained word embeddings, giving our network a head-start when it comes to semantics.
+In addition, we preprocess the data using Stanford's \textbf{\href{https://nlp.stanford.edu/projects/glove/}{GloVe}} pre-trained word embeddings, giving our network a head start when it comes to semantics.
 
 \subsection{Encoder-Decoder Architecture}
 
-Our \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of size 4239, its contents being internally represented using a vector of size 500. They both use a two-layer LSTM with \textit{dropout} of 0.25 and \textit{hidden size} of 500. Additionally, our \textit{decoder} uses \textit{global attention}.
+Our \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of size 4,239, its contents being internally represented using a vector of size 500. They both use a two-layer LSTM with \textit{dropout} of 0.25 and \textit{hidden size} of 500. Additionally, our \textit{decoder} uses \textit{global attention}.
 
 \subsection{Training}
 

@@ -105,7 +105,7 @@ I saw a man on a hill with a telescope.
 \end{displayquote}
 As shown in Table \ref{table:ambiguous_sentence}, both parsers interpret the meaning of the first example sentence as a person who feeds their ``cat food", which, in addition of not being very logical, is also grammatically incorrect as the genders do not match. Unfortunately, computers are generally not very good at context-based inference, something to take into account for this research project.
 
-Therefore accuracy is very important for \textit{syntactic parsing} \cite{gomez-rodriguez_how_2019}.
+Therefore, accuracy is very important for \textit{syntactic parsing} \cite{gomez-rodriguez_how_2019}.
 
 \begin{table}[H]
 \centering
@@ -132,7 +132,7 @@ An \textit{atomic formula} (or \textit{atom}) has the form $P(t_1,t_2,...,t_k)$,
 
 Once we have parsed a text, the next step is to convert this into an answer set program (ASP).
 
-ASP is a declarative first-order (predicate) logic language whose aim is to solve hard search problems \cite{lifschitz_what_nodate}. It is built upon the idea of stable model (answer set) semantics, returns answer sets when asked for the solution to a problem.
+ASP is a declarative first-order (predicate) logic language whose aim is to solve complex search problems \cite{lifschitz_what_nodate}. It is built upon the idea of stable model (answer set) semantics, returns answer sets when asked for the solution to a problem.
 
 In ASP, a \textit{literal} is an \textit{atom} \textit{a} or its negation \textit{not a} (we call this negation as a failure). ASP programs are composed of a set of \textit{normal rules}, whose head is a single \textit{atom} and body is a conjunction of \textit{literals} \cite{law_representing_2019}.
 \begin{equation}
@@ -142,11 +142,11 @@ h \leftarrow b_1, b_2, ..., b_k, \text{not}\ b_{k+1}, ..., \text{not}\ b_m.
 If the body is empty ($k = m = 0$) then a rule is called a \textit{fact}. We can also have \textit{constraints}, which are like \textit{normal rules} except that the head is empty. These prevent any answer sets from both including $b_1, b_2, ..., b_k$ and excluding $b_{k+1}, ..., b_m$.
 
 \begin{definition}[Safety \cite{law_representing_2019}]
-A variable in a rule is said to be \textit{safe} if it occurs in at least one positive \textit{literal} (i.e. the $b_i$s in the above rule) in the body of the rule.
+A variable in a rule is said to be \textit{safe} if it occurs in at least one positive \textit{literal} (i.e., the $b_i$s in the above rule) in the body of the rule.
 \end{definition}
 
 \begin{definition}[Herbrand Base \cite{law_representing_2019}]
-The \textit{Herbrand base} of a program P, denoted $HB_P$, is the set of variable-free (\textit{ground}) \textit{atoms} that can be formed from predicates and \textit{constants} in P . The subsets of $HB_P$ are called the (Herbrand) \textit{interpretations} of P.
+The \textit{Herbrand base} of a program P, denoted $HB_P$, is the set of variable-free (\textit{ground}) \textit{atoms} that can be formed from predicates and \textit{constants} in P. The subsets of $HB_P$ are called the (Herbrand) \textit{interpretations} of P.
 \end{definition}
 
 \begin{definition}[Satisfiability \cite{law_representing_2019}] 
@@ -155,7 +155,7 @@ Given a set $A$, a \textit{ground normal rule} of P is \textit{satisfied} if the
 \end{definition}
 
 \begin{definition}[Reduct \cite{law_representing_2019}]
-Given a program P and an \textit{Herbrand interpretation} $I \subseteq HB_P$, the \textit{reduct} $P^I$ is constructed from the grounding of P in three steps:
+Given a program P and a \textit{Herbrand interpretation} $I \subseteq HB_P$, the \textit{reduct} $P^I$ is constructed from the grounding of P in three steps:
 \begin{enumerate}[nolistsep]
 \item Remove rules whose bodies contain the negation of an atom in I.
 \item Remove all negative \textit{literals} from the remaining rules.
@@ -198,8 +198,8 @@ We can represent each node n in a \textit{parse tree} by its \textit{trace}, $tr
 \caption{CFG for \texttt{a\textsuperscript{i}b}}
 \end{subfigure}
 \begin{subfigure}{0.34\textwidth}
-\centering
 \begin{table}[H]
+\centering
 \begin{tabular}{@{}ccc@{}}
 \toprule
 \textbf{$trace(n)$} & \textbf{$node(n)$} \\ \midrule

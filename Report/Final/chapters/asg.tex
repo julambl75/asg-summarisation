@@ -2,7 +2,7 @@
 
 \section{Overview}
 
-Our use ASG is two-fold. Firstly, we pass in each sentence from the story to ASG to obtain its semantic representation in ASP. Secondly, we take these \textit{actions} and use ASG rules to generate possible summary components. These will later be post-processed and turned into actual valid summaries. A diagram of the two ASG steps is shown below in Figure \ref{fig:asg_pipeline}.
+Our use of ASG is two-fold. Firstly, we pass in each sentence from the story to ASG to obtain its semantic representation in ASP. Secondly, we take these \textit{actions} and use ASG rules to generate possible summary components. These will later be post-processed and turned into actual valid summaries. A diagram of the two ASG steps is shown below in Figure \ref{fig:asg_pipeline}.
 
 \begin{figure}[H]
 \centering
@@ -43,19 +43,19 @@ In order to model the structure of sentences the English language, we have creat
 
 At the bottom end of the structure, there are leaf nodes that correspond to individual English words. These nodes are added based on the context, that is to say the words appearing in our story.
 
-Each of these nodes has on the LHS (left-hand side) of the derivation its pos tag, and on the RHS (right-hand side) a string containing the word itself. In order to conform to the syntax of ASG, we must write the POS tags in lower-case. Also, we include a space at the end of each word's textual representation so that when we run our program the words appear distinct and not all concatenated together.
+Each of these nodes has on the left-hand side (LHS) of the derivation its POS tag, and on the right-hand side (RHS) a string containing the word itself. In order to conform to the syntax of ASG, we must write the POS tags in lower-case. Also, we include a space at the end of each word's textual representation so that when we run our program the words appear distinct and not all concatenated together.
 
-In ASG every derivation also has a set of ASP rules, which in the case of leaf nodes is just a single rule telling us the word's \textit{lemma} and sentence \textit{role}. In the case of verbs, the \textit{lemma} is the base form of the verb, so we also need to keep track of its tense.
+In ASG every derivation also has a set of ASP rules, which in the case of leaf nodes is just a single rule telling us the word's \textit{lemma} and sentence \textit{role}. In the case of verbs, the \textit{lemma} is simply the base form of the verb, so we also need to keep track of its tense.
 
 For example, leaf nodes for the sentence ``they drove a race-car fast." would look like this:
 
 \begin{displayquote}
 \begin{lstlisting}
-prp -> "they " { noun(they). }
-vbd -> "drove " { verb(drive,past). }
-dt -> "a " { det(a). }
-nn -> "race-car " { noun(race_car). }
-rb -> "fast " { adj_or_adv(fast). }
+prp -> ``they " { noun(they). }
+vbd -> ``drove " { verb(drive,past). }
+dt -> ``a " { det(a). }
+nn -> ``race-car " { noun(race_car). }
+rb -> ``fast " { adj_or_adv(fast). }
 \end{lstlisting}
 \end{displayquote}
 
@@ -120,7 +120,7 @@ For example, the \textit{noun phrase} ``bread and cheese" would be encompassed b
 
 \begin{displayquote}
 \begin{lstlisting}
-np -> nn "and " nn {
+np -> nn ``and " nn {
   subject(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   object(conjunct(N1,N2),0,0) :- noun(N1)@1, noun(N2)@3.
   :- subject(conjunct(N,N),0,0).
@@ -164,11 +164,11 @@ In order to join sentences (\texttt{s -> np vp}) together we use what is called 
 \begin{displayquote}
 \begin{lstlisting}
 s_group -> { count(0). }
-s_group -> s_group s ". " { count(X+1) :- count(X)@1. }
+s_group -> s_group s ``. " { count(X+1) :- count(X)@1. }
 \end{lstlisting}
 \end{displayquote}
 
-In the way we currently use this general grammar, only a single sentence is allowed per \texttt{parse tree} for efficiency reasons, and because it is not necessary. However, if we we were to increase this limit for another application, it could easily be done by changing the first constraint at the root node:
+In the way we currently use this general grammar, only a single sentence is allowed per \textit{parse tree} for efficiency reasons, and because it is not necessary. However, if we we were to increase this limit for another application, it could easily be done by changing the first constraint at the root node:
 
 \begin{displayquote}
 \begin{lstlisting}
@@ -184,11 +184,11 @@ start -> s_group {
 
 We first need to convert the preprocessed story's sentences from English into our internal structure. In other words, we need to learn about the \textit{actions} described by the sentences in our story, which can be thought of as high-level semantic descriptors.
 
-\subsection{Formalization}
+\subsection{Formalisation}
 
-We can formalize the task of learning an action as \textsc{SumASG\textsubscript{1}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes (\textsc{BK}), and a grammar-conforming sentence (\textsc{E}), its goal is to return the \textit{action} corresponding to this sentence, which should have the format \texttt{action(\underline{verb},\underline{subject},\underline{object})}.
+We can formalise the task of learning an action as \textsc{SumASG\textsubscript{1}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes (\textsc{BK}), and a grammar-conforming sentence (\textsc{E}), its goal is to return the \textit{action} corresponding to this sentence, which should have the format \texttt{action(\underline{verb},\underline{subject},\underline{object})}.
 
-However this is not a learning task in the true sense, as we are only interested in generating ground facts \textit{ground facts}. More to the point, we make use of the built-in learning mechanism offered by ASG to translate the input into our internal representation.
+However this is not a learning task in the true sense, as we are only interested in generating \textit{ground facts}. More to the point, we make use of the built-in learning mechanism offered by ASG to translate the input into our internal representation.
 
 \subsection{Implementation}
 
@@ -235,7 +235,7 @@ For the most basic of sentences (ones where there is no need to use any \texttt{
 
 As you can see, this would require defining ILASP \textit{constants} corresponding to possible \textit{tokens}. To this end, we do so for each word in the \textit{simplified} text.
 
-For the sentence ``they drove a race-car fast", these would look like this:
+For the sentence ``they drove a race-car fast.", these would look like this:
 
 \begin{displayquote}
 \begin{lstlisting}
@@ -319,14 +319,14 @@ Without the optimization, we would end up with a \textit{search space} size of 1
 \end{lstlisting}
 \end{displayquote} 
 
-Another way to solve this would have been to add a \textit{mode bias} constraint ruling out cases where both verbs in a continuous form are the same. However, we would usually end up with a \textit{search space} at least as large, since any verb could appear in continuous fo. Also, we would have to handle the edge case where both verbs are ``to be", as ``is being" is a perfectly acceptable phrase in English.
+Another way to solve this would have been to add a \textit{mode bias} constraint ruling out cases where both verbs in a continuous form are the same. However, we would usually end up with a \textit{search space} at least as large, since any verb could appear in continuous form. Also, we would have to handle the edge case where both verbs are ``to be", as ``is being" is a perfectly acceptable phrase in English.
 
 \section{Generating Summary Sentences}
 \label{sec:gen_summary_sentences}
 
-\subsection{Formalization}
+\subsection{Formalisation}
 
-We can formalize the task of generating a \textit{summary sentence} as \textsc{SumASG\textsubscript{2}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes for the original story (\textsc{BK}), and a set of learned \textit{actions}, (\textsc{E}), its goal is to return a set of user-readable sentences which may be used to summarize the text.
+We can formalise the task of generating a \textit{summary sentence} as \textsc{SumASG\textsubscript{2}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes for the original story (\textsc{BK}), and a set of learned \textit{actions}, (\textsc{E}), its goal is to return a set of user-readable sentences which may be used to summarize the text.
 
 \subsection{Implementation}
 
@@ -373,7 +373,7 @@ After having defined a suite of such summarization rules, we now need to apply t
 
 \subsubsection{Running}
 
-Once we have augmented the fourth rule of our general grammar (\texttt{s -> np vp}) with the learned \textit{actions} and our set of summary generation rules and constraints, we can now generate all the possible \textit{summary sentences} with the below command.
+Once we have augmented the fourth rule of our general grammar (\texttt{s -> np vp}) with the learned \textit{actions} and our set of summary generation rules and constraints, we can now generate all the possible \textit{summary sentences} with the below command:
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none, escapechar=\%]
@@ -457,7 +457,7 @@ By greatly simplifying the input story using the \textsc{Preprocessor}, we were 
 
 \subsection{Missing Summarization Rules}
 
-In its current implementation, \textsc{SumASG\textsubscript{2}} only uses 11 summary generation rules, one of which simply repeats the given \textit{action}. While this is largely sufficient to demonstrate the potential of our approach, in no way can it be used as-is in a production text summarization tool.
+In its current implementation, \textsc{SumASG\textsubscript{2}} only uses 12 summary generation rules, one of which simply repeats the given \textit{action}. While this is largely sufficient to demonstrate the potential of our approach, in no way can it be used as is in a production text summarization tool.
 
 In order to augment this suite of rules, it would be simple to define a \textit{mode bias} to learn summary generation rules. With just a single example of a story and its corresponding summary, ASG could generate multiple such rules, allowing us to build up a large collection of these. Unfortunately, this is infeasible due to performance reasons.
 
