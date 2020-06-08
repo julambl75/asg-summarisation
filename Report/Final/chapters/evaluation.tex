@@ -4,7 +4,7 @@
 
 As the vast majority of modern text summarization frameworks are based on machine learning, it makes sense to evaluate \textsc{SumASG*} against a neural network.
 
-More specifically, we should generate a set of stories which we can give to our framework in order to obtain corresponding summaries. We can then use this as training data for an \textit{encoder-decoder}, to see if it is able to learn how \textsc{SumASG*} creates summaries.
+More specifically, we should generate a set of stories which we can give to our framework in order to obtain corresponding summaries. We then use this as training data for an \textit{encoder-decoder}, to see if it is able to learn how \textsc{SumASG*} creates summaries.
 
 If the neural network is able to learn how to generate these summaries, then we can consider our framework and the summarization rules it uses to be sane.
 
@@ -66,9 +66,9 @@ The determiner is added as for the \textit{subject}; if there is no noun we do n
 
 We take the example of generating a sentence for a story whose \textit{topic} is ``football". In this case, we have two choices for our \textit{lexical verb}: ``to match" and ``to pitch".
 
-For the \textit{subject}, we use the \textit{topic} ``football"; an adjective commonly used to modify it is ``professional". Here, we can use the determiner ``a".
+For the \textit{subject}, we use the \textit{topic} ``football"; an adjective commonly used to modify it is ``professional". In this case, we use the determiner ``a".
 
-We can then conjugate the verb ``to pitch" in the past tense, which becomes ``pitched".
+We then conjugate the verb ``to pitch" in the past tense, which becomes ``pitched".
 
 For the \textit{object}, we take into account our \textit{topic} ``football" to find a \textit{holonym} of this word which often appears after the \textit{verb} ``pitched". In this case the \textbf{Datamuse API} returns the word ``reception", resulting in the adjective ``warm" being chosen to accompany it.
 
@@ -199,14 +199,14 @@ A new approach attacked the \underline{lesson}. A new approach attacked the \und
 \end{subfigure}
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-A new approach attacked the \underline{lesson} \textbf{and} the \underline{league}. A new approach attacked the \underline{patient}.
+A new approach attacked the \underline{lesson} \textbf{and} the \underline{counseling}. A new approach attacked the \underline{league}.
 \end{displayquote}
 \caption{Expected summary}
 \vspace{\baselineskip}
 \end{subfigure}
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-A new approach attacked the \underline{lesson} \textbf{and} the \underline{counseling}. A new approach attacked the \underline{league}.
+A new approach attacked the \underline{lesson} \textbf{and} the \underline{league}. A new approach attacked the \underline{patient}.
 \end{displayquote}
 \caption{Predicted summary}
 \end{subfigure}
@@ -216,7 +216,7 @@ A new approach attacked the \underline{lesson} \textbf{and} the \underline{couns
 
 \section{Takeaways}
 
-To sum up what we have learned from this experiment, we can use a table to outline the main differences between our approach and using a neural network, as shown in Table \ref{table:takeaways}.
+To sum up what we have learned from this experiment, we use a table to outline the main differences between our approach and using a neural network, as shown in Table \ref{table:takeaways}.
 
 \begin{table}[H]
 \centering

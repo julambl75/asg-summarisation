@@ -2,15 +2,15 @@
 
 \section{Overview}
 
-Once we have obtained potential sentences from ASG to be used in a summary, we can now post-process these as explained in Section \ref{sec:summary_creation}. By combining them in different ways, we are able to form summaries. From these, we will retain the highest scoring ones, according to the metric detailed in Section \ref{sec:scoring}. A diagram illustrating these steps is shown below in Figure \ref{fig:postprocess_pipeline}.
+Once we have obtained potential sentences from ASG to be used in a summary, we now post-process these as explained in Section \ref{sec:summary_creation}. By combining them in different ways, we are able to form summaries. From these, we will retain the highest scoring ones, according to the metric detailed in Section \ref{sec:scoring}. A diagram illustrating these steps is shown below in Figure \ref{fig:postprocess_pipeline}.
 
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[node distance=0.55cm, auto]
-\node (summary_sentence_1) [block] {Summary Sentence 1};
-\node (summary_sentence_2) [block, below =of summary_sentence_1] {Summary Sentence 2};
+\node (summary_sentence_1) [inter] {Summary Sentence 1};
+\node (summary_sentence_2) [inter, below =of summary_sentence_1] {Summary Sentence 2};
 \node (summary_sentence_3) [below =of summary_sentence_2] {...};
-\node (summary_sentence_4) [block, below =of summary_sentence_3] {Summary Sentence n};
+\node (summary_sentence_4) [inter, below =of summary_sentence_3] {Summary Sentence n};
 \node (post_process_1) [block, right =of summary_sentence_1] {Post-Process};
 \node (post_process_2) [block, below =of post_process_1] {Post-Process};
 \node (post_process_3) [below =of post_process_2] {...};
@@ -62,7 +62,7 @@ One of the optimizations done by the \textsc{Preprocessor} was to combine comple
 
 \subsection{Combining}
 
-Depending on the length of the original story, we can envision and different number of sentences to be in the summary, as shown below in Table \ref{tab:summary_length}.
+Depending on the length of the original story, we envision a different number of sentences to be in the summary, as shown below in Table \ref{tab:summary_length}.
 
 \begin{table}[H]
 \centering
@@ -82,7 +82,7 @@ Once we have grammatically-correct summary sentences and know how many should be
 
 Because we often end up with a large number of combinations at this phase, we need to determine which of them are best and keep only these.
 
-\subsection{TTR}
+\subsection{Type-Token Ratio}
 
 To this end, we utilize an NLP metric called type-token ratio (TTR), a measure of lexical density. To provide the most informative summaries possible, we want to maximize the density of unique words.
 
@@ -94,9 +94,9 @@ However, we do not want to neglect summaries using the same determiner, proper n
 
 In addition, a story might revolve around a given \textit{topic}, which could be a person. Regarding the former, it could also be the case that the \textsc{Preprocessor} had replaced different synonyms of this \textit{topic} with a unique word.
 
-To get around this, what we can do is to exclude such words from the summary length and number of unique summary words. This way, we no longer require that these ``common" words be unique in a summary. In the following, we will call the enhanced mechanism \textsc{TTR*}.
+To get around this, what we do is to exclude such words from the summary length and number of unique summary words. This way, we no longer require that these ``common" words be unique in a summary. In the following, we will call the enhanced mechanism \textsc{TTR*}.
 
-In Figure \ref{fig:score_example} is an example which illustrates this metric. The summary with the highest final score is considered to be the best. As you can see, there is a greater difference between the summaries when using \textsc{TTR*}, which takes into account the commonly-used building blocks of the English language.
+In Figure \ref{fig:score_example} is an example which illustrates this metric. The summary with the highest final score is considered to be the best. Moreover, there is a greater difference between the summaries when using \textsc{TTR*}, which takes into account the commonly-used building blocks of the English language.
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
@@ -118,11 +118,11 @@ Jonathan was a little boy. He was hungry. Jonathan was eating an apple.
 \centering
 \begin{tabular}{@{}llllllll@{}}
 \toprule
-Summary & Words & Unique words & TTR & Words* & Unique words* & \textsc{TTR*} & Score \\ \midrule
+ & Words & Unique words & TTR & Words* & Unique words* & \textsc{TTR*} & Score \\ \midrule
 \textbf{A} & 10    & 8            & 0.8 & 4      & 4             & 1    & 38    \\
 \textbf{B} & 10    & 6            & 0.6 & 4      & 3             & 0.75 & 28    \\ \bottomrule
 \end{tabular}
-\caption{Steps for computing the score}
+\caption{Steps for computing the score for each generated summary}
 \end{subfigure}
 \caption{Score computation (column headers ending with * pertain to \textsc{TTR*})}
 \label{fig:score_example}
@@ -133,7 +133,7 @@ Summary & Words & Unique words & TTR & Words* & Unique words* & \textsc{TTR*} & 
 
 \subsection{Proper Nouns}
 
-If a story revolves around a given person and the summary mentions their name, it is preferable for this to be in the first sentence. To put this more clearly, we would like the summary of a biography to introduce the protagonist from the very first sentence. To achieve this, we can simply increase the score of every summary starting with a proper noun by a constant.
+If a story revolves around a given person and the summary mentions their name, it is preferable for this to be in the first sentence. To put this more clearly, we would like the summary of a biography to introduce the protagonist from the very first sentence. To achieve this, we simply increase the score of every summary starting with a proper noun by a constant.
 
 \subsection{Top Summaries}
 
@@ -156,7 +156,7 @@ The first step is to fix the grammar in the \textit{summary sentences} generated
 
 The next step is \textit{scoring}, where we augment the standard of ignored words with the case-insensitive \textit{topics} set \{"peter", "little"\} in \textsc{TTR*}. This gives us scores in the range $[10,17]$, twenty of which fall below the 75th percentile of 15.0 and never become \textit{top summaries}.
 
-Finally, we compare these \textit{top summaries} to our \textit{reference summaries} for Peter Little, as mentioned in Figure \ref{fig:peter_little}. As you can see from the computed BLEU scores, at least one of them achieves a score of at least 0.65, confirming they are close enough to \textit{reference summary} \textbf{B}.
+Finally, we compare these \textit{top summaries} to our \textit{reference summaries} for Peter Little, as mentioned in Figure \ref{fig:peter_little}. At least one of them achieves a BLEU score of at least 0.65, confirming they are close enough to \textit{reference summary} \textbf{B}.
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
@@ -196,19 +196,3 @@ Reference B & 0.66 & 0.58 & 0.49 & 0.63 \\ \bottomrule
 \caption{Example of \textit{post-processing} then \textit{scoring} for the story of Peter Little}
 \label{fig:postprocess_score_example}
 \end{figure}
-
-\section{Expandability}
-
-As you can see from the example in Section \ref{sec:postprocess_example}, there is much room for improvement regarding post-processing.
-
-\subsection{Grammatical Shortcomings}
-
-First of all, we do not revert all the simplification changes made by the \textsc{Preprocessor}. This can lead to a linguistically poor summary, where the same word or name is repeated multiple times, rather than using synonyms or personal pronouns.
-
-Worse than this, we can end up with sentences that would never be written by a human. Because the \textsc{Preprocessor} moves all adverbs to the end of the sentence in which they appear, and is quite eager to homogenize synonyms, summaries generated by \textsc{SumASG*} may end up ``sounding wrong".
-
-\subsection{Better Summary Selection}
-
-Another issue is that we can easily end up with a very large list of summaries. Because the mechanism used to score them is not very advanced, it cannot determine for sure that one particular summary is better than all the others. Instead, we usually end up with multiple entries that all have the same maximum score.
-
-We would therefore need to build much more intelligence into this system if we wanted the program to always return a single summary, one that is humans would also consider optimal.

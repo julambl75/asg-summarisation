@@ -26,6 +26,7 @@
 
 \usetikzlibrary{shapes,arrows,trees,positioning}
 \tikzstyle{block}=[draw, fill=blue!20, minimum size=2em]
+\tikzstyle{inter}=[draw, fill=gray!20, minimum size=2em]
 
 \hypersetup{
     colorlinks=true,
@@ -45,6 +46,9 @@
 	showstringspaces=false
 }
 
+\floatstyle{boxed}
+\restylefloat{figure}
+
 % https://tex.stackexchange.com/questions/81942/div-equivalent-to-mod
 \makeatletter
 \newcommand*{\bdiv}{%
@@ -59,7 +63,6 @@
             %\node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
 \newcommand*\circled[1]{\raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {#1}}}}
 
-\renewcommand*\thesection{\arabic{section}}
 \newpagestyle{Headings}{
  \sethead
    {Chapter \thechapter: \chaptertitle}
@@ -134,6 +137,9 @@
 
 \chapter{Post-Processing / Scoring}
 \input{chapters/postprocess}
+
+\chapter{Possible Technical Improvements}
+\input{chapters/improvements}
 
 \chapter{Evaluation}
 \input{chapters/evaluation}

@@ -270,7 +270,7 @@ As shown in Figure \ref{fig:asg_tree_program_example}, $\texttt{aab} \in \mathca
 
 \subsection{Learning Answer Set Grammars}
 
-Given an incomplete ASG, it is possible to learn the complete grammar by induction (which uses \href{http://www.ilasp.com}{ILASP}), as long as we provide some \textit{positive examples} (strings which should conform to the language) and/or \textit{negative examples}  (strings which must not), as well as a \textit{hypothesis space} and usually some \textit{background} information. Note that the \textit{background} is only used for ``global" knowledge, such as defining what is a number, or how to increment one. \cite{law_representing_2019}
+Given an incomplete ASG, it is possible to learn the complete grammar by induction (which uses \href{http://www.ilasp.com}{ILASP}), as long as we provide some \textit{positive examples} (strings which should conform to the language) and/or \textit{negative examples}  (strings which must not), as well as a \textit{hypothesis space} and usually some \textit{background} information. Note that the \textit{background} is only used for ``global" knowledge, such as defining what is a number, or how to increment one \cite{law_representing_2019}.
 
 In such an \textit{inductive learning program} (ILP) task, we have a \textit{hypothesis space} in the form of \textit{mode declarations}, defining the format of the heads (written \texttt{\#modeh}) and bodies (written \texttt{\#modeb}) of rules which can be learned. It is also possible to restrict the scope of a particular \textit{mode declaration} by specifying a list of rule numbers at the end. Note that there are two forms of body \textit{mode declarations}: \texttt{\#modeba} is used for predicates that accept an $@$ \textit{annotation}, and \texttt{\#modebb} is intended for those without (which are defined in \texttt{\#background}). An example is shown in Figure \ref{fig:asg_ilp_example}.
 
@@ -331,15 +331,15 @@ bs -> \{ \\
 
 \section{Neural Networks}
 
-\subsection{RNNs}
+\subsection{Recurrent Neural Networks}
 
-A recurrent neural network (RNN) is a chain-like neural network that is applied once for each \textit{token} in the input sequence. At each timestep $t$ in a ``vanilla" RNN (i.e., for each item in the sequence), the current \textit{hidden state} $h_t$ is computed as a function of the previous \textit{hidden state} $h_{t-1}$ and the current input \textit{token} $x_t$, using a non-linear \textit{activation function} (usually sigmoid). \cite{cho_learning_2014}
+A recurrent neural network (RNN) is a chain-like neural network that is applied once for each \textit{token} in the input sequence. At each timestep $t$ in a ``vanilla" RNN (i.e., for each item in the sequence), the current \textit{hidden state} $h_t$ is computed as a function of the previous \textit{hidden state} $h_{t-1}$ and the current input \textit{token} $x_t$, using a non-linear \textit{activation function} (usually sigmoid) \cite{cho_learning_2014}.
 
-\subsection{LSTMs}
+\subsection{Long Short-Term Memories}
 
-A long short-term memory (LSTM) is a particular kind of RNN, motivated by the problems of vanishing and exploding gradients which sometimes occur due to the chain-like nature of RNNs. The solution here is to at each timestep use what is called a \textit{memory block}, which holds at it center a linear unit that is connected to itself. In addition, it has three \textit{gates}: input ($i$), forget ($f$) and output ($o$). Respectively, these three \textit{gates} are concerned with which information to store, how long to store it, and when it should be passed on. \cite{gers_learning_2000}
+A long short-term memory (LSTM) is a particular kind of RNN, motivated by the problems of vanishing and exploding gradients which sometimes occur due to the chain-like nature of RNNs. The solution here is to at each timestep use what is called a \textit{memory block}, which holds at it center a linear unit that is connected to itself. In addition, it has three \textit{gates}: input ($i$), forget ($f$) and output ($o$). Respectively, these three \textit{gates} are concerned with which information to store, how long to store it, and when it should be passed on \cite{gers_learning_2000}.
 
-Finally, each \textit{memory block} also stores a \textit{cell state} $c_t$, which combines information from the previous \textit{cell state} $c_{t-1}$ and from the \textit{candidate state} $g_t$ (defined as per the \textit{hidden state} in a vanilla RNN), using the \textit{forget} and \textit{input} \textit{gates} to regulate information flow. The \textit{hidden state} $h_t$ is then defined as a function of this \textit{cell state}, controlled by the \textit{output gate}. Figure \ref{fig:memory_block} shows this diagrammatically. \cite{graves_hybrid_2013}
+Finally, each \textit{memory block} also stores a \textit{cell state} $c_t$, which combines information from the previous \textit{cell state} $c_{t-1}$ and from the \textit{candidate state} $g_t$ (defined as per the \textit{hidden state} in a vanilla RNN), using the \textit{forget} and \textit{input} \textit{gates} to regulate information flow. The \textit{hidden state} $h_t$ is then defined as a function of this \textit{cell state}, controlled by the \textit{output gate}. Figure \ref{fig:memory_block} shows this diagrammatically \cite{graves_hybrid_2013}.
 
 \begin{equation}
 \begin{aligned}
@@ -361,15 +361,15 @@ h_t &= tanh(c_t)
 
 \subsection{Encoder-Decoders}
 
-An \textit{encoder-decoder} is a neural network consisting of two eponymous RNNs, are often LSTMs. The \textit{encoder}'s job is to translate any variable-length sequence given as input into a fixed-length vector representation, while the \textit{decoder}'s role is to transform this into a new variable-length sequence. Together, they are trained to maximize the probability of generating a target sequence given the corresponding input sequence. \cite{cho_learning_2014}
+An \textit{encoder-decoder} is a neural network consisting of two eponymous RNNs, are often LSTMs. The \textit{encoder}'s job is to translate any variable-length sequence given as input into a fixed-length vector representation, while the \textit{decoder}'s role is to transform this into a new variable-length sequence. Together, they are trained to maximize the probability of generating a target sequence given the corresponding input sequence \cite{cho_learning_2014}.
 
 \subsection{Attention}
 
-In the context of neural machine translation (NMT) systems such as \textit{encoder-decoders}, the driver behind \textit{attention} is to improve performance by selectively looking at sub-portions of the input sequence, which becomes especially important for long sequences of text. \cite{yao_dual_2018}
+In the context of neural machine translation (NMT) systems such as \textit{encoder-decoders}, the driver behind \textit{attention} is to improve performance by selectively looking at sub-portions of the input sequence, which becomes especially important for long sequences of text \cite{yao_dual_2018}.
 
 \subsubsection{Global Attention}
 
-On top of being dependant on the last \textit{hidden state} $d_{t-1}$ and output \textit{token} $y_{i-1}$, every \textit{hidden state} $d_t$ in a \textit{decoder} with \textit{global attention} is computed also in function of its \textit{context vector} $c_t$. Each \textit{context vector} $c_t$ is defined as a weighted sum of the \textit{encoder}'s \textit{hidden states} $h_i$. The $h_i$ that are assigned a higher weight are that which are more similar to $d_t$, which is done using a trainable \textit{alignment model} $a$. \cite{bahdanau_neural_2016}
+On top of being dependant on the last \textit{hidden state} $d_{t-1}$ and output \textit{token} $y_{i-1}$, every \textit{hidden state} $d_t$ in a \textit{decoder} with \textit{global attention} is computed also in function of its \textit{context vector} $c_t$. Each \textit{context vector} $c_t$ is defined as a weighted sum of the \textit{encoder}'s \textit{hidden states} $h_i$. The $h_i$ that are assigned a higher weight are that which are more similar to $d_t$, which is done using a trainable \textit{alignment model} $a$ \cite{bahdanau_neural_2016}.
 
 \begin{equation}
 \begin{aligned}
@@ -379,4 +379,4 @@ s_{ti} &= a(d_{t-1},h_i)
 \end{aligned}
 \end{equation}
 
-Here the idea is that $\alpha_{ti}$ tells us how important each $h_i$ is with respect to the current timestep $t$, influencing the value of $d_t$ and hence the decision of the generated output \textit{token} $y_t$. Essentially, this is a way of telling the \textit{decoder} which parts of the input sequence to pay attention to. Thanks to this mechanism, the \textit{encoder} is no longer forced to compress all the useful information from an input sequence into a fixed-length vector, thus improving performance for longer sequences of \textit{tokens}. \cite{bahdanau_neural_2016}
+Here the idea is that $\alpha_{ti}$ tells us how important each $h_i$ is with respect to the current timestep $t$, influencing the value of $d_t$ and hence the decision of the generated output \textit{token} $y_t$. Essentially, this is a way of telling the \textit{decoder} which parts of the input sequence to pay attention to. Thanks to this mechanism, the \textit{encoder} is no longer forced to compress all the useful information from an input sequence into a fixed-length vector, thus improving performance for longer sequences of \textit{tokens} \cite{bahdanau_neural_2016}.
