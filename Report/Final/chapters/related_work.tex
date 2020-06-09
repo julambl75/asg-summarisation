@@ -145,7 +145,7 @@ The authors of the paper \cite{knight_statistics-based_2000} envision what they 
 \begin{enumerate}[noitemsep]
 \item To obtain the \textit{source model}, we must assign a probability $P(s)$ to every string $s$, which tells us how likely it is that this is the summary. If we assign a lower $P(s)$ to less grammatically-correct strings, then it helps ensure that our final summary is well-formed.
 \item To obtain the \textit{channel model}, we now assign the probabilities $P(t \vert s)$ to every pair $\langle s, t \rangle$. This contributes to preserving important information, as we take into account the differences between $s$ and $t$ when computing the corresponding probability. In this case, we may want to assign a very low $P(t \vert s)$ when $s$ omits an important verb or negation (these are not optional to get the correct meaning), while this can sometimes be much higher if the only difference is the word ``that".
-\item For a given string $t$ the goal is now to maximize $P(s \vert t)$ which, because of \href{https://www.investopedia.com/terms/b/bayes-theorem.asp}{Bayes' theorem}, is equivalent to maximizing $P(s) \cdot P(t \vert s)$.
+\item For a given string $t$ the goal is now to maximize $P(s \vert t)$ which, because of Bayes' theorem\footnote{For the definition of Bayes' theorem, see \url{https://www.investopedia.com/terms/b/bayes-theorem.asp}}, is equivalent to maximizing $P(s) \cdot P(t \vert s)$.
 \end{enumerate}
 
 In practice, the implementation discussed in the paper uses \textit{parse trees} rather than whole strings. Also, they use machine learning techniques in order to train their summarizer.
