@@ -1,6 +1,6 @@
 \label{chapter:background}
 
-In this chapter we discuss the background on which our work is based. We first present text summarization and outline the different levels on which this can be done (Section \ref{sec:summarization}). We then introduce the notion of \textit{syntactic parsing}, which is what allows us to understand the grammatical structure of a sentence (Section \ref{sec:syntactic_parsing}). Then, we explain a number of concepts which will later be necessary for the description of our implementation (Section \ref{sec:logic}). Finally, we give a brief overview of the Machine Learning concepts we make use of in order to evaluate our system (Section \ref{sec:neural_networks}).
+In this chapter we discuss the background on which our work is based. We first present text summarization and outline the different levels on which this can be done (Section \ref{sec:summarization}). We then introduce the notion of \textit{syntactic parsing}, which respectively allows us to understand the grammatical structure of a sentence as well as the relations between its constituents (Section \ref{sec:syntactic_parsing}). Then, we explain a number of concepts which will later be necessary for the description of our implementation (Section \ref{sec:logic}). Finally, we give a brief overview of the Machine Learning concepts we make use of in order to evaluate our system (Section \ref{sec:neural_networks}).
 
 \section{Summarization}
 \label{sec:summarization}
@@ -32,7 +32,7 @@ We can also differentiate the purpose of summaries \cite{radev_introduction_2002
 \item \textit{Informative} summaries, on the other hand, take the content from an original document and give a shortened version of it.
 \end{itemize}
 
-\begin{figure}[H]\
+\begin{figure}[H]
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
 Yellow warnings of strong winds were put in place for parts of the UK. These very strong winds are likely to cause travel disruption, so those in affected areas are advised to take extra care when driving on exposed routes. In addition, heavy rain is expected in parts of the country, which could cause local flooding.
@@ -43,8 +43,8 @@ Yellow warnings of strong winds were put in place for parts of the UK. These ver
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
 It’s going to be windy across the western half of the UK, with gusts reaching 60 to 70mph along Irish Sea coastlines, the west of Scotland and perhaps some English Channel coasts. Those in affected areas are advised to take extra care when driving on bridges or high open roads. Flood warnings were issued on Sunday for two areas – Keswick campsite in Cumbria and a stretch along the River Nene east of Peterborough.
-\caption{\textit{Informative} summary}
 \end{displayquote}
+\caption{\textit{Informative} summary}
 \end{subfigure}
 \caption[]{Example of \textit{indicative} and \textit{informative} summaries for a news article\footnotemark}
 \label{fig:indicative_informative_summaries}
@@ -54,30 +54,30 @@ It’s going to be windy across the western half of the UK, with gusts reaching 
 
 \subsection{Summarization Levels}
 
-Depending on how much text analysis is done, we identify three different levels of summarization \cite{lloret_text_2008}. Many current systems employ what is called a \textit{hybrid approach}, combining techniques from different levels.
+Depending on the level of detail at which text analysis is done, we identify three different levels of summarization \cite{lloret_text_2008}: \textit{surface}, \textit{entity} and \textit{discourse}. Many current systems employ what is called a \textit{hybrid} approach, combining techniques from different summarization levels.
 
 \subsubsection*{Surface Level}
 
-On a \textit{surface level}, little analysis is performed, and we rely on keywords in the text which are later combined to generate a summary. Techniques which are common include:
+On a \textit{surface level}, little text analysis is performed, and we rely on keywords in the text which are later combined to generate a summary. Techniques which are common include:
 
 \begin{itemize}
-\item \textit{Thematic features} are identified by looking at the words that appear the most often. Usually, the important sentences in a passage have a higher probability of containing these \textit{thematic features}.
-\item Often, the \textit{location} of a sentence can help identify its importance; the first and last sentences are generally a good indicator for the respective introduction and conclusion of a document. Moreover, we may want to make use of the title and heading (if any) to find out which topics are most relevant.
+\item \textit{Thematic features} are identified by looking at the words that appear most frequently. Usually, the sentences in a passage containing the most important information have a higher probability of containing these \textit{thematic features}.
+\item Often, the \textit{location} of a sentence can help identify its importance; the first and last sentences are generally a good indicator for the respective introduction and conclusion of a document. Moreover, we may use the title and heading (if any) to find out which topics are most relevant.
 \item \textit{Cue words} are expressions like ``in this article" and ``to sum up"; these can give us a clue as to where the relevant information is.
 \end{itemize}
 
 \subsubsection*{Entity Level}
 
-A more analytic approach can be done at an \textit{entity level}, where we build a model of a document's individual entities and see how they relate. Common techniques include:
+A more analytic approach can be done at an \textit{entity level}, where we build a model of a document's individual entities (i.e., words or phrases) and see how they relate. Common techniques are:
 
 \begin{itemize}
-\item \textit{Similarity} between different words (or phrases), whether it be synonyms or terms relating to the same topic.
+\item \textit{Similarity} between different words or groups of words, whether it be synonyms or terms relating to the same topic.
 \item \textit{Logical relations} involve the use of a connector such as ``before" or ``therefore", and tell us how the information given by such connected phrases relates.
 \end{itemize}
 
 \subsubsection*{Discourse Level}
 
-Finally at a \textit{discourse level} we go beyond the contents of a text, exploiting its structure instead. Some of the things we can analyze are:
+Finally at a \textit{discourse level} we go beyond the contents of a text, exploiting its structure instead. Some of the things we can analyse are:
 
 \begin{itemize}
 \item The \textit{format} can be taken into account to help us extract key information. For example, in a rich-text document we may want to pay close attention to terms that are underlined or italicized.
@@ -87,42 +87,55 @@ Finally at a \textit{discourse level} we go beyond the contents of a text, explo
 \section{Syntactic Parsing}
 \label{sec:syntactic_parsing}
 
-Given a text, \textit{syntactic parsing} \cite{noauthor_syntactic_nodate} describes the process of tokenization, whereby the grammatical link between parts of speech is established. Two of the most prominent syntactic parsers are \textbf{CoreNLP}\footnote{CoreNLP is an NLP toolkit developed by Stanford: \url{https://corenlp.run}} and \textbf{spaCy}\footnote{spaCy is an NLP toolkit that integrates with deep learning libraries: \url{https://spacy.io}}.
+\textit{Tokenization} is the processes of splitting a text into its individual \textit{tokens}, or words. To each of these \textit{tokens} we can assign a position of speech (POS) tag, which tells us what type of word this is (see Appendix \ref{appendix:pos}). Additionally, each of these \textit{tokens} is assigned a \textit{lemma}, which is essentially the ``neutral" form of a word, be it the singular of a noun or the base form of a verb.
 
-This tokenization can then be visualized in the form of a \textit{parse tree}, which makes it possible to identify different parts of speech, such as nouns, verbs and adjectives. Additionally, each of these \textit{tokens} is assigned a \textit{lemma}, which is essentially the ``neutral" form for a word, be it the singular of a noun or the base form of a verb.
+Furthermore, \textit{syntactic parsing} is a technique that reveals the grammatical links between POS tagged \textit{tokens} \cite{noauthor_syntactic_nodate}, the result of which can then be visualised in what is called a \textit{parse tree}. This type of \textit{syntactic parsing} is known as \textit{constituency parsing}. An example of such a \textit{parse tree} is shown in Figure \ref{fig:constituency_tree_basic_sentence} for one of the first of the two most prominent \textit{syntactic parsers}: \textbf{CoreNLP}\footnote{CoreNLP is an NLP toolkit developed by Stanford: \url{https://corenlp.run}} and \textbf{spaCy}\footnote{spaCy is an NLP toolkit that integrates with deep learning libraries: \url{https://spacy.io}}.
 
-Example \textit{parse trees} are shown in Table \ref{table:basic_sentence} for both of the mentioned parsers. Appendix \ref{appendix:pos} shows how to interpret position of speech (POS) tags.
-
-\begin{table}[H]
+\begin{figure}[H]
 \centering
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{CoreNLP} & \includegraphics[width=0.75\textwidth]{basic_sentence_core_nlp.eps} \\ \midrule
-\textbf{spaCy} & \includegraphics[width=0.85\textwidth]{basic_sentence_spacy.eps}  \\ \bottomrule
+\begin{tabular}{c}
+\begin{lstlisting}[numbers=none, basicstyle=\ttfamily, columns=fixed]
+                   S                          
+             ______|________________________   
+            NP                VP            | 
+         ___|______        ___|______       |  
+        NP         |      |         ADJP    | 
+   _____|___       |      |          |      |  
+ NNP       POS     NN    VBZ         JJ     . 
+  |         |      |      |          |      |  
+Albert      's chocolate  is     delicious  .
+\end{lstlisting}
 \end{tabular}
-\caption{Semantic parsing example for a basic sentence}
-\label{table:basic_sentence}
-\end{table}
+\caption{\textit{Constituency parse tree} for a basic sentence, as generated by  \textbf{CoreNLP}}
+\label{fig:constituency_tree_basic_sentence}
+\end{figure}
 
-However, the English language can often be ambiguous and highly context-dependent, meaning that multiple \textit{parse trees} for the same sentence could emerge. Consider the following two sentences \cite{noauthor_studying_nodate}:
+\noindent
+Moreover, many \textit{syntactic parsers} are also capable of \textit{dependency parsing}, which involves linking the \textit{tokens} in a sentence using binary asymmetric relations called \textit{dependencies} \cite{kubler_dependency_nodate}. These \textit{dependencies} can help us understand the connections between different \textit{tokens} when visualised in the form of a \textit{parse tree}, as illustrated in Figure \ref{fig:dependency_tree_basic_sentence}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{basic_sentence_core_nlp.eps}
+\caption{\textit{Dependency tree} for a basic sentence, as generated by  \textbf{CoreNLP}}
+\label{fig:dependency_tree_basic_sentence}
+\end{figure}
+
+\noindent
+However, the English language can often be ambiguous and highly context-dependent, meaning that multiple interpretations may be possible, resulting in different \textit{parse trees} for the same sentence. Consider the following two sentences \cite{noauthor_studying_nodate}:
+
 \begin{displayquote}
 He fed her cat food. \\
 I saw a man on a hill with a telescope.
 \end{displayquote}
-As shown in Table \ref{table:ambiguous_sentence}, both parsers interpret the meaning of the first example sentence as a person who feeds their ``cat food", which, in addition of not being very logical, is also grammatically incorrect as the genders do not match. Unfortunately, computers are generally not very good at context-based inference, something to take into account for this research project.
 
-Therefore, accuracy is very important for \textit{syntactic parsing} \cite{gomez-rodriguez_how_2019}.
+Depending on the context, we could interpret the first sentence as a person who either fed a woman's cat, fed a woman some cat food, or fed the cat food itself. Although the last meaning does not make much sense, this is one that \textbf{CoreNLP} chooses, as shown in Figure \ref{fig:dependency_tree_ambiguous_sentence}. Therefore, it very important to first accurately perform \textit{syntactic parsing} if we then want to produce a summary which is coherent with the original text \cite{gomez-rodriguez_how_2019}.
 
-\begin{table}[H]
+\begin{figure}[H]
 \centering
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{CoreNLP} & \includegraphics[width=0.75\textwidth]{ambiguous_sentence_core_nlp.eps} \\ \midrule
-\textbf{spaCy} & \includegraphics[width=0.85\textwidth]{ambiguous_sentence_spacy.eps}  \\ \bottomrule
-\end{tabular}
-\caption{Semantic parsing example for an ambiguous sentence}
-\label{table:ambiguous_sentence}
-\end{table}
+\includegraphics[width=0.75\textwidth]{ambiguous_sentence_core_nlp.eps}
+\caption{\textit{Constituency tree} for an ambiguous sentence, as generated by  \textbf{CoreNLP}: here, ``cat food" is interpreted as a compound entity belonging to ``her", erroneously meaning that a man fed a woman's ``cat food"}
+\label{fig:dependency_tree_ambiguous_sentence}
+\end{figure}
 
 \section{Logic Programming}
 \label{sec:logic}
