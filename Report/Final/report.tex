@@ -20,9 +20,10 @@
 \usepackage{titlesec}
 \usepackage{enumitem}
 \usepackage{listings}
-\usepackage{color,soul}
+\usepackage{soul}
 \usepackage{multirow}
 \usepackage{array}
+\usepackage{url}
 
 \usetikzlibrary{shapes,arrows,trees,positioning}
 \tikzstyle{block}=[draw, fill=blue!20, minimum size=2em]
@@ -31,7 +32,7 @@
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
-    filecolor=magenta,      
+    filecolor=magenta,
     urlcolor=blue,
     citecolor=blue
 }
@@ -45,9 +46,6 @@
 	language=Prolog,
 	showstringspaces=false
 }
-
-\floatstyle{boxed}
-\restylefloat{figure}
 
 % https://tex.stackexchange.com/questions/81942/div-equivalent-to-mod
 \makeatletter
@@ -110,6 +108,9 @@
 \input{acknowledgements}
 \newpage
 
+\floatstyle{boxed}
+\restylefloat{figure}
+
 \pagestyle{PageNum}
 \tableofcontents
 \thispagestyle{PageNum}
@@ -149,6 +150,9 @@
 
 \chapter{Conclusion}
 \input{chapters/conclusion}
+
+\floatstyle{plain}
+\restylefloat{figure}
 
 \begin{appendices}
 \titleformat{\chapter}{\normalfont\huge}{\appendixname{} \thechapter}{20pt}{\bfseries\huge}

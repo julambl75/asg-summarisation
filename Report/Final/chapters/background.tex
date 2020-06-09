@@ -1,57 +1,62 @@
 \label{chapter:background}
 
+In this chapter we discuss the background on which our work is based. We first present text summarization and outline the different levels on which this can be done (Section \ref{sec:summarization}). We then introduce the notion of \textit{syntactic parsing}, which is what allows us to understand the grammatical structure of a sentence (Section \ref{sec:syntactic_parsing}). Then, we explain a number of concepts which will later be necessary for the description of our implementation (Section \ref{sec:logic}). Finally, we give a brief overview of the Machine Learning concepts we make use of in order to evaluate our system (Section \ref{sec:neural_networks}).
+
 \section{Summarization}
+\label{sec:summarization}
 
-\subsection{Definition} \label{sec:definition}
+Summarization is a general task which consists of taking the most important information from a passage and rewriting it into a more concise form, using at most half the amount of text \cite{lloret_text_2008}.
 
-As described by the author in \cite{lloret_text_2008}, a summary is a way of providing a large part of the information contained in one or more original passages, using at most half of the text. Summaries can be grouped into one of the two following categories:
+\subsection{Types Of Summaries}
 
-\begin{itemize}[nolistsep]
-\item An \textit{extract} is made up of sentences which are copied word-for-word.
-\item An \textit{abstract} is a rewriting of the original text's content in a more concise form.
+In what follows we discuss different ways in which we can characterise summaries. Firstly, summaries can be grouped into one of the two following categories, depending on how they are built:
+
+\begin{itemize}
+\item An \textit{extractive} summary is made up of chunks of sentences which are copied word-for-word from the original text.
+\item An \textit{abstractive} summary is a rewriting of the text's content in a more concise form.
 \end{itemize}
 
-\mbox{}
+\noindent
+Summaries can focus on different sections or topics of the text, allowing us to differentiate between the two following types:
 
-A different way to group summaries is the following:
-
-\begin{itemize}[nolistsep]
+\begin{itemize}
 \item \textit{Generic} summaries do not try and focus on anything in particular, they simply aim to recount the most important features.
-\item \textit{Focused} (or \textit{query-driven}) summaries, on the other hand, require a user-input, which specifies the focus of the summary. For this project, we may want to introduce a bias to our learning program, so that we end up with a summary which meets a certain number of criteria. For instance, we might want it to ensure it captures at least one action verb from the original passage.
+\item \textit{Focused} (or \textit{query-driven}) summaries, on the other hand, require a user-input, which specifies the focus of the summary.
 \end{itemize}
 
-\mbox{}
+\noindent
+We can also differentiate the purpose of summaries \cite{radev_introduction_2002} (see example in Figure \ref{fig:indicative_informative_summaries}):
 
-Yet another way \cite{radev_introduction_2002} is shown below, with examples given in Figure \ref{fig:indicative_informative_summaries}:
-
-\begin{itemize}[nolistsep]
-\item \textit{Indicative} summaries give the overall impression of a text, but without conveying any details.
+\begin{itemize}
+\item \textit{Indicative} summaries aim to outline what a text is about, without going into much detail.
 \item \textit{Informative} summaries, on the other hand, take the content from an original document and give a shortened version of it.
 \end{itemize}
 
 \begin{figure}[H]\
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-It’s going to be windy across the western half of the UK, with gusts reaching 60 to 70mph along Irish Sea coastlines, the west of Scotland and perhaps some English Channel coasts. Those in affected areas are advised to take extra care when driving on bridges or high open roads. Flood warnings were issued on Sunday for two areas – Keswick campsite in Cumbria and a stretch along the River Nene east of Peterborough.
+Yellow warnings of strong winds were put in place for parts of the UK. These very strong winds are likely to cause travel disruption, so those in affected areas are advised to take extra care when driving on exposed routes. In addition, heavy rain is expected in parts of the country, which could cause local flooding.
 \end{displayquote}
 \caption{\textit{Indicative} summary}
 \vspace{\baselineskip}
 \end{subfigure}
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-Yellow warnings of strong winds were put in place for parts of the UK. These very strong winds are likely to cause travel disruption, so those in affected areas are advised to take extra care when driving on exposed routes. In addition, heavy rain is expected in parts of the country, which could cause local flooding.
+It’s going to be windy across the western half of the UK, with gusts reaching 60 to 70mph along Irish Sea coastlines, the west of Scotland and perhaps some English Channel coasts. Those in affected areas are advised to take extra care when driving on bridges or high open roads. Flood warnings were issued on Sunday for two areas – Keswick campsite in Cumbria and a stretch along the River Nene east of Peterborough.
 \caption{\textit{Informative} summary}
 \end{displayquote}
 \end{subfigure}
-\caption{Example of \textit{indicative} and \textit{informative} summaries for a \href{https://www.theguardian.com/uk-news/2020/jan/12/storm-brendan-gales-forecast-uk}{news article}}
+\caption[]{Example of \textit{indicative} and \textit{informative} summaries for a news article\footnotemark}
 \label{fig:indicative_informative_summaries}
 \end{figure}
+
+\footnotetext{Article from The Guardian about storm Brendan: \url{https://www.theguardian.com/uk-news/2020/jan/12/storm-brendan-gales-forecast-uk}}
 
 \subsection{Summarization Levels}
 
 Depending on how much text analysis is done, we identify three different levels of summarization \cite{lloret_text_2008}. Many current systems employ what is called a \textit{hybrid approach}, combining techniques from different levels.
 
-\subsubsection{Surface Level}
+\subsubsection*{Surface Level}
 
 On a \textit{surface level}, little analysis is performed, and we rely on keywords in the text which are later combined to generate a summary. Techniques which are common include:
 
@@ -61,7 +66,7 @@ On a \textit{surface level}, little analysis is performed, and we rely on keywor
 \item \textit{Cue words} are expressions like ``in this article" and ``to sum up"; these can give us a clue as to where the relevant information is.
 \end{itemize}
 
-\subsubsection{Entity Level}
+\subsubsection*{Entity Level}
 
 A more analytic approach can be done at an \textit{entity level}, where we build a model of a document's individual entities and see how they relate. Common techniques include:
 
@@ -70,7 +75,7 @@ A more analytic approach can be done at an \textit{entity level}, where we build
 \item \textit{Logical relations} involve the use of a connector such as ``before" or ``therefore", and tell us how the information given by such connected phrases relates.
 \end{itemize}
 
-\subsubsection{Discourse Level}
+\subsubsection*{Discourse Level}
 
 Finally at a \textit{discourse level} we go beyond the contents of a text, exploiting its structure instead. Some of the things we can analyze are:
 
@@ -80,8 +85,9 @@ Finally at a \textit{discourse level} we go beyond the contents of a text, explo
 \end{itemize}
 
 \section{Syntactic Parsing}
+\label{sec:syntactic_parsing}
 
-Given a text, \textit{syntactic parsing} \cite{noauthor_syntactic_nodate} describes the process of tokenization, whereby the grammatical link between parts of speech is established. Two of the most prominent syntactic parsers are \textbf{\href{https://corenlp.run}{CoreNLP}} (developed by Stanford) and \textbf{\href{https://spacy.io}{spaCy}}.
+Given a text, \textit{syntactic parsing} \cite{noauthor_syntactic_nodate} describes the process of tokenization, whereby the grammatical link between parts of speech is established. Two of the most prominent syntactic parsers are \textbf{CoreNLP}\footnote{CoreNLP is an NLP toolkit developed by Stanford: \url{https://corenlp.run}} and \textbf{spaCy}\footnote{spaCy is an NLP toolkit that integrates with deep learning libraries: \url{https://spacy.io}}.
 
 This tokenization can then be visualized in the form of a \textit{parse tree}, which makes it possible to identify different parts of speech, such as nouns, verbs and adjectives. Additionally, each of these \textit{tokens} is assigned a \textit{lemma}, which is essentially the ``neutral" form for a word, be it the singular of a noun or the base form of a verb.
 
@@ -119,6 +125,7 @@ Therefore, accuracy is very important for \textit{syntactic parsing} \cite{gomez
 \end{table}
 
 \section{Logic Programming}
+\label{sec:logic}
 
 \begin{definition}[Term \cite{kowalski_predicate_1974}]
 A \textit{term} is either a \textit{variable} $x,y,z,...$ or an expression $f(t_1,t_2,...,t_k)$, where $f$ is a k-ary \textit{function symbol} and the $t_i$ are \textit{terms}. A \textit{constant} is a 0-ary \textit{function symbol}.
@@ -270,7 +277,7 @@ As shown in Figure \ref{fig:asg_tree_program_example}, $\texttt{aab} \in \mathca
 
 \subsection{Learning Answer Set Grammars}
 
-Given an incomplete ASG, it is possible to learn the complete grammar by induction (which uses \href{http://www.ilasp.com}{ILASP}), as long as we provide some \textit{positive examples} (strings which should conform to the language) and/or \textit{negative examples}  (strings which must not), as well as a \textit{hypothesis space} and usually some \textit{background} information. Note that the \textit{background} is only used for ``global" knowledge, such as defining what is a number, or how to increment one \cite{law_representing_2019}.
+Given an incomplete ASG, it is possible to learn the complete grammar by induction (which uses \textbf{ILASP}\footnote{ILASP is a logic-based machine learning system: \url{http://www.ilasp.com}}), as long as we provide some \textit{positive examples} (strings which should conform to the language) and/or \textit{negative examples}  (strings which must not), as well as a \textit{hypothesis space} and usually some \textit{background} information. Note that the \textit{background} is only used for ``global" knowledge, such as defining what is a number, or how to increment one \cite{law_representing_2019}.
 
 In such an \textit{inductive learning program} (ILP) task, we have a \textit{hypothesis space} in the form of \textit{mode declarations}, defining the format of the heads (written \texttt{\#modeh}) and bodies (written \texttt{\#modeb}) of rules which can be learned. It is also possible to restrict the scope of a particular \textit{mode declaration} by specifying a list of rule numbers at the end. Note that there are two forms of body \textit{mode declarations}: \texttt{\#modeba} is used for predicates that accept an $@$ \textit{annotation}, and \texttt{\#modebb} is intended for those without (which are defined in \texttt{\#background}). An example is shown in Figure \ref{fig:asg_ilp_example}.
 
@@ -330,6 +337,7 @@ bs -> \{ \\
 \end{figure}
 
 \section{Neural Networks}
+\label{sec:neural_networks}
 
 \subsection{Recurrent Neural Networks}
 

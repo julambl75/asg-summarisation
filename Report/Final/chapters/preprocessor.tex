@@ -4,6 +4,9 @@
 
 In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we have created the \textsc{Preprocessor}, whose steps are shown below in Figure \ref{fig:preprocessor_pipeline}.
 
+{
+\floatstyle{plain}
+\restylefloat{figure}
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[node distance=0.45cm, auto]
@@ -12,7 +15,7 @@ In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we
 \node (simplify) [block, right =of tokenize] {Simplify};
 \node (prune) [block, right =of simplify] {Prune};
 \node (homogenise) [block, right =of prune] {Homogenise};
-\node (story_out) [inter, right =of homogenise] {Preprocessed Story};
+\node (story_out) [inter, right =of homogenise] {Pre-processed Story};
 \draw [->] (story_in) -- (tokenize);
 \draw [->] (tokenize) -- (simplify);
 \draw [->] (simplify) -- (prune);
@@ -22,6 +25,7 @@ In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we
 \caption{Preprocessor Steps}
 \label{fig:preprocessor_pipeline}
 \end{figure}
+}
 
 \section{Tokenization And Simplification}
 \label{sec:tokenization_scoring}
@@ -115,7 +119,7 @@ Examples of the transformations applied to different types of clauses can be see
 
 However, in some cases we may be able to perform an optimisation that allows us to collapse a conjunction of two words into a common \textit{hypernym} (i.e., superclass).
 
-In practice, this involves using \textbf{\href{http://web.archive.org/web/20190516161631/https://www.clips.uantwerpen.be/pages/pattern-en}{Pattern}} to try and find a lexical field to which both words pertain.
+In practice, this involves using \textbf{Pattern}\footnote{Pattern is a module that is able to perform POS tagging, verb conjugation and noun singularisation, among others: \url{https://www.clips.uantwerpen.be/pages/pattern-en}} to try and find a lexical field to which both words pertain.
 
 For example, the words ``chicken" and ``goose" both belong to the lexical field of ``poultry". Similarly, ``cars" and ``trucks" have common hypernym ``motor-vehicles".
 
@@ -207,7 +211,7 @@ In order to understand what is relevant in a story and what is not, the \textsc{
 
 \subsection{Word Similarity}
 
-It iterates over each sentence, and compares each word with every word from other sentences which have the same or a related POS tag. For each comparison, word \textit{similarity} is computed using the tool \textbf{\href{http://www.conceptnet.io}{ConceptNet}}, a semantic knowledge network.
+It iterates over each sentence, and compares each word with every word from other sentences which have the same or a related POS tag. For each comparison, word \textit{similarity} is computed using \textbf{ConceptNet}\footnote{ConceptNet is a semantic knowledge network, providing information about the relations between different words: \url{http://www.conceptnet.io}}.
 
 Having such nesting of loops is quite expensive, which is why we keep a cache of previously requested similarities, and use the fact that this \textit{similarity} relation is symmetric.
 

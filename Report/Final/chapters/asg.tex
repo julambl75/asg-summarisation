@@ -4,6 +4,9 @@
 
 Our use of ASG is two-fold. Firstly, we pass in each sentence from the story to ASG to obtain its semantic representation in ASP. Secondly, we take these \textit{actions} and use ASG rules to generate possible summary components. These will later be post-processed and turned into actual valid summaries. A diagram of the two ASG steps is shown below in Figure \ref{fig:asg_pipeline}.
 
+{
+\floatstyle{plain}
+\restylefloat{figure}
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[node distance=0.55cm, auto]
@@ -33,6 +36,7 @@ Our use of ASG is two-fold. Firstly, we pass in each sentence from the story to 
 \caption{ASG Steps}
 \label{fig:asg_pipeline}
 \end{figure}
+}
 
 \section{Internal Representation}
 \label{sec:internal_representation}
@@ -182,7 +186,7 @@ start -> s_group {
 \section{Learning Actions}
 \label{sec:learn_actions}
 
-We first need to convert the preprocessed story's sentences from English into our internal structure. In other words, we need to learn about the \textit{actions} described by the sentences in our story, which can be thought of as high-level semantic descriptors.
+We first need to convert the pre-processed story's sentences from English into our internal structure. In other words, we need to learn about the \textit{actions} described by the sentences in our story, which can be thought of as high-level semantic descriptors.
 
 \subsection{Formalisation}
 

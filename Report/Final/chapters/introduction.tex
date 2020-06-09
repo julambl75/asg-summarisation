@@ -4,20 +4,18 @@ In general, the task of summarization in Natural Language Processing (NLP) is to
 
 \section{Motivations}
 
-In recent years, state-of-the-art systems that accomplish text summarization have relied largely on Machine Learning. These include Bayesian classifiers, hidden Markov models, neural networks and fuzzy logic, among others \cite{kiyani_survey_2017}. Given a training corpus, along with some careful preprocessing as well as fine-tuning of hyper-parameters and feature extraction functions, such systems are able to produce effective summaries. 
+In recent years, state-of-the-art systems that accomplish text summarization have relied largely on Machine Learning. These include Bayesian classifiers, hidden Markov models, neural networks and fuzzy logic, among others \cite{kiyani_survey_2017}. Given a training corpus, along with some careful pre-processing as well as fine-tuning of hyper-parameters and feature extraction functions, such systems are able to produce effective summaries \cite{kiyani_survey_2017}.
 
-However, to learn what is a summary, these systems require a very large amount of data, and take a long time to train. In contrast, using logic means that we can hard-code this definition directly into our program, avoiding the problem of randomness and uncertainty. By carefully constructing its structure, we can get results with just a short list of rules, and know that it will always produce a complete and valid output with respect to the background knowledge we encode into it.
+Among these approaches, one of the most prominent types of neural networks is the \textit{encoder-decoder}. These are commonly used for sequence-to-sequence translation due to their promising performance in NLP tasks \cite{yao_dual_2018}. \textit{encoder-decoders} use a fixed-dimension internal representation which can be trained to act as an intermediate between variable-length inputs and outputs, making this approach highly suitable for text summarization. However to learn what is a summary, these systems require tremendous amounts of data and take a long time to train.
+
+In our case, using logic means that we can hard-code the definition of a summary directly into the program, avoiding the problem of randomness and uncertainty that often comes with neural networks. By carefully constructing the structure of our system, we can get results with just a short list of rules, and know that it will always produce a complete and valid output with respect to the background knowledge we encode into it.
 
 \section{Objectives}
 
 The main goal of this project is to explore the task of text summarization via logic-based learning with Answer Set Grammars (ASG). Below you will find the principal objectives which were established as being vital to achieving this goal.
 
-\begin{objective}[Research Existing Summarization Methods]
-Before diving into the task of logic-based summary generation, we should investigate the approaches used by existing state-of-the-art systems. Even if these are not logic-based, they might rely on techniques that could be beneficial to use for this project.
-\end{objective}
-
 \begin{objective}[Translate English Into ASG]
-Our system should be capable of taking a text written in English and converting it into some logic-based form that can be interpreted by ASG. Moreover, this internal representation should capture as much of the semantics from the original text as possible, and not be limited to a particular domain.
+Our system should be capable of taking a text written in English and converting it into some logic-based form that can be interpreted by ASG. Moreover, this representation should capture as much of the semantics from the original text as possible, and not be limited to a particular domain.
 \end{objective}
 
 \begin{objective}[Generate Summaries Automatically]
@@ -29,11 +27,13 @@ Once we have implemented the basic approach, we should run our system on a suite
 \end{objective}
 
 \section{Approach Overview}
+\label{sec:approach_overview}
 
-In what follows, we shall give a brief overview of the various tasks that were undertaken and completed as part of the project. Where relevant, references to the corresponding sections are provided.
+The approach described in this paper, known as \textsc{SumASG*}, can be diagrammatically represented as a three step pipeline, as seen in Figure \ref{fig:main_pipeline}. While the core part of the the project is written in ASG, Python scripts are used to respectively pre-process and post-process the input and output.
 
-The approach described in this paper, known as \textsc{SumASG*}, can be diagrammatically represented as a three step pipeline, as seen in Figure \ref{fig:main_pipeline}. Although the focus of this project is a mechanism written in ASG, it relies on a number of Python scripts to process information and coordinate its flow.
-
+{
+\floatstyle{plain}
+\restylefloat{figure}
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[node distance=0.3cm, auto]
@@ -47,21 +47,23 @@ The approach described in this paper, known as \textsc{SumASG*}, can be diagramm
 \draw [->] (asg) -- (score);
 \draw [->] (score) -- (summaries);
 \end{tikzpicture}
-\caption{Main Pipeline}
+\caption{Main pipeline for \textsc{SumASG*}}
 \label{fig:main_pipeline}
 \end{figure}
+}
 
-We begin by describing the essential role of the \textsc{Preprocessor} in Chapter \ref{chapter:preprocessor}. Given an input story, its goal is to simplify the story's sentences into a simpler and more consistent structure that will then be easier to parse by ASG (Section \ref{sec:tokenization_scoring}). On top of this, the \textsc{Preprocessor} also removes irrelevant sentences from the story and reduces the lexical diversity (Section \ref{sec:pruning_homogenization}), which helps increase the chances of generating a high-quality summary.
+\noindent
+As the first step in the pipeline, the \textsc{Preprocessor} plays an essential role. Given an input story, its goal is to simplify the story's sentences into a simpler and more consistent structure, one that will then be easier to parse by ASG. Additionally, the \textsc{Preprocessor} removes irrelevant sentences from the story and reduces it lexical diversity, which helps increase the chances of generating a high-quality summary.
 
-In Chapter \ref{chapter:asg} we discuss the use of ASG in the context of this project, forming a procedure we call \textsc{SumASG}. It all revolves around a purpose-built internal representation of English sentences, represented as a tree (Section \ref{sec:internal_representation}). The first of two steps, \textsc{SumASG\textsubscript{1}}, involves translating sentences from the input story into our internal representation using ASG's learning abilities (Section \ref{sec:learn_actions}). From this, we then use a number of logic-based rules to generate sentences which may be used to form a summary (Section \ref{sec:gen_summary_sentences}).
+Once the story has been pre-processed, it then goes through a procedure we call \textsc{SumASG}. This revolves around a purpose-built internal representation of English sentences, represented as a tree. The first of two steps, \textsc{SumASG\textsubscript{1}}, involves translating sentences from the input story into our internal representation using ASG's learning abilities. From this, \textsc{SumASG\textsubscript{2}} then exploits a number of logic-based rules to generate sentences which may be used to form a summary.
 
-The third part of the pipeline, as outlined in Chapter \ref{chapter:postprocessing}, serves to turn the output of \textsc{SumASG} into usable summaries. To begin, we post-process the summary sentences given to us as output, and combine them in different ways so as to form potential summaries (Section \ref{sec:summary_creation}). Afterwards, we discuss a mechanism used to score these summaries (Section \ref{sec:scoring}), and explore ways in which to select those that are optimal (Section \ref{sec:summary_selection}).
+The third and final step in the pipeline serves to turn the output of \textsc{SumASG} into usable summaries. To begin, we post-process the summary sentences given to us as output, and combine them in different ways so as to form potential summaries. Afterwards we assign to each one a score, and only those with the highest scores are returned.
 
-\subsection{Example}
+\subsection*{Example}
 
-Throughout this paper, we shall be using the example of the story of Peter Little to illustrate the different steps of our pipeline, as shown below in Figure \ref{fig:peter_little}.
+Throughout this paper, we use the example of the story of Peter Little to illustrate the different steps of our pipeline, as shown below in Figure \ref{fig:peter_little}.
 
-Additional examples of stories can be found in Appendix \ref{appendix:stories}, along with summaries generated by \textsc{SumASG*}.
+Additional examples of stories can be found in Appendix \ref{appendix:stories}, along with the summaries generated by \textsc{SumASG*}.
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
@@ -84,10 +86,14 @@ There was a curious little boy named Peter Little. He was interested in stars an
 
 \section{Contributions}
 
-The main contribution of this project to the field of NLP is the creation of an end-to-end, fully-automated logic-based system capable of text summarization, without the need of any training whatsoever, as would be the case with a typical Machine Learning-based approach these days. Going more into depth, we shall discuss some specific contributions in what follows.
+The main contribution of this project to the field of NLP is the creation of an end-to-end, fully-automated logic-based system capable of text summarization, without the need of any training whatsoever, as would be the case with a typical Machine Learning-based approach these days. Going more into depth, we discuss some more specific contributions in what follows.
 
-\begin{contribution}[Simplification Of Complex Structures]
-Implemented an algorithm that dramatically reduces the complexity in the structure of English sentences, without losing too much information.
+\begin{contribution}[Identify Existing Techniques Relevant For Summarization]
+After researching existing state-of-the-art text summarization systems, identified a few techniques which were beneficial to use for this project (e.g., \textit{text relationship maps}).
+\end{contribution}
+
+\begin{contribution}[Complexity Reduction In Some English Sentences]
+Implemented an algorithm that dramatically reduces the complexity in the structure of certain English sentences, without losing too much information (e.g., co-referencing).
 \end{contribution}
 
 \begin{contribution}[Removal Of Irrelevant Sentences And Homogenization]
@@ -109,3 +115,15 @@ Developed a set of rules which, given \textit{actions} from a story, allow ASG t
 \begin{contribution}[Scoring Mechanism]
 Implemented a scoring mechanism prioritizing information density, while taking into account words which may appear frequently in English and can be considered the \textit{topic} of the original text.
 \end{contribution}
+
+\section{Paper Structure}
+
+In this paper, we begin by discussing some essential background knowledge in Chapter \ref{chapter:background}. After giving an overview of text summarization, we introduce the notion of \textit{syntactic parsing}. Then, we go over some concepts that will be necessary in order to understand the ASG part of the pipeline. Finally, we briefly mention some Machine Learning structures which we make use of for evaluating our implementation.
+
+In Chapters \ref{chapter:preprocessor}, \ref{chapter:asg} and \ref{chapter:postprocessing}, we dive into the various steps involved in the pipeline of \textsc{SumASG*}, as outlined in Section \ref{sec:approach_overview}. In addition, we discuss possible technical improvements for each step of the pipeline in Chapter \ref{chapter:improvements}.
+
+After this, we show in Chapter \ref{chapter:evaluation} that our system is capable of producing a more consistent output and is more easily expandable than an \textit{encoder-decoder} trained for text summarization.
+
+In Chapter \ref{chapter:related_work} we explore some of the existing state-of-the-art implementations and differentiate between statistical, frame and symbolic approaches. Where relevant, we discuss which ideas from these approaches we have borrowed for \textsc{SumASG*}, as well as how our approach differs from these implementations.
+
+Finally, we conclude the paper in Chapter \ref{chapter:conclusion} by listing the main achievements of this project, as well as giving a high-level overview of future work which may be done to build on \textsc{SumASG*}.

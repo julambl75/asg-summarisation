@@ -4,6 +4,9 @@
 
 Once we have obtained potential sentences from ASG to be used in a summary, we now post-process these as explained in Section \ref{sec:summary_creation}. By combining them in different ways, we are able to form summaries. From these, we will retain the highest scoring ones, according to the metric detailed in Section \ref{sec:scoring}. A diagram illustrating these steps is shown below in Figure \ref{fig:postprocess_pipeline}.
 
+{
+\floatstyle{plain}
+\restylefloat{figure}
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[node distance=0.55cm, auto]
@@ -40,6 +43,7 @@ Once we have obtained potential sentences from ASG to be used in a summary, we n
 \caption{Post-Processing / Scoring Steps}
 \label{fig:postprocess_pipeline}
 \end{figure}
+}
 
 \section{Summary Creation}
 \label{sec:summary_creation}
@@ -54,7 +58,7 @@ Because \textsc{SumASG} uses the same capitalization for a given word regardless
 
 Compound nouns, whose hyphen was replaced with an underscore for the internal representation of \textsc{SumASG}, also need to be restored to their grammatically-correct form.
 
-In addition, the task of summarization might have created a sentence where an incorrect verb form is used, or possibly the wrong determiner. To amend this we use a tool called \textbf{\href{https://pypi.org/project/language-check/}{language-check}}, which is able to correct phrases like ``they has an dog" to ``they have a dog".
+In addition, the task of summarization might have created a sentence where an incorrect verb form is used, or possibly the wrong determiner. To amend this we use a tool called \textbf{language-check}\footnote{language-check is Python package that is able to find grammatical errors: \url{https://pypi.org/project/language-check/}}, which is able to correct phrases like ``they has an dog" to ``they have a dog".
 
 \subsubsection{Complex Nouns}
 
