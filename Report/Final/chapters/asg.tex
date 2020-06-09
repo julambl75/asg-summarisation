@@ -105,6 +105,8 @@ In our general grammar, sentences (\texttt{s -> np vp}) are made up a \textit{no
 
 In the derivation for a \textit{noun part}, we use logic rules whose role it is to encapsulate a sentence \textit{subject} and/or an \textit{object}. This is done in a bottom-up manner, by using information from the child node(s) to populate a predicate at the \textit{noun part} level.
 
+The reason why we differentiate between these two forms is because some \textit{noun parts} in English are only used as subjects (e.g., existential ``there"), while others can only be objects (e.g., the adjective ``green"), and we want to keep the \textit{search space} as small as possible (see Subsection \ref{subsec:search_space}).
+
 The resulting predicates have respective forms \texttt{subject(\underline{noun},\underline{det},\underline{adj\_or\_adv})} and \texttt{object(\underline{noun},\underline{det},\underline{adj\_or\_adv})}. For all these predicates, we use the \textit{ground term} \texttt{0} to denote the absence of a \textit{token}.
 
 For instance, we can capture the \textit{noun phrase} ``a race-car" using the following derivation:
@@ -192,7 +194,7 @@ We first need to convert the pre-processed story's sentences from English into o
 
 We formalise the task of learning an action as \textsc{SumASG\textsubscript{1}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes (\textsc{BK}), and a grammar-conforming sentence (\textsc{E}), its goal is to return the \textit{action} corresponding to this sentence, which should have the format \texttt{action(\underline{verb},\underline{subject},\underline{object})}.
 
-However this is not a learning task in the true sense, as we are only interested in generating \textit{ground facts}. More to the point, we make use of the built-in learning mechanism offered by ASG to translate the input into our internal representation.
+However this is not a learning task in the true sense, as we are only interested in generating \textit{ground facts}. It is more of an \textit{abduction} task, whereby we only learn \textit{heads} of \textit{production rules}. In our case, we use this as a mechanism to translate from English into our internal representation.
 
 \subsection{Implementation}
 
@@ -271,6 +273,7 @@ action(verb(drive, past), subject(they, 0, 0), object(race_car, a, fast)).
 \end{displayquote}
 
 \subsection{Search Space Reduction}
+\label{subsec:search_space}
 
 The set of rules that a task in ILASP is able to learn, as defined by the \textit{mode bias}, is called the \textit{search space}. The more complex the structure of the rules we can learn, the more of these the engine can generate, and so the larger the \textit{search space}. The more leaf nodes we add, the more combinations of \textit{lemmas} we can create, thereby exponentially growing the \textit{search space}. Since ASG tries to run the program with every single rule in the \textit{search space}, we need to keep this as small as possible.
 
@@ -419,11 +422,11 @@ action(5, verb(be, present_third), subject(peterlittle, 0, 0), object(0, 0, conj
 \circled{0} PeterLittle is famous now .
 \end{displayquote}
 \caption{Results from \textsc{SumASG\textsubscript{2}} (where the numbers indicate a summary generation rule)}
+\vspace{\baselineskip}
 \end{subfigure}
 \setcounter{subfigure}{0}
 \begin{subfigure}{\textwidth}
-\vspace{\baselineskip}
-\begin{subfigure}{0.5\textwidth}
+\begin{subfigure}{0.6\textwidth}
 \renewcommand\thesubfigure{\roman{subfigure}}
 \centering
 \begin{tabular}{@{}lllllll@{}}
@@ -433,7 +436,7 @@ Running time (s) & 18 & 32 & 9 & 9 & 7 & 9 \\ \bottomrule
 \end{tabular}
 \caption{\textsc{SumASG\textsubscript{1}}}
 \end{subfigure}
-\begin{subfigure}{0.5\textwidth}
+\begin{subfigure}{0.4\textwidth}
 \renewcommand\thesubfigure{\roman{subfigure}}
 \centering
 \begin{tabular}{@{}ll@{}}

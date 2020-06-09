@@ -38,7 +38,8 @@ With the help of \textbf{CoreNLP}, we assign a POS tag to each word, or \textit{
 To avoid having to build recognition and semantic understanding of different types of punctuation into \textsc{SumASG}, it is preferable to transform the story such that it uses no punctuation apart from full stops. The idea is that each sentence in the resulting text contains exactly one action or description.
 
 Depending on the type of punctuation used at the end of a clause in English, a different treatment is applied:
-\begin{itemize}[nolistsep]
+
+\begin{itemize}
 \item Question marks: We remove the clause, as it is most likely irrelevant for this task. It also helps avoid negation since we are deleting rhetorical questions.
 \item Dashes: These are used around clauses which add detail, so it is quite safe to delete them for the task of summarization.
 \item Exclamation marks, commas, semi-colons and colons: We replace any of these with a full stop.
@@ -161,9 +162,16 @@ To clarify this, an example is shown in Figure \ref{fig:pronoun_substitution}.
 \subsection{Example}
 \label{subsec:simplification_example}
 
-The result of running the \textit{simplification} transformations is illustrated below in Figure \ref{fig:simplification_example}. Please refer to Chapter \ref{chapter:introduction} for the original story.
+The result of running the \textit{simplification} transformations on the story of Peter Little is illustrated below in Figure \ref{fig:simplification_example}.
 
 \begin{figure}[H]
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+There was a curious little boy named Peter Little. He was interested in stars and planets. So he was serious in school and always did his homework. When he was older, he studied mathematics and quantum physics. He studied hard for his exams and became an astrophysicist. Now he is famous.
+\end{displayquote}
+\caption{Original story}
+\vspace{\baselineskip}
+\end{subfigure}
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
 \begin{enumerate}[label=\protect\circled{\alph*}]
@@ -221,7 +229,7 @@ Having such nesting of loops is quite expensive, which is why we keep a cache of
 
 Once we have computed the \textit{similarity} between words of different sentences, we add these up on a per-sentence basis, which gives us a binary relation of \textit{similarity} between sentences.
 
-We now have enough information to generate a \textit{text relationship map} over the sentences. The idea is that the more ``linked" a sentence is, the more relevant it is to the story. For each sentence, we therefore take the sum of the values of all its \textit{similarity} relations with other sentences. The higher this number, the more relevant, or \textit{important}, the sentence is to the story.
+We now have enough information to generate a \textit{text relationship map} (see Subsection \ref{subsec:mcba_lsa_trm}) over the sentences. The idea is that the more ``linked" a sentence is, the more relevant it is to the story. For each sentence, we therefore take the sum of the values of all its \textit{similarity} relations with other sentences. The higher this number, the more relevant, or \textit{important}, the sentence is to the story.
 
 \subsubsection{Pruning}
 

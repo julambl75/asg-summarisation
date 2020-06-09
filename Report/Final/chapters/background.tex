@@ -1,6 +1,6 @@
 \label{chapter:background}
 
-In this chapter we discuss the background on which our work is based. We first present text summarization and outline the different levels on which this can be done (Section \ref{sec:summarization}). We then introduce the notion of \textit{syntactic parsing}, which respectively allows us to understand the grammatical structure of a sentence as well as the relations between its constituents (Section \ref{sec:syntactic_parsing}). Then, we explain a number of concepts which will later be necessary for the description of our implementation (Section \ref{sec:logic}). Finally, we give a brief overview of the Machine Learning concepts we make use of in order to evaluate our system (Section \ref{sec:neural_networks}).
+In this chapter we discuss the background on which our work is based. We first present text summarization and outline the different levels on which this can be done (Section \ref{sec:summarization}). We then introduce the notion of \textit{syntactic parsing}, which respectively allows us to understand the grammatical structure of a sentence as well as the relations between its constituents (Section \ref{sec:syntactic_parsing}). Then, we explain a number of logic programming concepts which will later be necessary for the description of our implementation (Section \ref{sec:asg}). Finally, we give a brief overview of the Machine Learning concepts we make use of in order to evaluate our system (Section \ref{sec:neural_networks}).
 
 \section{Summarization}
 \label{sec:summarization}
@@ -137,8 +137,15 @@ Depending on the context, we could interpret the first sentence as a person who 
 \label{fig:dependency_tree_ambiguous_sentence}
 \end{figure}
 
-\section{Logic Programming}
-\label{sec:logic}
+\section{Answer Set Grammars}
+\label{sec:asg}
+
+
+Logic programming is a programming paradigm based on formal mathematical logic. It was introduced by R. Kowalski in 1974 and is highly suitable for knowledge representation \cite{apt_logic_1990}. Since its introduction, it provided inspiration for a number of languages, such as Answer set programming (ASP).
+
+\subsection{Answer Set Programming}
+
+ASP is a declarative first-order (predicate) logic language whose aim is to solve complex search problems \cite{lifschitz_what_nodate}. It is built upon the idea of stable model (answer set) semantics, and returns answer sets when asked for the solution to a problem.
 
 \begin{definition}[Term \cite{kowalski_predicate_1974}]
 A \textit{term} is either a \textit{variable} $x,y,z,...$ or an expression $f(t_1,t_2,...,t_k)$, where $f$ is a k-ary \textit{function symbol} and the $t_i$ are \textit{terms}. A \textit{constant} is a 0-ary \textit{function symbol}.
@@ -148,13 +155,7 @@ A \textit{term} is either a \textit{variable} $x,y,z,...$ or an expression $f(t_
 An \textit{atomic formula} (or \textit{atom}) has the form $P(t_1,t_2,...,t_k)$, where $P$ is a k-ary predicate (boolean function) symbol and the $t_i$ are terms.
 \end{definition}
 
-\subsection{Answer Set Programming}
-
-Once we have parsed a text, the next step is to convert this into an answer set program (ASP).
-
-ASP is a declarative first-order (predicate) logic language whose aim is to solve complex search problems \cite{lifschitz_what_nodate}. It is built upon the idea of stable model (answer set) semantics, returns answer sets when asked for the solution to a problem.
-
-In ASP, a \textit{literal} is an \textit{atom} \textit{a} or its negation \textit{not a} (we call this negation as a failure). ASP programs are composed of a set of \textit{normal rules}, whose head is a single \textit{atom} and body is a conjunction of \textit{literals} \cite{law_representing_2019}.
+In ASP, a \textit{literal} is an \textit{atom} \textit{a} or its negation \textit{not a} (we call this ``negation as failure"). ASP programs are composed of a set of \textit{normal rules}, whose head is a single \textit{atom} and body is a conjunction of \textit{literals} \cite{law_representing_2019}.
 \begin{equation}
 h \leftarrow b_1, b_2, ..., b_k, \text{not}\ b_{k+1}, ..., \text{not}\ b_m.
 \end{equation}
@@ -192,7 +193,7 @@ We say that $I$ is a (Herbrand) \textit{model} when $I$ \textit{satisfies} all t
 Any $I \subseteq HB_P$ is an \textit{answer set} of P if it is equal to the \textit{minimal model}  of the \textit{reduct} $P^I$. We will denote the set of \textit{answer sets} of a program P with $AS(P)$. 
 \end{definition}
 
-\subsection{Context-Free Grammars}
+\subsection{Answer Set Grammars}
 
 In order to discuss ASGs, we must first define \textit{context-free grammars} (CFGs) and \textit{parse trees}. An example for these is shown in Figure \ref{fig:cfg_parse_tree_example}.
 
@@ -251,8 +252,6 @@ We can represent each node n in a \textit{parse tree} by its \textit{trace}, $tr
 \label{fig:cfg_parse_tree_example}
 \end{figure}
 
-\subsection{Answer Set Grammars}
-
 ASGs are an extension of CFGs, whereby each production rule is \textit{annotated}. More specifically, $P$ can be a \textit{ground term}, such as in the \textit{annotated atom} \texttt{a(1)@2} (referring to the second child of this node). The example shown in Figure \ref{fig:asg_example} is a subset of the language \texttt{a\textsuperscript{i}b} captured by the CFG in Figure \ref{fig:cfg_parse_tree_example},  restricting it to the language \texttt{a\textsuperscript{n}} where $\texttt{n} \ge 2$ (the string contains at least two as).
 
 \begin{definition}[Answer Set Grammar \cite{law_representing_2019}]
@@ -288,11 +287,11 @@ As shown in Figure \ref{fig:asg_tree_program_example}, $\texttt{aab} \in \mathca
 \label{fig:asg_tree_program_example}
 \end{figure}
 
-\subsection{Learning Answer Set Grammars}
+\subsection*{Learning Answer Set Grammars}
 
 Given an incomplete ASG, it is possible to learn the complete grammar by induction (which uses \textbf{ILASP}\footnote{ILASP is a logic-based machine learning system: \url{http://www.ilasp.com}}), as long as we provide some \textit{positive examples} (strings which should conform to the language) and/or \textit{negative examples}  (strings which must not), as well as a \textit{hypothesis space} and usually some \textit{background} information. Note that the \textit{background} is only used for ``global" knowledge, such as defining what is a number, or how to increment one \cite{law_representing_2019}.
 
-In such an \textit{inductive learning program} (ILP) task, we have a \textit{hypothesis space} in the form of \textit{mode declarations}, defining the format of the heads (written \texttt{\#modeh}) and bodies (written \texttt{\#modeb}) of rules which can be learned. It is also possible to restrict the scope of a particular \textit{mode declaration} by specifying a list of rule numbers at the end. Note that there are two forms of body \textit{mode declarations}: \texttt{\#modeba} is used for predicates that accept an $@$ \textit{annotation}, and \texttt{\#modebb} is intended for those without (which are defined in \texttt{\#background}). An example is shown in Figure \ref{fig:asg_ilp_example}.
+In such an \textit{inductive learning program} (ILP) task, we have a \textit{hypothesis space} in the form of \textit{mode declarations}, defining the format of the heads (written \texttt{\#modeh}) and bodies (written \texttt{\#modeb}) of \textit{production rules} which can be learned. It is also possible to restrict the scope of a particular \textit{mode declaration} by specifying a list of rule numbers at the end. Note that there are two forms of body \textit{mode declarations}: \texttt{\#modeba} is used for predicates that accept an $@$ \textit{annotation}, and \texttt{\#modebb} is intended for those without (which are defined in \texttt{\#background}). An example is shown in Figure \ref{fig:asg_ilp_example}.
 
 \begin{figure}[H]
 \centering
@@ -344,7 +343,7 @@ bs -> \{ \\
 \end{subfigure}
 \newline
 \newline
-* Note: the symbol \texttt{|} indicates multiplicity of production rules.
+* Note: the symbol \texttt{|} indicates multiplicity of \textit{production rules}.
 \caption{Example of an ASG ILP task for the language \texttt{a\textsuperscript{n}b\textsuperscript{n}}}
 \label{fig:asg_ilp_example}
 \end{figure}
