@@ -175,7 +175,7 @@ We now have enough information to generate a \textit{text relationship map} (see
 
 \subsubsection*{Pruning}
 
-In the interest of removing irrelevant sentences to help \textsc{SumASG} (see Figure \ref{fig:preprocessor_example}), we compute the 25th percentile over the \textit{importances} of all the sentences (i.e., the value below which 25\% of all \textit{importances} fall). We then prune sentences whose \textit{importance} is strictly less than this value.
+In the interest of removing irrelevant sentences to help \textsc{SumASG} (see Figure \ref{fig:pruning_homogenisation_example}), we compute the 25th percentile over the \textit{importances} of all the sentences (i.e., the value below which 25\% of all \textit{importances} fall). We then prune sentences whose \textit{importance} is strictly less than this value.
 
 In most cases, one quarter of the story will be pruned. However, if every sentence has the same \textit{importance}, then nothing gets removed. On the other hand, if two thirds of the story are very \textit{important} and the rest is irrelevant, then we remove more than a quarter of the sentences.
 
@@ -183,9 +183,9 @@ In most cases, one quarter of the story will be pruned. However, if every senten
 
 Another use for \textit{word similarity} is to find out if the author of the story has used any synonyms. When the \textit{similarity} between two words is above a certain threshold, then we consider them to be synonyms.
 
-For every set of synonyms we find, we choose a unique \textit{representative} for the set, and replace occurrences of the other words in that set with our \textit{representative}. For simplicity, we choose the \textit{representative} as the shortest word in its synonym set.
+For every set of synonyms we find in the text, we choose a unique \textit{representative} for the set, and replace occurrences of the other words in that set with our \textit{representative}. For simplicity, we choose the \textit{representative} as the shortest word in its synonym set.
 
-This is what we call \textit{story homogenisation}, and it helps \textsc{SumASG} link words that would otherwise be considered completely different \textit{tokens} in the story.
+This is what we call story \textit{homogenisation}, and it helps \textsc{SumASG} link words that would otherwise be considered completely different \textit{tokens} in the story.
 
 \section{Example}
 \label{sec:example}
@@ -203,7 +203,7 @@ There was a curious little boy named Peter Little. He was interested in stars an
 \end{figure}
 
 \noindent
-We first \textit{tokenize} the story of Peter Little and apply \textit{simplification} transformations, the result of which is shown in Figure \ref{fig:simplification_example}.
+The first half of the \textsc{Preprocessor}'s job is to \textit{tokenize} the story of Peter Little and then apply all possible \textit{simplification} transformations, the result of which is outlined in Figure \ref{fig:simplification_example}.
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
@@ -244,11 +244,12 @@ We first \textit{tokenize} the story of Peter Little and apply \textit{simplific
 \label{fig:simplification_example}
 \end{figure}
 
-An example is shown below in Figure \ref{fig:preprocessor_example} for the story of Peter Little, where the weight between two nodes denotes \textit{similarity}. In this example, we consider words to be synonyms whenever their \textit{similarity} is at least 20. The labels of the nodes (starting from 0) for sentence \textit{similarity} correspond to the index of the sentence in Figure \ref{fig:simplification_example}.
+\noindent
+Using the \textit{simplified} form of the story from Figure \ref{fig:simplification_example}, the \textsc{Preprocessor} now applies sentence  pruning and finally \textit{homogenisation}, giving a fully-preprocessed story as can be seen in Figure \ref{fig:pruning_homogenisation_example}. In the \textit{text relationship maps} of Figure \ref{fig:trm_peter_little}, the weight between two nodes denotes \textit{similarity}, and we consider words to be synonyms whenever their \textit{similarity} is at least 20. Furthermore, the labels of these nodes (starting from 0) for sentence \textit{similarity} correspond to indices of \textit{simplified} sentences from Figure \ref{fig:simplification_example}.
 
-As illustrated in the diagram, sentences 5 and 6 are deemed irrelevant and will be pruned, while sentences 0, 1 and 2 are identified as being very important.
+In this particular case, sentences 5 and 6 are deemed irrelevant and will be pruned, while sentences 0, 1 and 2 are identified as being very important.
 
-Moreover, \{``homework", ``school"\} and \{``interested", ``curious"\} are considered synonym sets, and \textit{homogenisation} will replace occurrences of these words with their shortest synonym (which may be itself).
+Moreover, \{``homework", ``school"\} and \{``interested", ``curious"\} are considered synonym sets, and applying \textit{homogenisation} causes occurrences of these words to be replaced with their shortest synonym (which may be itself).
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
@@ -264,6 +265,7 @@ Moreover, \{``homework", ``school"\} and \{``interested", ``curious"\} are consi
 \end{subfigure}
 \setcounter{subfigure}{0}
 \caption{\textit{Text relationship maps}}
+\label{fig:trm_peter_little}
 \end{subfigure}
 \begin{subfigure}{\textwidth}
 \vspace{\baselineskip}
@@ -283,5 +285,5 @@ there was a curious little boy. the curious little boy was named PeterLittle. Pe
 \caption{\textit{Homogenised} story and output of the \textsc{Preprocessor}}
 \end{subfigure}
 \caption{Example of applying sentence pruning and \textit{homogenisation} to the \textit{simplified} story of Peter Little}
-\label{fig:preprocessor_example}
+\label{fig:pruning_homogenisation_example}
 \end{figure}
