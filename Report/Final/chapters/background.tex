@@ -374,24 +374,19 @@ bs -> \{ \\
 \section{Neural Networks}
 \label{sec:neural_networks}
 
-In this section we present the concepts which will later be necessary to understand the evaluation of our project.
+In this section, we present concepts relating to Machine Learning which will later be necessary to understand the evaluation of our project (Chapter \ref{chapter:evaluation}).
 
-A neural network is a set of \textit{neurons} organized in layers. Each \textit{neuron} can be seen as a placeholder for a numerical value and in between each layer a non linear differentiable function is applied
+To begin, a neural network is a set of \textit{neurons} organized in \textit{layers}. The first and last \textit{layers} are respectively called the \textit{input layer} and the \textit{output layer}, while all the intermediate \textit{layers} are known as \textit{hidden layers}.
+
+The role of a \textit{neuron} is to receive input from its immediate predecessors, compute an output signal using a non-linear differenciable \textit{activation function}, and then propagate the result to its successors \cite{krose_introduction_1993}.
+
+Each \textit{neuron} can be seen as a placeholder for a numerical value...
 
 \subsection{Recurrent Neural Networks}
 
+A problem with conventional neural networks is that they do not allow variable-length input vectors, making them inadequate for learning sequential data. Recurrent neural networks (RNNs) solve this issue by using an internal state vector that can be updated each time part of the input processed.
 
-
-RNNs address the problem of applying neural networks on sequential data... 
-an RNN will hold a internal state vector that it will update at each step....
-
-
-
-
-
-
-
-A recurrent neural network (RNN) is a chain-like neural network that is applied once for each \textit{token} in the input sequence \cite{cho_learning_2014}. At each timestep $t$ in a ``vanilla" RNN (i.e., for each item in the sequence), the current \textit{hidden state} $h_t$ is computed as a function of the previous \textit{hidden state} $h_{t-1}$ and the current input \textit{token} $x_t$, using a non-linear \textit{activation function} (usually sigmoid) \cite{cho_learning_2014}.
+To be more precise, an RNN is a chain-like neural network that is applied once for each \textit{token} in the input sequence \cite{cho_learning_2014}. At each timestep $t$ in a ``vanilla" RNN (i.e., for each item in the sequence), the current \textit{hidden state} $h_t$ is computed as a function of the previous \textit{hidden state} $h_{t-1}$ and the current input \textit{token} $x_t$, using a non-linear \textit{activation function} (usually sigmoid) \cite{cho_learning_2014}.
 
 \subsection{Long Short-Term Memories}
 
@@ -425,7 +420,7 @@ An \textit{encoder-decoder} is a neural network consisting of two eponymous RNNs
 
 In the context of neural machine translation (NMT) systems such as \textit{encoder-decoders}, the idea behind \textit{attention} is to improve performance by selectively looking at sub-portions of the input sequence, which becomes especially important for long sequences of text \cite{yao_dual_2018}.
 
-\subsubsection{Global Attention}
+\subsubsection*{Global Attention}
 
 On top of being dependant on the last \textit{hidden state} $d_{t-1}$ and output \textit{token} $y_{i-1}$, every \textit{hidden state} $d_t$ in a \textit{decoder} with \textit{global attention} is computed also in function of its \textit{context vector} $c_t$. Each \textit{context vector} $c_t$ is defined as a weighted sum of the \textit{encoder}'s \textit{hidden states} $h_i$. The $h_i$ that are assigned a higher weight are those which are more similar to $d_t$, which is done using a trainable \textit{alignment model} $a$ \cite{bahdanau_neural_2016}.
 
