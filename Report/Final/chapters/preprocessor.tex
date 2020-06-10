@@ -1,8 +1,12 @@
 \label{chapter:preprocessor}
 
+In this chapter, we present the first part of our system's pipeline: the \textsc{Preprocessor}. In order to avoid having to do extremely complicated semantic analysis in \textsc{SumASG}, we begin by pre-processing the input text so that we can give ASG something which is simpler to understand as well as more computationally tractable.
+
+To ensure a consistent sentence structure for \textsc{SumASG}, we try and transform every sentence in the story to a basic subject-verb-object form (Section \ref{sec:tokenization_simplification}). To further help with the goal of generating optimal summaries, we take advantage of the \textsc{Preprocessor}'s semantic awareness to also remove irrelevant sentences and unnecessary use of synonyms (Section \ref{sec:pruning_homogenisation}). We illustrate how the \textsc{Preprocessor} works using our running example of the story of Peter Little (Section \ref{sec:example}).
+
 \section{Overview}
 
-In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we have created the \textsc{Preprocessor}, whose steps are shown below in Figure \ref{fig:preprocessor_pipeline}.
+The different stages of the \textsc{Preprocessor} can be seen in Figure \ref{fig:preprocessor_pipeline}. The first step is to \textit{tokenize} the story. After this we apply a number of transformations to reduce the complexity of the sentence structures. Once this \textit{simplification} step is complete, we prune away sentences which provide little value, and finally \textit{homogenise} the resulting text so that its lexical diversity is reduced.
 
 {
 \floatstyle{plain}
@@ -28,19 +32,19 @@ In order to prepare the story to be parsed and summarized by \textsc{SumASG}, we
 }
 
 \section{Tokenization And Simplification}
-\label{sec:tokenization_scoring}
+\label{sec:tokenization_simplification}
 
 With the help of \textbf{CoreNLP}, we assign a POS tag to each word, or \textit{token}, from the input story. Using this information, we now make a number of simplifications which will make the sentence structure more consistent throughout.
 
 \subsection{Punctuation}
 \label{subsec:punctuation}
 
-To avoid having to build recognition and semantic understanding of different types of punctuation into \textsc{SumASG}, it is preferable to transform the story such that it uses no punctuation apart from full stops. The idea is that each sentence in the resulting text contains exactly one action or description.
+To avoid having to build recognition and semantic understanding of different types of punctuation into \textsc{SumASG}, it is preferable to transform the story such that it uses no punctuation apart from full stops. The idea is that each sentence in the resulting text contains exactly one action or description (i.e., it must consist of only one clause).
 
 Depending on the type of punctuation used at the end of a clause in English, a different treatment is applied:
 
 \begin{itemize}
-\item Question marks: We remove the clause, as it is most likely irrelevant for this task. It also helps avoid negation since we are deleting rhetorical questions.
+\item Question marks: We remove the clause, as it is very uncommon for questions in a story to contain crucial information. It also helps avoid negation since we are deleting rhetorical questions.
 \item Dashes: These are used around clauses which add detail, so it is quite safe to delete them for the task of summarization.
 \item Exclamation marks, commas, semi-colons and colons: We replace any of these with a full stop.
 \end{itemize}
@@ -49,15 +53,15 @@ Depending on the type of punctuation used at the end of a clause in English, a d
 
 One of the main goals of the \textsc{Preprocessor} is to transform the story in a simple and consistent structure, one where a given POS tag may only appear in a limited number of places in a sentence.
 
-\subsubsection{Acronyms}
+\subsubsection*{Acronyms, Contractions And Determiners}
 
-Some acronyms are often spelled using full stops after each letter. To prevent these from being recognized as multiple sentences, it is beneficial to remove any punctuation from acronyms. Therefore the word ``U.S.A." would become ``USA".
+Some acronyms are often spelled using full stops after each letter. To prevent these from being recognized as multiple sentences, it is beneficial to remove any punctuation from acronyms. For instance, the word ``U.S.A." becomes ``USA".
 
-\subsubsection{Contractions}
+Contractions can be difficult to understand for machines, and they add unwanted complexity to the task of parsing. Therefore it is best to expand all of them, transforming ``it's" into ``it is".
 
-Contractions can be difficult to understand for machines, and they add unwanted complexity to the task of parsing. Therefore it is simplest to expand all of them, for example transforming ``it's" into ``it is".
+In the English language, the determiners ``a" and ``an" are semantically identical, so it makes sense to only use one of the two to reduce the number of \textit{tokens} that \textsc{SumASG} has to process. After generating a summary, we will revert this change so that our framework's output is grammatically correct.
 
-\subsubsection{Adverbs}
+\subsubsection*{Adverbs}
 
 In the English language, adverbs can appear almost anywhere in a sentence, and their position has minimal semantic influence. To illustrate this, consider the following sentences, which all have the same meaning:
 
@@ -69,24 +73,19 @@ He eats toast \underline{slowly}.
 
 In order to provide \textsc{SumASG} with a consistent format for parsing adverbs, we should always move them to the end of the clause in which they appear (in the above example we would keep the last sentence).
 
-
-\subsubsection{Determiners}
-
-In the English language, the determiners ``a" and ``an" are semantically identical, so to makes sense to only use one of the two, with the intention of reducing the number of \textit{tokens} that \textsc{SumASG} has to process. We can always correct the output of \textsc{SumASG} to make it grammatically correct.
-
-\subsubsection{Possessive Pronouns, Interjections And Prepositions}
+\subsubsection*{Possessive Pronouns, Interjections And Prepositions}
 
 In most cases, possessive pronouns and interjections do not add much to the meaning of a story, especially when the end goal is to create a summary. Therefore, we remove such words from the text. For instance, the sequence ``\underline{Ah}! She ate \underline{her} chocolate." would become ``She ate chocolate.".
 
-Prepositions which appear at the start of a sentence may be removed, as they are not integral to the meaning. For example, ``\underline{Besides} today is Sunday" gets transformed into ``Today is Sunday".
+Prepositions which appear at the start of a sentence may be removed, as they are not integral to the meaning of the sentence. For example, ``\underline{Besides} today is Sunday" gets transformed into ``Today is Sunday".
 
-Moreover, prepositions which come after the object in a sentence can sometimes cause it to become syntactically too complex. Rather than encoding such high level of detail into the internal representation of \textsc{SumASG}, it is preferable to simply omit the final clause. In this case, ``They have a picnic \underline{under} a tree." becomes ``They have a picnic.". Although some information is thrown away, this loss will usually have no impact on the quality of the summary.
+Moreover, prepositions which come after the object in a sentence can sometimes cause it to become syntactically too complex. Rather than encoding such high level of detail into the internal representation of \textsc{SumASG}, it is preferable to simply omit the final clause. In this case, ``They have a picnic \underline{under} a tree." becomes ``They have a picnic.". Although some information is thrown away, and there could be a small impact on the quality of the summary, this is a simplification we are willing to make.
 
 \subsection{Clause Transformations}
 
 After going through the \textsc{Preprocessor}, we would like each sentence in the given story to only focus on a single topic.
 
-When possible, we should split sentences containing multiple clauses into individual sentences. Otherwise, we delete the auxiliary clause and keep the main clause.
+When possible, we should split sentences containing multiple clauses into individual sentences. Otherwise, we delete the auxiliary clause to only keep the main clause.
 
 Examples of the transformations applied to different types of clauses can be seen below in Figure \ref{fig:clause_transformations}.
 
@@ -116,23 +115,19 @@ Examples of the transformations applied to different types of clauses can be see
 \label{fig:clause_transformations}
 \end{figure}
 
-\subsubsection{Hypernym Substitution}
+\subsubsection*{Hypernym Substitution}
 
-However, in some cases we may be able to perform an optimisation that allows us to collapse a conjunction of two words into a common \textit{hypernym} (i.e., superclass).
+In some cases however, we may be able to perform an optimisation that allows us to collapse a conjunction of two words into a common \textit{hypernym} (i.e., superclass).
 
-In practice, this involves using \textbf{Pattern}\footnote{\label{footnote:pattern}Pattern is a module that is able to perform POS tagging, verb conjugation and noun singularisation, among others: \url{https://www.clips.uantwerpen.be/pages/pattern-en}} to try and find a lexical field to which both words pertain.
-
-For example, the words ``chicken" and ``goose" both belong to the lexical field of ``poultry". Similarly, ``cars" and ``trucks" have common hypernym ``motor-vehicles".
+In practice, this involves using \textbf{Pattern}\footnote{\label{footnote:pattern}Pattern is a module that is able to perform POS tagging, verb conjugation and noun singularisation, among others: \url{https://www.clips.uantwerpen.be/pages/pattern-en}} to try and find a lexical field to which both words pertain. For example, the words ``chicken" and ``goose" both belong to the lexical field of ``poultry". Similarly, ``cars" and ``trucks" have common hypernym ``motor-vehicles".
 
 \subsection{Case And Proper Nouns}
 
 We want to ensure that all occurrences of a word are treated as the same \textit{token}. Since \textsc{SumASG} will be generating new sentences from scratch, the simplest solution is to convert the entire story to lower-case, apart from proper nouns.
 
-In the case of complex proper nouns (i.e., those constructed from multiple words), we should remove inner spaces so that we end up with a camel-case string. For instance, the sequence ``Peter Little" will become ``PeterLittle".
+In the case of complex proper nouns (i.e., those constructed from multiple words), we should remove inner spaces so that we end up with a camel-case string. For instance, the sequence ``Peter Little" will become ``PeterLittle". We also do this with complex common nouns, for example transforming ``bird house" into ``bird-house".
 
-We also do this with complex common nouns, for example transforming ``bird house" into ``bird-house".
-
-\subsubsection{Pronoun Substitution}
+\subsubsection*{Pronoun Substitution}
 
 Sometimes, an author will introduce a character or group by name, and later refer to them using a pronoun.
 
@@ -159,19 +154,58 @@ To clarify this, an example is shown in Figure \ref{fig:pronoun_substitution}.
 \label{fig:pronoun_substitution}
 \end{figure}
 
-\subsection{Example}
-\label{subsec:simplification_example}
+\section{Sentence Pruning And Homogenisation}
+\label{sec:pruning_homogenisation}
 
-The result of running the \textit{simplification} transformations on the story of Peter Little is illustrated below in Figure \ref{fig:simplification_example}.
+Once the sentence structure of the story has been \textit{simplified}, one of the main roles of the \textsc{Preprocessor} is to remove irrelevant semantic complexity from the story.
+
+In order to understand what is relevant in a story and what is not, the \textsc{Preprocessor} looks at the semantic similarity between words with the same POS tag (or a related one, i.e. singular noun and plural noun, or verbs with a different tense).
+
+\subsection{Word Similarity}
+
+It iterates over each sentence, and compares each word with every word from other sentences which have the same or a related POS tag. For each comparison, word \textit{similarity} is computed using \textbf{ConceptNet}\footnote{ConceptNet is a semantic knowledge network, providing information about the relations between different words: \url{http://www.conceptnet.io}}.
+
+Having such nesting of loops is quite expensive, which is why we keep a cache of previously requested similarities, and use the fact that this \textit{similarity} relation is symmetric.
+
+\subsection{Sentence Similarity And Pruning}
+
+Once we have computed the \textit{similarity} between words of different sentences, we add these up on a per-sentence basis, which gives us a binary relation of \textit{similarity} between sentences.
+
+We now have enough information to generate a \textit{text relationship map} (see Subsection \ref{subsec:mcba_lsa_trm}) over the sentences. The idea is that the more ``linked" a sentence is, the more relevant it is to the story. For each sentence, we therefore take the sum of the values of all its \textit{similarity} relations with other sentences. The higher this number, the more relevant, or \textit{important}, the sentence is to the story.
+
+\subsubsection*{Pruning}
+
+In the interest of removing irrelevant sentences to help \textsc{SumASG} (see Figure \ref{fig:preprocessor_example}), we compute the 25th percentile over the \textit{importances} of all the sentences (i.e., the value below which 25\% of all \textit{importances} fall). We then prune sentences whose \textit{importance} is strictly less than this value.
+
+In most cases, one quarter of the story will be pruned. However, if every sentence has the same \textit{importance}, then nothing gets removed. On the other hand, if two thirds of the story are very \textit{important} and the rest is irrelevant, then we remove more than a quarter of the sentences.
+
+\subsection{Synonyms And Homogenisation}
+
+Another use for \textit{word similarity} is to find out if the author of the story has used any synonyms. When the \textit{similarity} between two words is above a certain threshold, then we consider them to be synonyms.
+
+For every set of synonyms we find, we choose a unique \textit{representative} for the set, and replace occurrences of the other words in that set with our \textit{representative}. For simplicity, we choose the \textit{representative} as the shortest word in its synonym set.
+
+This is what we call \textit{story homogenisation}, and it helps \textsc{SumASG} link words that would otherwise be considered completely different \textit{tokens} in the story.
+
+\section{Example}
+\label{sec:example}
+
+To illustrate how all of the steps in the \textsc{Preprocessor} come together to produce a text that will be easy to parse by \textsc{SumASG}, we use our running example of the story of Peter Little, which we have repeated below in Figure \ref{fig:peter_little_story}.
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
 There was a curious little boy named Peter Little. He was interested in stars and planets. So he was serious in school and always did his homework. When he was older, he studied mathematics and quantum physics. He studied hard for his exams and became an astrophysicist. Now he is famous.
 \end{displayquote}
-\caption{Original story}
-\vspace{\baselineskip}
 \end{subfigure}
+\caption{Story of Peter Little}
+\label{fig:peter_little_story}
+\end{figure}
+
+\noindent
+We first \textit{tokenize} the story of Peter Little and apply \textit{simplification} transformations, the result of which is shown in Figure \ref{fig:simplification_example}.
+
+\begin{figure}[H]
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
 \begin{enumerate}[label=\protect\circled{\alph*}]
@@ -210,48 +244,11 @@ There was a curious little boy named Peter Little. He was interested in stars an
 \label{fig:simplification_example}
 \end{figure}
 
-\section{Sentence Pruning And Homogenization}
-\label{sec:pruning_homogenization}
-
-Once the sentence structure of the story has been \textit{simplified}, one of the main jobs of the \textsc{Preprocessor} is to remove irrelevant semantic complexity from the story.
-
-In order to understand what is relevant in a story and what is not, the \textsc{Preprocessor} looks at the semantic similarity between words with the same POS tag (or a related one, i.e. singular noun and plural noun, or verbs with a different tense).
-
-\subsection{Word Similarity}
-
-It iterates over each sentence, and compares each word with every word from other sentences which have the same or a related POS tag. For each comparison, word \textit{similarity} is computed using \textbf{ConceptNet}\footnote{ConceptNet is a semantic knowledge network, providing information about the relations between different words: \url{http://www.conceptnet.io}}.
-
-Having such nesting of loops is quite expensive, which is why we keep a cache of previously requested similarities, and use the fact that this \textit{similarity} relation is symmetric.
-
-\subsection{Sentence Similarity And Pruning}
-
-\subsubsection{Sentence Similarity}
-
-Once we have computed the \textit{similarity} between words of different sentences, we add these up on a per-sentence basis, which gives us a binary relation of \textit{similarity} between sentences.
-
-We now have enough information to generate a \textit{text relationship map} (see Subsection \ref{subsec:mcba_lsa_trm}) over the sentences. The idea is that the more ``linked" a sentence is, the more relevant it is to the story. For each sentence, we therefore take the sum of the values of all its \textit{similarity} relations with other sentences. The higher this number, the more relevant, or \textit{important}, the sentence is to the story.
-
-\subsubsection{Pruning}
-
-In the interest of removing irrelevant sentences to help \textsc{SumASG}, we compute the 25th percentile over the \textit{importances} of all the sentences. We then prune sentences whose \textit{importance} is strictly less than this value.
-
-In most cases, one quarter of the story will be pruned. However, if every sentence has the same \textit{importance}, then nothing gets removed. On the other hand, if two thirds of the story are very \textit{important} and the rest is irrelevant, then we remove more than a quarter of the sentences.
-
-\subsection{Synonyms And Homogenization}
-
-Another use for \textit{word similarity} is to find out if the author of the story has used any synonyms. When the \textit{similarity} between two words is above a certain threshold, then we consider them to be synonyms.
-
-For every set of synonyms we find, we choose a unique \textit{representative} for the set, and replace occurrences of the other words in that set with our \textit{representative}. For simplicity, we choose the \textit{representative} as the shortest word in its synonym set.
-
-This is what we call \textit{story homogenization}, and it helps \textsc{SumASG} link words that would otherwise be considered completely different \textit{tokens} in the story.
-
-\subsection{Example}
-
-An example is shown below in Figure \ref{fig:preprocessor_example} for the story of Peter Little, where the weight between two nodes denotes \textit{similarity}. In this example, we consider words to be synonyms whenever their \textit{similarity} is at least 20. The labels of the nodes (starting from 0) for sentence \textit{similarity} correspond to the index of the sentence in the \textit{simplified story} (see Subsection \ref{subsec:simplification_example}).
+An example is shown below in Figure \ref{fig:preprocessor_example} for the story of Peter Little, where the weight between two nodes denotes \textit{similarity}. In this example, we consider words to be synonyms whenever their \textit{similarity} is at least 20. The labels of the nodes (starting from 0) for sentence \textit{similarity} correspond to the index of the sentence in Figure \ref{fig:simplification_example}.
 
 As illustrated in the diagram, sentences 5 and 6 are deemed irrelevant and will be pruned, while sentences 0, 1 and 2 are identified as being very important.
 
-Moreover, \{``homework", ``school"\} and \{``interested", ``curious"\} are considered synonym sets, and \textit{homogenization} will replace occurrences of these words with their shortest synonym (which may be itself).
+Moreover, \{``homework", ``school"\} and \{``interested", ``curious"\} are considered synonym sets, and \textit{homogenisation} will replace occurrences of these words with their shortest synonym (which may be itself).
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
@@ -285,6 +282,6 @@ there was a curious little boy. the curious little boy was named PeterLittle. Pe
 \end{displayquote}
 \caption{\textit{Homogenised} story and output of the \textsc{Preprocessor}}
 \end{subfigure}
-\caption{Example of applying sentence pruning and \textit{homogenization} to the \textit{simplified} story of Peter Little}
+\caption{Example of applying sentence pruning and \textit{homogenisation} to the \textit{simplified} story of Peter Little}
 \label{fig:preprocessor_example}
 \end{figure}
