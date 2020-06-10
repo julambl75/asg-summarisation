@@ -275,7 +275,7 @@ An example is shown in Figure \ref{fig:asg_example}, where we have written \text
 \centering
 \begin{tabular}{c}
 \begin{lstlisting}[numbers=none, basicstyle=\ttfamily, columns=fixed, basewidth=0.45em]
-1: start -> as "b" { :- size(X)@1, X < 1. }
+1: start -> as "b" { :- size(X)@1, X < 2. }
 2: as -> "a" as    { size(X+1) :- size(X)@2. }
 3: as ->           { size(0). }
 \end{lstlisting}
@@ -298,23 +298,23 @@ Given a string $str$ of terminal nodes, we say that $str \in \mathcal{L}(G)$ ($s
 \end{definition}
 
 \noindent
-The \textit{parse tree program} $G[PT]$ corresponding to the \textit{annotated production rules} shown in Figure \ref{fig:asg_example} is given in Figure \ref{fig:asg_tree_program_example}. This program has a single \textit{answer set} $\{size(0)@[1,2,2],\ size(1)@[1,2],\ size(2)@[1]\}$. From this example, it is easy to see how the corresponding program would be \textit{unsatisfiable} for the string \texttt{ab}.
+The \textit{parse tree program} $G[PT]$ corresponding to the \textit{annotated production rules} from Figure \ref{fig:asg_example} and \textit{parse tree} from Figure \ref{fig:cfg_parse_tree_example} is given in Figure \ref{fig:asg_tree_program_example}. This program has a single \textit{answer set} $\{\texttt{size(0)@[1,2,2]},\ \texttt{size(1)@[1,2]},\ \texttt{size(2)@[1]}\}$, confirming that $\texttt{aab} \in \mathcal{L}(G)$. From this example, you can see that the program is \textit{unsatisfiable} for the string \texttt{ab}, because from the fact \texttt{size(0)@[1,2]} we would end up with \texttt{size(1)@[1]} but \texttt{1 < 2}.
 
 \begin{figure}[H]
 \centering
-\texttt{:- size(X)@[1], X < 1. \\
+\texttt{:- size(X)@[1], X < 2. \\
            size(X+1)@[1] :- size(X)@[1,2]. \\
            size(X+1)@[1,2] :- size(X)@[1,2,2]. \\
            size(0)@[1,2,2].}
-\caption{$G[PT]$ for the \textit{parse tree} and ASG from the examples above}
+\caption{$G[PT]$ for the \textit{parse tree} $PT$ of Figure \ref{fig:cfg_parse_tree_example} and grammar $G$ of Figure \ref{fig:asg_example}}
 \label{fig:asg_tree_program_example}
 \end{figure}
 
 \subsection*{Learning Answer Set Grammars}
 
-Given an incomplete ASG, it is possible to learn the complete grammar by induction (which uses \textbf{ILASP}\footnote{ILASP is a logic-based machine learning system: \url{http://www.ilasp.com}}), as long as we provide some \textit{positive examples} (strings which should conform to the language) and/or \textit{negative examples}  (strings which must not), as well as a \textit{hypothesis space} and usually some \textit{background} information. Note that the \textit{background} is only used for ``global" knowledge, such as defining what is a number, or how to increment one \cite{law_representing_2019}.
+Given an incomplete ASG, it is possible to learn the complete grammar (i.e., the missing \textit{production rules}) by induction, which makes use of \textbf{ILASP}\footnote{ILASP is a logic-based machine learning system: \url{http://www.ilasp.com}} behind the scenes. For such a task we must provide some \textit{positive examples} (strings which should conform to the language) and/or \textit{negative examples}  (strings which must not), and sometimes \textit{background} information \cite{law_representing_2019}. This \textit{background knowledge} can either serve as context for the program or act as a sort of ``helper" (like the predicates \texttt{num} and \texttt{inc} in Figure \ref{fig:asg_ilp_example}).
 
-In such an \textit{inductive learning program} (ILP) task, we have a \textit{hypothesis space} in the form of \textit{mode declarations}, defining the format of the heads (written \texttt{\#modeh}) and bodies (written \texttt{\#modeb}) of \textit{production rules} which can be learned. It is also possible to restrict the scope of a particular \textit{mode declaration} by specifying a list of rule numbers at the end. Note that there are two forms of body \textit{mode declarations}: \texttt{\#modeba} is used for predicates that accept an $@$ \textit{annotation}, and \texttt{\#modebb} is intended for those without (which are defined in \texttt{\#background}). An example is shown in Figure \ref{fig:asg_ilp_example}.
+In such an \textit{inductive learning program} (ILP) task, we have what is called a \textit{hypothesis space} in the form of \textit{mode declarations}, defining the format of the heads (written \texttt{\#modeh}) and bodies (written \texttt{\#modeb}) of \textit{production rules} which can be learned \cite{law_inductive_nodate}. It is also possible to restrict the scope of a particular \textit{mode declaration} by specifying a list of rule numbers at the end. Note that there are two forms of body \textit{mode declarations}: \texttt{\#modeba} is used for predicates that accept an $@$ \textit{annotation}, and \texttt{\#modebb} is intended for those without (which are defined in \texttt{\#background}). This is illustrated in Figure \ref{fig:asg_ilp_example}, where we show a learning task for the grammar that accepts all string of the form \texttt{a\textsuperscript{n}b\textsuperscript{n}}.
 
 \begin{figure}[H]
 \centering
@@ -366,7 +366,7 @@ bs -> \{ \\
 \end{subfigure}
 \newline
 \newline
-* Note: the symbol \texttt{|} indicates multiplicity of \textit{production rules}.
+* Note: the symbol \texttt{|} indicates that multiple derivations exist for the same node.
 \caption{Example of an ASG ILP task for the language \texttt{a\textsuperscript{n}b\textsuperscript{n}}}
 \label{fig:asg_ilp_example}
 \end{figure}
@@ -378,9 +378,11 @@ In this section, we present concepts relating to Machine Learning which will lat
 
 To begin, a neural network is a set of \textit{neurons} organized in \textit{layers}. The first and last \textit{layers} are respectively called the \textit{input layer} and the \textit{output layer}, while all the intermediate \textit{layers} are known as \textit{hidden layers}.
 
-The role of a \textit{neuron} is to receive input from its immediate predecessors, compute an output signal using a non-linear differenciable \textit{activation function}, and then propagate the result to its successors \cite{krose_introduction_1993}.
+The role of a \textit{neuron} is to receive input from its immediate predecessors, compute an output signal using a differentiable \textit{activation function} on the weighted sum of its inputs, and then propagate the result to its successors \cite{krose_introduction_1993}. Some neural connections are stronger then others; these get assigned a higher weight and will thus contribute more to the final output value of the network.
 
-Each \textit{neuron} can be seen as a placeholder for a numerical value...
+A neural network can be trained to produce a specific output given a certain input. This is done over a certain number of timesteps by feeding some data as input and comparing the predicted output with the expected output. The second phase of each timestep is called \textit{backpropagation}, which involves going backwards from the output and at every \textit{neuron} computing the gradient of what we call a \textit{loss function}, with respect to the weights of that \textit{neuron's} inputs. Using this gradient, we can see which weights need to be increased and which need to be decreased in order to better fit the input data. By repeating this over time, we can eventually find the optimal weights that give us predictions as close as possible to the expected output data \cite{krose_introduction_1993}.
+
+In general, we use a larger dataset for training and a smaller one for what we call validation, which is where we use a different dataset every certain number of timesteps to ensure the network does not overfit the training data. At the end of training, we use an even smaller test dataset to give a final assessment of the neural network. Moreover, training a neural network to perform as well as possible also involves choosing suitable \textit{activation functions}, as well as fine-tuning a number of hyper-parameters (e.g., \textit{learning rate}, number of \textit{hidden layers}, \textit{batch size}...).
 
 \subsection{Recurrent Neural Networks}
 
