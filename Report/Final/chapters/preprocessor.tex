@@ -2,7 +2,7 @@
 
 In this chapter, we present the first part of our system's pipeline: the \textsc{Preprocessor}. In order to avoid having to do extremely complicated semantic analysis in \textsc{SumASG}, we begin by pre-processing the input text so that we can give ASG something which is simpler to understand as well as more computationally tractable.
 
-To ensure a consistent sentence structure for \textsc{SumASG}, we try and transform every sentence in the story to a basic subject-verb-object form (Section \ref{sec:tokenization_simplification}). To further help with the goal of generating optimal summaries, we take advantage of the \textsc{Preprocessor}'s semantic awareness to also remove irrelevant sentences and unnecessary use of synonyms (Section \ref{sec:pruning_homogenisation}). We illustrate how the \textsc{Preprocessor} works using our running example of the story of Peter Little (Section \ref{sec:example}).
+To ensure a consistent sentence structure for \textsc{SumASG}, we try and transform every sentence in the story to a basic subject-verb-object form (Section \ref{sec:tokenization_simplification}). To further help with the goal of generating optimal summaries, we take advantage of the \textsc{Preprocessor}'s semantic awareness to also remove irrelevant sentences and unnecessary use of synonyms (Section \ref{sec:pruning_homogenisation}). We illustrate how the \textsc{Preprocessor} works using our running example of the story of Peter Little (Section \ref{sec:preprocessor_example}).
 
 \section{Overview}
 
@@ -71,6 +71,7 @@ He \underline{slowly} eats toast. \\
 He eats toast \underline{slowly}.
 \end{displayquote}
 
+\noindent
 In order to provide \textsc{SumASG} with a consistent format for parsing adverbs, we should always move them to the end of the clause in which they appear (in the above example we would keep the last sentence).
 
 \subsubsection*{Possessive Pronouns, Interjections And Prepositions}
@@ -188,7 +189,7 @@ For every set of synonyms we find in the text, we choose a unique \textit{repres
 This is what we call story \textit{homogenisation}, and it helps \textsc{SumASG} link words that would otherwise be considered completely different \textit{tokens} in the story.
 
 \section{Example}
-\label{sec:example}
+\label{sec:preprocessor_example}
 
 To illustrate how all of the steps in the \textsc{Preprocessor} come together to produce a text that will be easy to parse by \textsc{SumASG}, we use our running example of the story of Peter Little, which we have repeated below in Figure \ref{fig:peter_little_story}.
 

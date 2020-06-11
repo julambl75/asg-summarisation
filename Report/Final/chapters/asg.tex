@@ -1,6 +1,9 @@
 \label{chapter:asg}
 
+We present in this chapter the core module of our pipeline: \textsc{SumASG}. After giving an overview of the module (Section \ref{sec:asg_overview}), we introduce a general grammar which we have created specifically for the purpose of representing English sentences in ASG (Section \ref{sec:internal_representation}). We then go further into the details of \textsc{SumASG}'s two-part implementation (Sections \ref{sec:learn_actions} and \ref{sec:gen_summary_sentences}), and finish by showing the results of running \textsc{SumASG} on a pre-processed story (Section \ref{sec:asg_example}).
+
 \section{Overview}
+\label{sec:asg_overview}
 
 Our use of ASG is two-fold. Firstly, we pass in each sentence from the story to ASG to obtain its semantic representation in ASP. Secondly, we take these \textit{actions} and use ASG rules to generate possible summary components. These will later be post-processed and turned into actual valid summaries. A diagram of the two ASG steps is shown below in Figure \ref{fig:asg_pipeline}.
 
@@ -41,15 +44,15 @@ Our use of ASG is two-fold. Firstly, we pass in each sentence from the story to 
 \section{Internal Representation}
 \label{sec:internal_representation}
 
-In order to model the structure of sentences the English language, we have created a CFG that has a similar hierarchy to that of an NLP parse tree. The ASG code for this general structure can be seen in Appendix \ref{appendix:asg}. Throughout this description of \textsc{SumASG}, please refer to Chapter \ref{chapter:background} for information on how to interpret an ASG program. Also, a table listing the possible POS tags is available in Appendix \ref{appendix:pos}.
+In order to model the structure of sentences in English, we have created a CFG that has a similar hierarchy to that of an NLP parse tree. The ASG code for this general structure can be seen in Appendix \ref{appendix:asg}. Throughout this description of \textsc{SumASG}, please refer to Chapter \ref{chapter:background} for information on how to interpret an ASG program. Also, a table listing the possible POS tags is available in Appendix \ref{appendix:pos}.
 
 \subsection{Leaf Nodes}
 
-At the bottom end of the structure, there are leaf nodes that correspond to individual English words. These nodes are added based on the context, that is to say the words appearing in our story.
+At the bottom end of the CFG, there are leaf nodes that correspond to individual English words. These nodes get added based on the context, that is to say the words appearing in our story.
 
-Each of these nodes has on the left-hand side (LHS) of the derivation its POS tag, and on the right-hand side (RHS) a string containing the word itself. In order to conform to the syntax of ASG, we must write the POS tags in lower-case. Also, we include a space at the end of each word's textual representation so that when we run our program the words appear distinct and not all concatenated together.
+Each of these nodes has on the left-hand side (LHS) of the \textit{production rule} its POS tag, and on the right-hand side (RHS) a string containing the word itself. In order to conform to the syntax of ASG, we must write the POS tags in lower-case. Also, we include a space at the end of each word's textual representation so that when we run our program the words appear distinct and not all concatenated together.
 
-In ASG every derivation also has a set of ASP rules, which in the case of leaf nodes is just a single rule telling us the word's \textit{lemma} and sentence \textit{role}. In the case of verbs, the \textit{lemma} is simply the base form of the verb, so we also need to keep track of its tense.
+In ASG every \textit{production rule} also has a set of ASP rules, which in the case of leaf nodes is just a single rule telling us the word's \textit{lemma} and sentence \textit{role}. In the case of verbs, the \textit{lemma} is simply the base form of the verb, so we also need to keep track of its tense.
 
 For example, leaf nodes for the sentence ``they drove a race-car fast." would look like this:
 
@@ -89,7 +92,6 @@ POS tag  & VB & VBD  & VBG    & VBN        & VBP     & VBZ            \\ \midrul
 Verb tense & \texttt{base} & \texttt{past} & \texttt{gerund} & \texttt{past\_part} & \texttt{present} & \texttt{present\_third} \\ \bottomrule
 \end{tabular}
 \caption{Verb tense by POS tag}
-\vspace{\baselineskip}
 \end{subfigure}
 \caption{Predicates used for the leaf nodes in the internal representation}
 \label{fig:leaf_nodes}
@@ -101,15 +103,15 @@ The job of the non-leaf nodes is to join leaf nodes together, matching the way w
 
 In our general grammar, sentences (\texttt{s -> np vp}) are made up a \textit{noun part} (\texttt{np}) followed by a \textit{verb part} (\texttt{vp}). While a \textit{noun part} can be made up of leaf nodes, a \textit{verb part} is always a verb followed by a \textit{noun part}.
 
-\subsubsection{Noun Parts}
+\subsubsection*{Noun Parts}
 
-In the derivation for a \textit{noun part}, we use logic rules whose role it is to encapsulate a sentence \textit{subject} and/or an \textit{object}. This is done in a bottom-up manner, by using information from the child node(s) to populate a predicate at the \textit{noun part} level.
+In the \textit{production rule} for a \textit{noun part}, we use logic rules whose role it is to encapsulate a sentence \textit{subject} and/or an \textit{object}. This is done in a bottom-up manner, by using information from the child node(s) to populate a predicate at the \textit{noun part} level.
 
 The reason why we differentiate between these two forms is because some \textit{noun parts} in English are only used as subjects (e.g., existential ``there"), while others can only be objects (e.g., the adjective ``green"), and we want to keep the \textit{search space} as small as possible (see Subsection \ref{subsec:search_space}).
 
 The resulting predicates have respective forms \texttt{subject(\underline{noun},\underline{det},\underline{adj\_or\_adv})} and \texttt{object(\underline{noun},\underline{det},\underline{adj\_or\_adv})}. For all these predicates, we use the \textit{ground term} \texttt{0} to denote the absence of a \textit{token}.
 
-For instance, we can capture the \textit{noun phrase} ``a race-car" using the following derivation:
+For instance, we can capture the \textit{noun phrase} ``a race-car" using the following \textit{production rule}:
 
 \begin{displayquote}
 \begin{lstlisting}
@@ -120,9 +122,10 @@ np -> dt nn {
 \end{lstlisting}
 \end{displayquote}
 
+\noindent
 To handle the case of more complex \textit{noun phrases}, we have created a special predicate \texttt{conjunct(\underline{first},\underline{second})}, allowing us to join two words with the same \textit{role}. We also need to add constraints that rule out cases where the two \textit{conjuncts} have the same \textit{lemma}.
 
-For example, the \textit{noun phrase} ``bread and cheese" would be encompassed by the below derivation:
+For example, the \textit{noun phrase} ``bread and cheese" would be encompassed by the below \textit{production rule}:
 
 \begin{displayquote}
 \begin{lstlisting}
@@ -135,11 +138,11 @@ np -> nn ``and " nn {
 \end{lstlisting}
 \end{displayquote}
 
-\subsubsection{Verb Parts}
+\subsubsection*{Verb Parts}
 
 The last child node of a \textit{verb part} is always a single \textit{noun part}. Before that comes a verb, whose POS tag may represent any of the forms used in English as seen in Figure \ref{fig:leaf_nodes}. In each of these cases, the node inherits the \texttt{verb(\underline{lemma},\underline{tense})} and \texttt{object(\underline{noun},\underline{det},\underline{adj\_or\_adv})} from its children.
 
-For instance, the \textit{verb phrase} ``drank tea" can be captured with the following derivation:
+For instance, the \textit{verb phrase} ``drank tea" can be captured with the following \textit{production rule}:
 
 \begin{displayquote}
 \begin{lstlisting}
@@ -150,9 +153,10 @@ vp -> vbd np {
 \end{lstlisting}
 \end{displayquote}
 
+\noindent
 In order to handle continuous tenses, we introduce the predicate \texttt{comp(\underline{first},\underline{second})}. Without changing the \textit{arity} of our predicate \texttt{verb(\underline{lemma},\underline{tense})}, we can use this to combine two verb \textit{lemmas}, as well as two verb tenses.
 
-For example, the derivation that handles the \textit{verb phrase} ``are eating apples" is the following:
+For example, the \textit{production rule} that handles the \textit{verb phrase} ``are eating apples" is the following:
 
 \begin{displayquote}
 \begin{lstlisting}
@@ -163,7 +167,7 @@ vp -> vbp vbg np {
 \end{lstlisting}
 \end{displayquote}
 
-\subsubsection{Sentences}
+\subsubsection*{Sentences}
 
 In order to join sentences (\texttt{s -> np vp}) together we use what is called an \texttt{s\_group}. Defined recursively, these can either be empty or contain another \texttt{s\_group} followed by a sentence (\texttt{s}) and a full-stop:
 
@@ -174,7 +178,8 @@ s_group -> s_group s ``. " { count(X+1) :- count(X)@1. }
 \end{lstlisting}
 \end{displayquote}
 
-In the way we currently use this general grammar, only a single sentence is allowed per \textit{parse tree} for efficiency reasons, and because it is not necessary. However, if we we were to increase this limit for another application, it could easily be done by changing the first constraint at the root node:
+\noindent
+In the way we currently use this general grammar, only a single sentence is allowed per \textit{parse tree} for efficiency reasons. However, if we we were to increase this limit for another application, it could easily be done by changing the first constraint at the root node (line 2 in the code below):
 
 \begin{displayquote}
 \begin{lstlisting}
@@ -188,7 +193,7 @@ start -> s_group {
 \section{Learning Actions}
 \label{sec:learn_actions}
 
-We first need to convert the pre-processed story's sentences from English into our internal structure. In other words, we need to learn about the \textit{actions} described by the sentences in our story, which can be thought of as high-level semantic descriptors.
+We first convert the pre-processed story's sentences from English into our internal ASG structure. In other words, we learn about the \textit{actions} described by the sentences in our story, which can be thought of as high-level semantic descriptors.
 
 \subsection{Formalisation}
 
@@ -198,9 +203,11 @@ However this is not a learning task in the true sense, as we are only interested
 
 \subsection{Implementation}
 
-\subsubsection{Positive Example}
+In practice, this translation involves taking our general grammar and, on a per-sentence basis (see Subsection \ref{subsec:search_space}), appending to it the sentence's context-specific leaf nodes (given to us by the \textsc{Preprocessor}), a \textit{positive example} (containing the sentence itself), as well as a \textit{mode bias} for learning \textit{actions}.
 
-In practice, what we do is append to the program containing our general grammar the context-specific leaf nodes (given to us by the \textsc{Preprocessor}), as well as a positive example containing our sentence to learn from. For instance, we would add the positive example for the sentence ``they drove a race-car fast.":
+\subsubsection*{Positive Example}
+
+To give a \textit{positive example} to \textsc{SumASG\textsubscript{1}}, we must provide the sentence as a list of \textit{tokens}. For instance, we would use the following \textit{positive example} for the sentence ``they drove a race-car fast.":
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]
@@ -208,10 +215,11 @@ In practice, what we do is append to the program containing our general grammar 
 \end{lstlisting}
 \end{displayquote}
 
-We also need to ensure that the derivation for sentences contains a constraint enforcing that an \texttt{action} be learned when an example is given:
+\noindent
+In order to ensure that this \textit{positive example} contributes to learning a corresponding \textit{action}, we also need to add a constraint to the \textit{production rule} for sentences (\texttt{s -> np vp}). Intuitively, the rule shown in line 2 below says that if we have a sentence (i.e., our \textit{positive example}) which consists of a given \textit{verb}, \textit{subject} and \textit{object}, then we need to learn the matching \textit{action}.
 
 \begin{displayquote}
-\begin{lstlisting}[numbers=none]
+\begin{lstlisting}
 s -> np vp {
   :- not action(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), verb(V_N,V_T)@2, subject(S_N,S_D,S_A)@1, object(O_N,O_D,O_A)@2.
   ...
@@ -219,11 +227,11 @@ s -> np vp {
 \end{lstlisting}
 \end{displayquote}
 
-\subsubsection{Mode Bias}
+\subsubsection*{Mode Bias}
 
-In order guide the learning task, we must also specify a \textit{mode bias} as part of the program for \textsc{SumASG\textsubscript{1}}, which essentially tells ASG the format of the rules which can be learned.
+In order to guide the learning task, we must also specify a \textit{mode bias} as part of the program for \textsc{SumASG\textsubscript{1}}, which essentially tells ASG the format of the rules which can be learned.
 
-Since we are only interested in learning \textit{facts} (rules with an empty \textit{body)}, it is enough to provide \textit{mode bias} rules of the following form (where \texttt{[4]} restricts the learning task to the fourth derivation):
+Since we are only interested in learning \textit{facts} (rules with an empty \textit{body)}, it is enough to provide \textit{mode bias} rules of the following form (where \texttt{[4]} restricts the learning task to the fourth \textit{production rule}):
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]
@@ -231,6 +239,7 @@ Since we are only interested in learning \textit{facts} (rules with an empty \te
 \end{lstlisting}
 \end{displayquote}
 
+\noindent
 For the most basic of sentences (ones where there is no need to use any \texttt{conjunct} or \texttt{comp} predicates), we use this specific rule:
 
 \begin{displayquote}
@@ -239,9 +248,8 @@ For the most basic of sentences (ones where there is no need to use any \texttt{
 \end{lstlisting}
 \end{displayquote}
 
-Such rules require defining ILASP \textit{constants} corresponding to possible \textit{tokens}. To this end, we do so for each word in the \textit{simplified} text.
-
-For the sentence ``they drove a race-car fast.", these would look like this:
+\noindent
+Such rules require defining ILASP \textit{constants} corresponding to possible \textit{tokens}. To this end, we do so for each word in the \textit{simplified} text. For the sentence ``they drove a race-car fast.", these would look like this:
 
 \begin{displayquote}
 \begin{lstlisting}
@@ -254,17 +262,8 @@ For the sentence ``they drove a race-car fast.", these would look like this:
 \end{lstlisting}
 \end{displayquote}
 
-\subsubsection{Running}
-
-Once we have augmented our general grammar with all of this information, it is now possible to run the resulting program with the below command, causing an \textit{action} to be output to the command line. Here we use a \textit{depth} of 7, having found that this is the minimum number necessary to ensure that ASG has access to the lowest possible leaf nodes in the tree.
-
-\begin{displayquote}
-\begin{lstlisting}[numbers=none, escapechar=\%]
-asg action.asg --mode=%\underline{learn}% --depth=7
-\end{lstlisting}
-\end{displayquote}
-
-For the input sentence ``they drove a race-car fast.", the engine returns a new ASG program without the \textit{mode bias}, where the following \textit{action} has been added to the derivation for sentences (\texttt{s -> np vp}):
+\noindent
+After running the full learning task on this example, the ASG engine returns a new program where the following \textit{action} has been added to the \textit{production rule} for sentences (\texttt{s -> np vp}):
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]
@@ -272,26 +271,21 @@ action(verb(drive, past), subject(they, 0, 0), object(race_car, a, fast)).
 \end{lstlisting}
 \end{displayquote}
 
+\noindent
+After doing this for each sentence in the pre-processed story, we end up with at most as many \textit{actions} as there are sentences in this text (those which do not \textit{conform} to our general grammar are ignored).
+
 \subsection{Search Space Reduction}
 \label{subsec:search_space}
 
 The set of rules that a task in ILASP is able to learn, as defined by the \textit{mode bias}, is called the \textit{search space}. The more complex the structure of the rules we can learn, the more of these the engine can generate, and so the larger the \textit{search space}. The more leaf nodes we add, the more combinations of \textit{lemmas} we can create, thereby exponentially growing the \textit{search space}. Since ASG tries to run the program with every single rule in the \textit{search space}, we need to keep this as small as possible.
 
-Throughout the development of \textsc{SumASG\textsubscript{1}}, it was very helpful to view the \textit{search space} via the following command:
-
-\begin{displayquote}
-\begin{lstlisting}[numbers=none, escapechar=\%]
-asg action.asg --mode=%\underline{ss}% --depth=7
-\end{lstlisting}
-\end{displayquote}
-
-\subsubsection{Learning Actions Individually}
+\subsubsection*{Learning Actions Individually}
 
 With this in mind, it is preferable to feed in each sentence separately to \textsc{SumASG\textsubscript{1}}. Although it might seem easier at first to learn them all in one go, doing so individually limits the number of leaf nodes we need to add to the program.
 
 Using this optimization, learning the \textit{actions} from the \textit{simplified} and \textit{homogenized} story of Peter Little takes just a few minutes, rather than many hours.
 
-\subsubsection{Cutting Out Rules}
+\subsubsection*{Cutting Out Rules}
 
 We have also created a number of \textit{mode bias} rules which eliminate impossible or extremely improbable sentences. With this optimization, we have been able to take the search space size for a simple sentence down from 396 to 16, and from 9477 to 1044 for a more complicated one (i.e., one with more leaf nodes).
 
@@ -303,6 +297,7 @@ For example, the following rule says that we cannot have an \textit{action} wher
 \end{lstlisting}
 \end{displayquote}
 
+\noindent
 Additionally, a number of extraneous rules can appear in the \textit{search space} when we allow for continuous verbs. Continuous verbs are made up of a \textit{main verb} and an \textit{auxiliary verb}. What can happen is that the \textit{search space} contains rules where the \textit{main verb} is never used as such in English (normally always the verb ``to be").
 
 To get around this issue, we enforce that all potential \textit{main verbs} already appear in this form in the input story sentence; the same can be said regarding \textit{auxiliary verbs}. Practically, this means adding \textit{constants} to the program for each \textit{main verb} and \textit{auxiliary verb} appearing in the input.
@@ -318,6 +313,7 @@ For instance, the phrase ``are eating" would require the following \textit{const
 \end{lstlisting}
 \end{displayquote}
 
+\noindent
 Without the optimization, we would end up with a \textit{search space} size of 176 for the sentence ``they are eating apples". We are able to reduce this number to 20 thanks to a \textit{mode bias} that enforces learned continuous verbs to be exactly as they appear in the \textit{simplified} and \textit{homogenized} story:
 
 \begin{displayquote}
@@ -326,24 +322,29 @@ Without the optimization, we would end up with a \textit{search space} size of 1
 \end{lstlisting}
 \end{displayquote} 
 
+\noindent
 Another way to solve this would have been to add a \textit{mode bias} constraint ruling out cases where both verbs in a continuous form are the same. However, we would usually end up with a \textit{search space} at least as large, since any verb could appear in continuous form. Also, we would have to handle the edge case where both verbs are ``to be", as ``is being" is a perfectly acceptable phrase in English.
 
 \section{Generating Summary Sentences}
 \label{sec:gen_summary_sentences}
 
+The second part of \textsc{SumASG} deals with generating summary sentences using the \textit{actions} that were learned from the story in the previous step.
+
 \subsection{Formalisation}
 
-We formalise the task of generating a \textit{summary sentence} as \textsc{SumASG\textsubscript{2}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes for the original story (\textsc{BK}), and a set of learned \textit{actions}, (\textsc{E}), its goal is to return a set of user-readable sentences which may be used to summarize the text.
+We formalise the task of generating a \textit{summary sentence} as \textsc{SumASG\textsubscript{2}(\underline{CFG},\underline{BK},\underline{E})}. Given our general grammar (\textsc{CFG}), a set of context-specific leaf nodes for the original story (\textsc{BK}), and a set of learned \textit{actions}, (\textsc{E}), its goal is to return a set of English sentences which may be used to summarize the text.
 
 \subsection{Implementation}
 
-\subsubsection{Learned Actions}
+In practice, this involves gathering all of the story-specific leaf nodes and learned \textit{actions} from \textsc{SumASG\textsubscript{1}}, adding these to our general grammar, and then using a set of summary generation rules to create summary sentences.
+
+\subsubsection*{Learned Actions}
 
 In order to keep the story's chronological ordering, we assign indices to the learned \textit{actions}, inserting this information directly into the \texttt{action} predicates as an additional first argument.
 
-We then put all of these augmented \textit{actions} as rules inside the derivation for sentences (\texttt{s -> np vp}) in our general grammar. 
+We then put all of these augmented \textit{actions} as rules inside the \textit{production rule} for sentences (\texttt{s -> np vp}) in our general grammar. 
 
-\subsubsection{Summary Generation Rules And Constraints}
+\subsubsection*{Summary Generation Rules And Constraints}
 
 A \textit{summary sentence} should have the same structure as a sentence from the story, so we can define the predicate \texttt{summary} in the same way as we did for \textit{actions}.
 
@@ -357,7 +358,8 @@ summary(0, V, S, O) :- action(_, V, S, O).
 \end{lstlisting}
 \end{displayquote}
 
-We create much more complex rules, allowing us to combine information from two \textit{actions} into a single \textit{summary sentence}. In the case where we have two \textit{actions} that share a common \textit{subject} and \textit{verb}, we define a rule that combines these into a single \textit{summary sentence}, preserving the order in which these \textit{objects} appear originally:
+\noindent
+We also have more complex rules, allowing us to combine information from multiple \textit{actions} into a single \textit{summary sentence}. In the case where we have two \textit{actions} that share a common \textit{subject} and \textit{verb}, we define a rule that combines these into a single \textit{summary sentence}, preserving the order in which these \textit{objects} appear originally:
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]
@@ -365,7 +367,8 @@ summary(7, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,D,_)
 \end{lstlisting}
 \end{displayquote}
 
-After having defined a suite of such summarization rules, we now need to apply them using our general grammar. To this end, we add to the derivation for sentences (\texttt{s -> np vp}) a \textit{choice rule}, enforcing with the predicate \texttt{output} that the program must output every derivable \textit{summary sentence} exactly once. Using constraints, an \texttt{s} node can require that its children contain the required information.
+\noindent
+After having defined a suite of such summarization rules, we now need to apply them using our general grammar. To this end, we add to the \textit{production rule} for sentences (\texttt{s -> np vp}) a \textit{choice rule}, enforcing with the predicate \texttt{output} that the program must output every derivable \textit{summary sentence} exactly once. Using constraints, we say that for each \texttt{output} (\textit{summary sentence}), the child nodes of a sentence (\texttt{s}) must contain the \textit{verb}, \textit{subject} and \textit{object} corresponding to the given \texttt{ouput}:
 
 \begin{displayquote}
 \begin{lstlisting}
@@ -378,19 +381,13 @@ After having defined a suite of such summarization rules, we now need to apply t
 \end{lstlisting}
 \end{displayquote}
 
-\subsubsection{Running}
-
-Once we have augmented the fourth rule of our general grammar (\texttt{s -> np vp}) with the learned \textit{actions} and our set of summary generation rules and constraints, we now generate all the possible \textit{summary sentences} with the below command:
-
-\begin{displayquote}
-\begin{lstlisting}[numbers=none, escapechar=\%]
-asg summary.asg --mode=%\underline{run}% --depth=7
-\end{lstlisting}
-\end{displayquote}
+\noindent
+Once we have augmented the \textit{production rule} for sentences in our general grammar (\texttt{s -> np vp}) with the learned \textit{actions} and our set of summary generation rules and constraints, we use to ASG engine to output all strings \textit{conforming} to this augmented grammar. These strings correspond exactly to the possible \textit{summary sentences} as written in English, which is what we use as the output for \textsc{SumASG\textsubscript{2}}.
 
 \section{Example}
+\label{sec:asg_example}
 
-Figure \ref{fig:sumasg_example} shows the different steps of running \textsc{SumASG} on the \textit{simplified} and \textit{homogenized} story of Peter Little, along with a breakdown of the runtime.
+Now that we have discussed how \textsc{SumASG} works, we can show the results of running it on the pre-processed story of Peter Little. Figure \ref{fig:sumasg_example} shows the respective outputs of \textsc{SumASG\textsubscript{1}} and \textsc{SumASG\textsubscript{2}}, as well as a breakdown of the runtime.
 
 After passing in each sentence individually to \textsc{SumASG\textsubscript{1}}, we end up with a list of \textit{actions}, which is essentially the original story translated into our internal representation.
 
@@ -399,7 +396,7 @@ From these \textit{actions} we apply \textsc{SumASG\textsubscript{2}}, generatin
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-\begin{lstlisting}[language=]
+\begin{lstlisting}
 action(0, verb(be, past), subject(there, 0, 0), object(boy, a, conjunct(curious, little))).
 action(1, verb(comp(be, name), comp(past, past_part)), subject(boy, the, conjunct(curious, little)), object(peterlittle, 0, 0)).
 action(2, verb(be, past), subject(peterlittle, 0, 0), object(astronomy, in, curious)).
