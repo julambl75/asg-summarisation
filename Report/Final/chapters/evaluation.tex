@@ -1,20 +1,20 @@
 \label{chapter:evaluation}
 
+We present in this chapter the validation and evaluation of our approach, which involve comparing \textsc{SumASG*} to an \textit{encoder-decoder}. After explaining the reasoning behind this comparison (Section \ref{sec:evaluation_general_idea}), we present the training data that are used for validation (Section \ref{sec:story_generation}) and how our neural network performs on them (Section \ref{sec:validation}). We then carry out two evaluation experiments (Section \ref{sec:evaluation_experiments}) and finish by giving an overview of what we have learned (Section \ref{sec:evaluation_takeaways}).
+
 \section{General Idea}
+\label{sec:evaluation_general_idea}
 
-As the vast majority of modern text summarization frameworks are based on machine learning, it makes sense to evaluate \textsc{SumASG*} against a neural network.
+As the vast majority of modern text summarization frameworks are based on Machine Learning, it makes sense to evaluate \textsc{SumASG*} against a neural network. There exist a number of text summarization corpora, such as the \textbf{CNN / Daily Mail dataset}\footnote{The CNN / Daily Mail dataset consists of around 300,000 news articles and their corresponding multi-sentence summaries; these have been used to train state-of-the-art text summarization models, which were evaluated using metrics such as ROUGE and METEOR: \url{http://nlpprogress.com/english/summarization.html}}. However, we cannot use one of these datasets with \textsc{SumASG*} as it is unfortunately not general enough to be able to parse such complicated text.
 
-More specifically, we should generate a set of stories which we can give to our framework in order to obtain corresponding summaries. We then use this as training data for an \textit{encoder-decoder}, to see if it is able to learn how \textsc{SumASG*} creates summaries.
+In order to validate our approach, we have built a generative model which creates stories that our system is capable of summarizing. Using \textsc{SumASG*}, we generate summaries corresponding to these stories, and use this as training data for an \textit{encoder-decoder}. If the neural network is able to learn how to generate these summaries, then we can consider our framework and the summarization rules it uses to be sound.
 
-If the neural network is able to learn how to generate these summaries, then we can consider our framework and the summarization rules it uses to be sane.
+To evaluate our approach, we then use this generated dataset as a starting point to check both the \textit{encoder-decoder} and \textsc{SumASG*} for robustness to small perturbations in the input, as well as their ability to detect invalid input.
 
 \section{Story Generation}
+\label{sec:story_generation}
 
-To give a more generalized representation of what \textsc{SumASG*} can do, we shall create two different types of stories: those with \textit{conjunctive summaries}, and those with \textit{descriptive summaries}.
-
-For this task, we have chosen to use \textbf{Pattern}\footnoteref{footnote:pattern}, as well as the \textbf{Datamuse API}\footnote{Datamuse is a lexical knowledge engine which can be used to find words that are semantically related to a given word in a certain way: \url{https://www.datamuse.com/api/}}.
-
-In this section, we go more into depth about these two types of randomly-generated stories, and discuss how they are created.
+To give a more generalized representation of what \textsc{SumASG*} can do, we shall create two different types of stories: those with \textit{conjunctive summaries}, and those with \textit{descriptive summaries}. In this section, we go more into depth about these two types of randomly-generated stories, and discuss how they are created.
 
 \subsection{Datasets}
 
@@ -22,15 +22,11 @@ In order to generate the required number of stories, we have used words from \te
 
 For each story we chose a noun from our dataset, which we shall refer to as the \textit{topic}. We will later construct sentences that revolve around this \textit{topic}.
 
-In addition, we query from the \textbf{Datamuse API} for what we call a \textit{lexical verb}, i.e. one that is related to the story's \textit{topic}. If one cannot be found, then we default to the verb ``to be".
+In addition, we query from the \textbf{Datamuse API}\footnote{Datamuse is a lexical knowledge engine which can be used to find words that are semantically related to a given word in a certain way: \url{https://www.datamuse.com/api/}} for what we call a \textit{lexical verb}, i.e. one that is related to the story's \textit{topic}. If one cannot be found, then we default to the verb ``to be".
 
 \subsection{Main Sentence Generation}
 
-We will begin by detailing how what we call \textit{main sentences} are generated, starting with a few necessary definitions. Throughout this section, it is important to keep in mind that the goal here is to create a story that is as lexically and semantically coherent as possible, which is tricky to do algorithmically.
-
-It is important to note that all \textit{main sentences} for the same story share a common \textit{subject} and \textit{verb}.
-
-\subsubsection{Definitions}
+We will begin by detailing how what we call \textit{main sentences} are generated, starting with a few necessary definitions. Throughout this section, it is important to keep in mind that the goal here is to create a story that is as lexically and semantically coherent as possible, which is tricky to do algorithmically. It is important to note that all \textit{main sentences} for the same story share a common \textit{subject} and \textit{verb}.
 
 \begin{definition}[Holonym]
 A \textit{holonym} of something is one of its constituents; ``lightbulb" is a \textit{holonym} of ``lamp".
@@ -40,51 +36,40 @@ A \textit{holonym} of something is one of its constituents; ``lightbulb" is a \t
 A \textit{meronym} is an object which something is part of; ``house" is a \textit{meronym} of ``kitchen".
 \end{definition}
 
-\subsubsection{Subject}
+\noindent
+For the \textit{subject} of a \textit{main sentence}, we use the story's \textit{topic}. This being a singular noun, we need to add a determiner, which can be ``the" or ``a". We also ask the \textbf{Datamuse API} to find us an adjective which is often modified by the chosen \textit{subject} noun, and is part of our dataset of words. If none are found, then we do not need to use an adjective.
 
-For the \textit{subject} of a \textit{main sentence}, we use the story's \textit{topic}. This being a singular noun, we need to add a determiner, which can be ``the" or ``a".
+Here we use the \textit{lexical verb}, conjugating it in the past tense using \textbf{Pattern}\footnoteref{footnote:pattern} so that it agrees with the sentence's \textit{subject}.
 
-We also ask the \textbf{Datamuse API} to find us an adjective which is often modified by the chosen \textit{subject} noun, and is part of our dataset of words. If none are found, then we do not need to use an adjective.
+For the \textit{object} of our sentence, we look at the story's \textit{topic} and \textit{lexical verb}. Using the \textbf{Datamuse API} we try and find a noun which often appears right after this verb, and which is related to all of the nouns we have used thus far in the story. With 50\% probability we ask it to be a \textit{holonym} of the \textit{topic}, otherwise it should be a \textit{meronym}. In the same way as we did for the \textit{subject}, we try and find an adjective often modified by the chosen noun. Sometimes it will be the case that no noun was found, but it is fine in English to have an adjective as the only word in the \textit{object}. The determiner is added as for the \textit{subject}; if there is no noun we do not use one.
 
-\subsubsection{Verb}
-
-Here we use the \textit{lexical verb}, conjugating it in the past tense so that it agrees with the sentence's \textit{subject}.
-
-\subsubsection{Object}
-
-For the \textit{object} of our sentence, we look at the story's \textit{topic} and \textit{lexical verb}. Using the \textbf{Datamuse API} we try and find a noun which often appears right after this verb, and which is related to all of the nouns we have used thus far in the story. With 50\% probability we ask it to be a \textit{holonym} of the \textit{topic}, otherwise it should be a \textit{meronym}.
-
-In the same way as we did for the \textit{subject}, we try and find an adjective often modified by the chosen noun. Sometimes it will be the case that no noun was found, but it is possible in English to have an adjective as the only word in the \textit{object}.
-
-The determiner is added as for the \textit{subject}; if there is no noun we do not use one.
-
-\subsubsection{Example}
+\subsubsection*{Example}
 
 We take the example of generating a sentence for a story whose \textit{topic} is ``football". In this case, we have two choices for our \textit{lexical verb}: ``to match" and ``to pitch".
 
-For the \textit{subject}, we use the \textit{topic} ``football"; an adjective commonly used to modify it is ``professional". In this case, we use the determiner ``a".
+For the \textit{subject}, we use the \textit{topic} ``football" with the determiner ``a"; an adjective commonly used to modify this word is ``professional". We then conjugate the verb ``to pitch" in the past tense, which becomes ``pitched". For the \textit{object}, we take into account our \textit{topic} ``football" to find a \textit{holonym} of this word which often appears after the \textit{verb} ``pitched". In this case the \textbf{Datamuse API} returns the word ``reception", resulting in the adjective ``warm" being chosen to accompany it.
 
-We then conjugate the verb ``to pitch" in the past tense, which becomes ``pitched".
+The resulting \textit{main sentence} can be seen in Figure \ref{fig:main_sentences_example}, along with a second \textit{main sentence} that has been generated for the same story.
 
-For the \textit{object}, we take into account our \textit{topic} ``football" to find a \textit{holonym} of this word which often appears after the \textit{verb} ``pitched". In this case the \textbf{Datamuse API} returns the word ``reception", resulting in the adjective ``warm" being chosen to accompany it.
-
-As a result, we end up with the following \textit{main sentence}:
-
+\begin{figure}[H]
+\begin{subfigure}{\textwidth}
 \begin{displayquote}
-A professional football pitched the warm reception.
-\end{displayquote}
-
-If we were to generate an additional \textit{main sentence} for the same story, it could look like this:
-
-\begin{displayquote}
+A professional football pitched the warm reception. \\
 A professional football pitched a place.
 \end{displayquote}
+\end{subfigure}
+\caption{\textit{Main sentences} generated for a story with \textit{topic} ``football" and \textit{lexical verb} ``to pitch"}
+\label{fig:main_sentences_example}
+\end{figure}
+
+\noindent
+As has already been mentioned, generating a coherent and meaningful text is a very difficult problem for computers. This explains why the \textit{main sentences} shown in Figure \ref{fig:main_sentences_example} do not make much sense from a human perspective. However, they are both grammatically-correct, as well as highly suitable for the task of summarization, which is what we are looking for in this experiment.
 
 \subsection{Conjunctive Summaries}
 
-Stories of this type consist of three \textit{main sentences}. Because of the way in which we have implemented the summarization rules in \textsc{SumASG}, one of the sentences in the corresponding summary should be a combination of two of the input story's sentences. That is to say, its \textit{object} should consist of these two sentences' \textit{objects}, joined together using the conjunction ``and". An example is shown in Figure \ref{fig:conjunctive_summary_example}.
+Stories with \textit{conjunctive summaries} consist of three \textit{main sentences}. Because of the way in which we have implemented the summarization rules in \textsc{SumASG}, one of the sentences in the corresponding summary should be a combination of two of the input story's sentences. That is to say, its \textit{object} should consist of these two sentences' \textit{objects}, joined using the conjunction ``and". An example is shown in Figure \ref{fig:conjunctive_summary_example}.
 
-\begin{figure}[H]\
+\begin{figure}[H]
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
 The publication printed a lightning. The publication printed a movement. The publication printed the stereotype.
@@ -104,13 +89,13 @@ The publication printed a lightning \textbf{and} a movement. The publication pri
 
 \subsection{Descriptive Summaries}
 
-In contrast, this type of story consists of a single \textit{main sentence}, one which \textit{does} contain an adjective in the \textit{object} position.
+In contrast, stories with a \textit{descriptive summary} consist of a single \textit{main sentence}, one which \textit{does} contain an adjective in the \textit{object} position.
 
 We use the second of its two sentences to expand on the first. To be more precise, the \textit{object} of this sentence is the same as in the first, apart from the fact that we assign an adjective as is done for typical \textit{main sentences}. However the \textit{subject} here is the preposition ``it", while the \textit{verb} is the verb ``to be" conjugated in the past tense.
 
 The idea for a \textit{descriptive summary} is that it will be identical to the first sentence of its corresponding story, but augmented with the adjective coming from the second sentence, as illustrated in Figure \ref{fig:descriptive_summary_example}.
 
-\begin{figure}[H]\
+\begin{figure}[H]
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
 The heavy traffic transported the birthday. It was the isolated birthday.
@@ -128,17 +113,16 @@ The heavy traffic transported the isolated birthday.
 \label{fig:descriptive_summary_example}
 \end{figure}
 
-\subsection{Action Creation}
-
-Using a Python script, we generate the corresponding \textit{actions} as would \textsc{SumASG\textsubscript{1}}, creating the necessary additional leaf nodes for our general grammar in ASG. We do not use \textsc{SumASG\textsubscript{1}} to do this mainly for performance reasons, but also as it is not necessary. Because of the way in which we have created our stories, \textit{simplification} would not change the sentence structure whatsoever.
-
 \subsection{Summary Generation}
 
-For each story, we feed the generated \textit{actions} and leaf nodes directly into \textsc{SumASG\textsubscript{2}}, skipping the first half of the \textsc{SumASG*} pipeline. After \textit{scoring}, we pick an entry at random from the \textit{top summaries}.
+Using a Python script, we generate the corresponding \textit{actions} as would \textsc{SumASG\textsubscript{1}}, creating the necessary additional leaf nodes for our general grammar in ASG. We do not use \textsc{SumASG\textsubscript{1}} to do this mainly for performance reasons, but also because we can consistently produce the same \textit{actions} as \textsc{SumASG\textsubscript{1}} programmatically with the chosen sentence structure. Also, because of the way in which we have created our stories, \textit{simplification} in the \textsc{Preprocessor} would not change anything whatsoever.
 
-\section{Neural Network}
+To generate a summary for this experiment, we take a story and feed the corresponding \textit{actions} and leaf nodes directly into \textsc{SumASG\textsubscript{2}}, skipping the first half of the \textsc{SumASG*} pipeline. After \textit{scoring}, we pick an entry at random from the \textit{top summaries}.
 
-Using the mechanism described above, we generate 4,000 story/summary pairs: 3,582 to be used for training, 398 for validation and 20 for testing.
+\section{Validation}
+\label{sec:validation}
+
+Using the mechanism described in Section \ref{sec:story_generation}, we generate for our \textit{encoder-decoder} 4,000 story/summary pairs: 3,582 to be used for training, 398 for validation and 20 for testing.
 
 To allow for greater flexibility, we have chosen to use \textbf{OpenNMT-py}\footnote{OpenNMT-py is a highly versatile open-source framework for performing Neural Machine Translation: \url{https://github.com/OpenNMT/OpenNMT-py}} to train our neural network. In addition, we preprocess the data using \textbf{GloVe}\footnote{GloVe is a Machine Learning model consisting of pre-trained word embeddings: \url{https://nlp.stanford.edu/projects/glove/}}, giving our network a head start when it comes to semantics.
 
@@ -146,9 +130,7 @@ Our \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of s
 
 The neural network was trained using an Adam optimizer with a \textit{learning rate} of 0.001 and \textit{batch size} of 25. In order to preserve the GloVe word embeddings across training, we fix them at the start and use them in both the \textit{encoder} and \textit{decoder}.
 
-Training was done over a period of 10,000 steps (i.e., 200 epochs), validating every 10 epochs. Using \textbf{Google Colaboratory}\footnote{Google Colaboratory is an online tool for creating Python notebooks, providing free access to GPUs: \url{https://colab.research.google.com/}} this took a total of 5 minutes and 30 seconds.
-
-The final training and validation accuracies are respectively 99.83\% and 92.07\%. The changes in accuracy and validation during training can be seen in Table \ref{table:training_metrics}.
+Training was done over a period of 10,000 steps (i.e., 200 epochs), validating every 10 epochs. Using \textbf{Google Colaboratory}\footnote{Google Colaboratory is an online tool for creating Python notebooks, providing free access to GPUs: \url{https://colab.research.google.com/}} this took a total of 5 minutes and 30 seconds. The final training and validation accuracies are respectively 99.83\% and 92.07\%, as shown in Table \ref{table:training_metrics}.
 
 \begin{table}[H]
 \centering
@@ -167,13 +149,17 @@ Test perplexity & -   & -   & -    & -    & 2.05    \\ \bottomrule
 
 \subsection*{Discussion}
 
-Although it appears that the \textit{encoder-decoder} was not fully able to learn the rules used by \textsc{SumASG}, part of the discrepancy in final validation accuracy is due to the use of semantically close words in the summaries, as we have used pre-trained embeddings and fixed their representation. This is not too problematic, as it would be worse to have a semantically-unrelated word in our generated summary.
+Unsurprisingly, our \textit{encoder-decoder} was able to mostly learn this hard-coded summarization task, as confirmed by the numbers in Table \ref{table:training_metrics}. This is because neural networks have a much more general scope than \textsc{SumASG*}.
+
+However, it appears that it was not able to fully learn the rules used by \textsc{SumASG}, as the final validation and test perplexities are a little high ($> 2$).
+
+Part of this discrepancy is due to the use of slightly different words in the predicted summaries. Upon further inspection, the words that differ have very close meanings; this is because we have used pre-trained embeddings and fixed their representation. It is not too problematic though, as it would be much worse to have a semantically-unrelated word in one of our predicted summaries.
 
 Another reason for this discrepancy is the fact that multiple \textit{conjunctive summaries} can be generated from the same story, depending on which words are chosen to be put together.
 
 An example of a predicted summary which highlights both of these discrepancies is shown in Figure \ref{fig:discrepancy_example}.
 
-\begin{figure}[H]\
+\begin{figure}[H]
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
 A new approach attacked the \underline{lesson}. A new approach attacked the \underline{counseling}. A new approach attacked the \underline{league}.
@@ -194,11 +180,18 @@ A new approach attacked the \underline{lesson} \textbf{and} the \underline{leagu
 \end{displayquote}
 \caption{Predicted summary}
 \end{subfigure}
-\caption{Example of a story whose predicted summary is different from the expected summary}
+\caption{Example of a story whose predicted summary is different from the expected summary, but with very close semantics}
 \label{fig:discrepancy_example}
 \end{figure}
 
+\section{Evaluation Experiments}
+\label{sec:evaluation_experiments}
+
+%- evaluation (robustness): try perturbation that would make NN fail but SumASG* work (totally normal, show our system robust, NN probably less consistent than SumASG*)
+%- evaluation (validity): try gibberish with NN and SumASG*
+
 \section{Takeaways}
+\label{sec:evaluation_takeaways}
 
 To sum up what we have learned from this experiment, we use a table to outline the main differences between our approach and using a neural network, as shown in Table \ref{table:takeaways}.
 

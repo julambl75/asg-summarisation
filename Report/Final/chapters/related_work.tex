@@ -15,6 +15,7 @@ In CCG, every word, written in English in its \textit{phonological form}, is ass
 \label{fig:ccg_forms}
 \end{figure}
 
+\noindent
 In the \textit{syntactic type} of a word, the forward slash / indicates forward application to combine terms, while \textbackslash \ indicates backward combination. If there is no slash, then the expression can be thought of as a clause, and it can combine with any rule.
 
 \begin{itemize}[nolistsep]
@@ -24,6 +25,7 @@ In the \textit{syntactic type} of a word, the forward slash / indicates forward 
 
 \mbox{}
 
+\noindent
 There also exists a \textit{morphological slash} \textbackslash\textbackslash, which restricts application to lexical verbs, ruling out auxiliary verbs (whose role is purely grammatically, hence they do not play any part in providing information). The \textit{morphological slash} can be used when dealing with reflexive pronouns such as ``themselves". Furthermore, combining rules directly correlates to obtaining a simpler \textit{logical form} with fewer bound variables, as can be seen in Figure \ref{fig:ccg_derivations}.
 
 \begin{figure}[H]
@@ -42,7 +44,8 @@ There also exists a \textit{morphological slash} \textbackslash\textbackslash, w
 \label{fig:ccg_derivations}
 \end{figure}
 
-There exist more advanced syntactic rules in CCG, which we shall not go into detail about for the purposes of brevity. However with the basic rules that we explained, it is easy to see how this parsing mechanism could be an efficient way to get to the underlying semantics of a sentence. Although the \textit{syntactic type} may seem complicated, it allows for a very precise understanding of English grammar, as well as giving a simple and consistent \textit{logical form} at the end.
+\noindent
+There are more advanced syntactic rules in CCG, which we shall not go into detail about for the purposes of brevity. However with the basic rules that we explained, it is easy to see how this parsing mechanism could be an efficient way to get to the underlying semantics of a sentence. Although the \textit{syntactic type} may seem complicated, it allows for a very precise understanding of English grammar, as well as giving a simple and consistent \textit{logical form} at the end.
 
 \section{Existing Text Summarization Approaches}
 
@@ -84,6 +87,7 @@ Finally, step (4) uses the \textit{text relationship map} to pick out the most i
 \label{fig:lsa_trm_diagrams}
 \end{figure}
 
+\noindent
 \textit{Compression rate} (CR) is a proportion describing the size of the summary with respect to the size of the original text.
 
 After evaluating both approaches on a news article corpus, it was found that MCBA outperforms the basic CBA by around 3\%, confirming the hypothesis that the position of a sentence plays a role in its importance. Furthermore, MCBA+GA performs around 10\% better than MCBA.
@@ -108,6 +112,7 @@ In order to create such a chain, the algorithm begins by choosing a set of \text
 \textbf{Mr.} Kenny is the \textbf{person} that invented an anesthetic \textbf{machine} which uses \textbf{micro-computers} to control the rate at which an anesthetic is pumped into the blood. Such \textbf{machines} are nothing new. But his \textbf{device} uses two \textbf{micro-computers} to achieve much closer monitoring of the \textbf{pump} feeding the anesthetic into the patient. \cite{barzilay_using_1997}
 \end{displayquote}
 
+\noindent
 Furthermore, \textit{lexical chains} are attributed a \textit{strength}, which is based on three criteria: repetition (of the same word), density (the concentration of chain members in a given portion of the text) and length (of the chain). For instance, the \textit{lexical chain} beginning with the word ``machine" shown in Figure \ref{fig:lexical_chain_example} (\underline{interpretation 1}) has considerable repetition, moderate density, and is quite long (it spans almost the entire text).
 
 Based on this indicator, interpretations of a \textit{lexical chain} with higher \textit{strength} will be preferred. (In reality this is a bit more complex, but we will omit the details for simplicity.)
@@ -126,6 +131,7 @@ Based on this indicator, interpretations of a \textit{lexical chain} with higher
 \label{fig:lexical_chain_example}
 \end{figure}
 
+\noindent
 In order to construct the summary, a single ``important" sentence is extracted from the original text. To this end, they use a heuristic which is based on the fact that an important topic will discussed across the entire passage. Once a \textit{lexical chain} has been chosen according to this metric (i.e., one that is well distributed across the text), the output of the algorithm is the sentence which has the highest number of words from the selected \textit{lexical chain}.
 
 \mbox{}
@@ -201,6 +207,7 @@ If the user wants a shorter or longer summary, the system can simply return the 
 \label{fig:statistics_example}
 \end{figure}
 
+\noindent
 In their testing it was found that their algorithm has a conservative nature, promoting correctness over brevity, which sometimes has the consequence of not trimming any words away. We learn from this approach the notion of a \textit{shared-forest} structure, as well as the use of Bayesian probability theory.
 
 \subsection{Frame}
@@ -222,6 +229,7 @@ By combining sequences of \textit{affect links} (transitions) between \textit{af
 \label{fig:frame_example}
 \end{figure}
 
+\noindent
 While this approach is interesting from a semantic point of view, it can easily become very complicated when many sentences are involved. In addition, it would not be suitable for purely descriptive texts, involving only continuous actions without any direct link (``It was October. Leaves were falling from the trees.").
 
 \subsection{Symbolic}
