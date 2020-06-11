@@ -1,5 +1,7 @@
 \label{chapter:postprocessing}
 
+We present in this chapter the final part of our pipeline, which involves taking the output of \textsc{SumASG} to create summaries (Section \ref{sec:summary_creation}), assigning to each one a score (Section \ref{sec:scoring}), and then picking out the best ones (Section \ref{sec:summary_selection}). We then illustrate these steps using the example of the story of Peter Little (Section \ref{sec:postprocess_example}).
+
 \section{Overview}
 
 Once we have obtained potential sentences from ASG to be used in a summary, we now post-process these as explained in Section \ref{sec:summary_creation}. By combining them in different ways, we are able to form summaries. From these, we will retain the highest scoring ones, according to the metric detailed in Section \ref{sec:scoring}. A diagram illustrating these steps is shown below in Figure \ref{fig:postprocess_pipeline}.
@@ -48,21 +50,17 @@ Once we have obtained potential sentences from ASG to be used in a summary, we n
 \section{Summary Creation}
 \label{sec:summary_creation}
 
-The output of \textsc{SumASG} is a list of sentences, each of which could potentially appear in the final summary.
+The output of \textsc{SumASG} is a list of sentences, each of which could potentially appear in the final summary. However before we start concatenating them together to form summaries, we should first post-process them to undo some of the simplifications made by the \textsc{Preprocessor} and ensure that they are grammatically-correct.
 
 \subsection{Post-Processing}
 
-\subsubsection{Grammar}
-
-Because \textsc{SumASG} uses the same capitalization for a given word regardless of its position in the sentence, it means that the first word of each sentence will not be capitalized unless it is a proper noun. We therefore need to fix this, as well as remove the space before each full stop.
+Because \textsc{SumASG} uses the same capitalisation for a given word regardless of its position in the sentence, it means that the first word of each sentence will not be capitalised unless it is a proper noun. We therefore need to fix this, as well as remove the space before each full stop.
 
 Compound nouns, whose hyphen was replaced with an underscore for the internal representation of \textsc{SumASG}, also need to be restored to their grammatically-correct form.
 
 In addition, the task of summarization might have created a sentence where an incorrect verb form is used, or possibly the wrong determiner. To amend this we use a tool called \textbf{language-check}\footnote{language-check is Python package that is able to find grammatical errors: \url{https://pypi.org/project/language-check/}}, which is able to correct phrases like ``they has an dog" to ``they have a dog".
 
-\subsubsection{Complex Nouns}
-
-One of the optimizations done by the \textsc{Preprocessor} was to combine complex nouns such as ``Peter Little" into their camel-case form ``PeterLittle", so that they would be recognized as a single \textit{token} by \textsc{SumASG}. We now need to expand them back to their original form, as this is how it should be written in English.
+Moreover, one of the optimizations done by the \textsc{Preprocessor} was to combine complex nouns such as ``Peter Little" into their camel-case form ``PeterLittle", so that they would be recognized as a single \textit{token} by \textsc{SumASG}. We now need to expand them back to their original form, which is how they should appear in English.
 
 \subsection{Combining}
 
@@ -79,12 +77,13 @@ Summary length & 1   & 2   & 3  \\ \bottomrule
 \label{tab:summary_length}
 \end{table}
 
+\noindent
 Once we have grammatically-correct summary sentences and know how many should be kept for the summary (say $n$), we generate all possible order-preserving combinations of length $n$. For instance, such combinations of length 3 for the list $[0,1,2,3]$ would be the following: $[0,1,2]$, $[0,2,3]$ and $[1,2,3]$.
 
 \section{Scoring}
 \label{sec:scoring}
 
-Because we often end up with a large number of combinations at this phase, we need to determine which of them are best and keep only these.
+Because we often end up with a large number of combinations at this phase, we need to determine which of these are preferred.
 
 \subsection{Type-Token Ratio}
 
@@ -92,7 +91,7 @@ To this end, we utilize an NLP metric called type-token ratio (TTR), a measure o
 
 To calculate a summary's TTR, we divide the number of unique words in the summary by the total number of words. We then divide this by number of unique words in the story and multiply it by a constant, in order to get a more consistent range for our scores.
 
-\subsubsection{Ignored Words}
+\subsubsection*{Ignored Words}
 
 However, we do not want to neglect summaries using the same determiner, proper noun, or the verb ``to be" multiple times, as these are extremely common in English.
 
@@ -135,6 +134,8 @@ Jonathan was a little boy. He was hungry. Jonathan was eating an apple.
 \section{Summary Selection}
 \label{sec:summary_selection}
 
+Now that we have assigned a score to each generated summary, we should prioritise those which start with an introduction of the main character, and also get rid of suboptimal summaries. In addition, we should have a way to ensure that the summaries our framework prefers are indeed good-quality.
+
 \subsection{Proper Nouns}
 
 If a story revolves around a given person and the summary mentions their name, it is preferable for this to be in the first sentence. To put this more clearly, we would like the summary of a biography to introduce the protagonist from the very first sentence. To achieve this, we simply increase the score of every summary starting with a proper noun by a constant.
@@ -143,24 +144,52 @@ If a story revolves around a given person and the summary mentions their name, i
 
 With a more complex story (5 or more sentences), it is highly likely that we will end up with a very long list of possible summaries. As there could be a number of very interesting summaries, we do not want to have to choose exactly one.
 
-Instead, we compute 75th percentile over the scores of all generated summaries, and then discard all those whose score falls below this number. We shall call the remaining summaries \textit{top summaries}.
+Instead, we compute the 75th percentile over the scores of all generated summaries (giving us the value below which 75\% of all scores fall), and then discard all those whose score falls below. We shall call the remaining summaries \textit{top summaries}.
 
 \subsection{Reference Summaries}
 
 Finally, we want to be sure that our framework generates good summaries, and that the scoring works as intended. Therefore, if a story has a \textit{reference summary}, then we should make sure that there exists a similar \textit{top summary}.
 
-In our implementation, we have chosen to use the BLEU score, which measures how closely the output given by a machine matches a text written by a human. If there exists a \textit{top summary} whose BLEU score with one of the \textit{references} is above a certain threshold, then we consider the summarization to be successful.
+If there exists a \textit{top summary} whose BLEU score with one of the \textit{references} is above a certain threshold, then we consider the summarization to be successful.
 
 \section{Example}
 \label{sec:postprocess_example}
 
-An example is shown in Figure \ref{fig:postprocess_score_example} for the story of Peter Little.
+To illustrate how this works for the story of Peter Little, we have outlined the steps of \textit{post-processing} and \textit{scoring} in Figure \ref{fig:postprocess_score_example}. We have also repeated the \textit{reference summaries} for this story in Figure \ref{fig:peter_little_reference_summaries}, and the output of \textsc{SumASG} in Figure \ref{fig:peter_little_summary_sentences}.
 
-The first step is to fix the grammar in the \textit{summary sentences} generated by \textsc{SumASG}, which in this case simply involves capitalizing them and removing the space before the full stop. We also need to restore the proper noun ``PeterLittle" to ``Peter Little". After \textit{combining}, we end up with 35 possible summaries.
+\begin{figure}[H]
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+\textbf{A.} Peter Little was interested in space so he studied hard and became a famous astrophysicist.\\
+\textbf{B.} Peter Little was curious about astronomy. He was always serious in school, and now he is famous.
+\end{displayquote}
+\end{subfigure}
+\caption{\textit{Reference summaries} for the story of Peter Little}
+\label{fig:peter_little_reference_summaries}
+\end{figure}
 
-The next step is \textit{scoring}, where we augment the standard of ignored words with the case-insensitive \textit{topics} set \{"peter", "little"\} in \textsc{TTR*}. This gives us scores in the range $[10,17]$, twenty of which fall below the 75th percentile of 15.0 and never become \textit{top summaries}.
+\begin{figure}[H]
+\begin{subfigure}{\textwidth}
+\begin{displayquote}
+PeterLittle was serious in school .\\
+PeterLittle was curious in astronomy .\\
+PeterLittle was curious and serious .\\
+PeterLittle did school always .\\
+there was a curious little boy .\\
+the curious little boy was named PeterLittle .\\
+PeterLittle is famous now .
+\end{displayquote}
+\end{subfigure}
+\caption{\textit{Summary sentences} as generated by \textsc{SumASG}}
+\label{fig:peter_little_summary_sentences}
+\end{figure}
 
-Finally, we compare these \textit{top summaries} to our \textit{reference summaries} for Peter Little, as mentioned in Figure \ref{fig:peter_little}. At least one of them achieves a BLEU score of at least 0.65, confirming they are close enough to \textit{reference summary} \textbf{B}.
+\noindent
+The first step, \textit{post-processing}, involves fixing the grammar in the \textit{summary sentences} generated by \textsc{SumASG}, which in this case simply means capitalising them and removing the space before the full stop. We also need to restore the proper noun ``PeterLittle" to ``Peter Little". After \textit{combining}, we end up with 35 possible summaries.
+
+The next step is \textit{scoring}, where we augment the default set of ignored words with the case-insensitive \textit{topics} set \{"peter", "little"\} for \textsc{TTR*}. This gives us scores in the range $[10,17]$, twenty of which fall below the 75th percentile (15.0) and never become \textit{top summaries}.
+
+Finally, we compare these \textit{top summaries} to our \textit{reference summaries} for Peter Little. One of them achieves a BLEU score of at least 0.65, confirming they are close enough to \textit{reference summary} \textbf{B}.
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
@@ -192,9 +221,9 @@ Peter Little was serious in school.
 \centering
 \begin{tabular}{@{}lllllll@{}}
 \toprule
-Summary     & 1    & 2    & 3    & 4    \\ \midrule
-Reference A & 0.4  & 0.38 & 0.32 & 0.38  \\
-Reference B & 0.66 & 0.58 & 0.49 & 0.63 \\ \bottomrule
+Summary     & \textbf{1}    & \textbf{2}    & \textbf{3}    & \textbf{4}    \\ \midrule
+Reference \textbf{A} & 0.4  & 0.38 & 0.32 & 0.38  \\
+Reference \textbf{B} & 0.66 & 0.58 & 0.49 & 0.63 \\ \bottomrule
 \end{tabular}\caption{BLEU scores for \textit{reference summaries} (summary indices as shown in Figure \ref{fig:top_score_summaries_example})}
 \end{subfigure}
 \caption{Example of \textit{post-processing} then \textit{scoring} for the story of Peter Little}
