@@ -53,63 +53,12 @@ There also exists a \textit{morphological slash} \textbackslash\textbackslash, w
 \noindent
 There are more advanced syntactic rules in CCG, which we shall not go into detail about for the purposes of brevity. However with the basic rules that we explained, it is easy to see how this parsing mechanism could be an efficient way to get to the underlying semantics of a sentence. Although the \textit{syntactic type} may seem complicated, it allows for a very precise understanding of English grammar, as well as giving a simple and consistent \textit{logical form} at the end.
 
+Although \textsc{SumASG} also achieves a form of semantic analysis using logic, it is much less advanced than CCG. In CCG, multiple sequences of text using a different word order can produce the same derivation. In contrast, \textit{actions} in \textsc{SumASG} are closely tied to the subject-verb-object structure of English sentences, and the diversity of structures that it can parse is much more limited. Even though we could have used CCG in this project, it would have been difficult to translate between CCG and ASG.
+
 \section{Existing Text Summarization Approaches}
 \label{sec:summarization_approaches}
 
-There are a number of existing approaches to text summarization, a few of which we have chosen to discuss in this section.
-
-\subsection{Corpus-Based Approach And Latent Semantic Analysis}
-\label{subsec:mcba_lsa_trm}
-
-In a paper by Yeh et al. \cite{yeh_text_2005}, two different methods are put forward for text summarization. The first is the modified corpus-based approach (MCBA), which uses a score function as well as the \textit{genetic algorithm}, while the second (LSA+TRM) utilizes \textit{latent semantic analysis} (LSA) with the aid of a \textit{text relationship map} (TSA).
-
-\mbox{}
-
-In order to understand MCBA, we must first mention corpus-based approaches, which rely on machine learning applied to a corpus of texts and their (known) summaries. In the \textit{training phase} important features (such as sentence length, position of a sentence in a paragraph, uppercase word...) are extracted from the \textit{training corpus} and used to generate rules. In the \textit{test phase} the learned rules are applied on the \textit{training corpus} to generate corresponding summaries. Most approaches rely on computing a weight for each unit of text, this is based on a combination of a unit's features.
-
-The MCBA builds on the basic corpus-based approach (CBA) by ranking sentence positions and using the genetic algorithm (GA) to train the score function. In the first case, the idea is that the important sentences of a paragraph are likely to have the same position in different texts, such as the first sentence (introduction) and the last one (summary). Depending on a sentence's position, a \textit{rank} (from $1$ to some $R$) is assigned, and used to compute a score for this feature. The paper also discusses other features, whose corresponding scores, along with the aforementioned \textit{rank}, are used to compute a weighted sum of all scores. Only the highest scoring sentences are retained in order to form the summary.
-
-Moreover, the \textit{genetic algorithm} (GA) is used to obtain suitable weights, where a \textit{chromosome} is defined by a set of values for all the features weights. Using the notions of \textit{precision} (proportion of predicted positive cases that are actually real positives) and \textit{recall} (proportion of real positive cases that are correctly predicted positive) \cite{powers_evaluation_2011}, a so-called \textit{F-score} is computed to define the fitness for each chromosome. By combing two \textit{chromosomes} to generate children, where the fittest parents are most likely to mate, we end up (after some number of generations) with a set of feature weights suitable for the corpus in question.
-
-\mbox{}
-
-On the other hand, the LSA+TRM approach comprises four major steps: \textit{preprocessing} (1), \textit{semantic model analysis} (2), \textit{text relationship map construction} (3) and \textit{sentence selection} (4).
-
-In step (1), sentences are decomposed according to their punctuation, as well as divided into keywords.
-
-In step (2), a \textit{word-by-sentence matrix} is computed on the scale of the entire document (or corpus). This  gets factorized and reduced to leave out words which do not occur often, then turned into a \textit{semantic matrix} linking words to their according relevance with each sentence.
-
-In step (3), the \textit{semantic matrix} is converted to a \textit{text relationship map}. A \textit{text relationship map} is a graph comprised of nodes, each one represents a sentence or paragraph. A link exists between any two which have high semantic similarity, and the idea is that nodes with many links are likely to cover the main topics of the text.
-
-Finally, step (4) uses the \textit{text relationship map} to pick out the most important sentences for the summary. Figure \ref{fig:lsa_trm_diagrams} may help you visualize how this works.
-
-\begin{figure}[H]
-\begin{subfigure}{0.5\textwidth}
-\includegraphics[width=\textwidth]{lsa_trm_diagram.eps}
-\caption{\cite{yeh_text_2005} Overall process}
-\end{subfigure}
-\begin{subfigure}{0.5\textwidth}
-\includegraphics[width=\textwidth]{text_relationship_map_diagram.eps}
-\caption{\cite{yeh_text_2005} Example of a text relationship map}
-\end{subfigure}
-\caption{LSA+TRM approach, diagrammatically}
-\label{fig:lsa_trm_diagrams}
-\end{figure}
-
-\noindent
-\textit{Compression rate} (CR) is a proportion describing the size of the summary with respect to the size of the original text.
-
-After evaluating both approaches on a news article corpus, it was found that MCBA outperforms the basic CBA by around 3\%, confirming the hypothesis that the position of a sentence plays a role in its importance. Furthermore, MCBA+GA performs around 10\% better than MCBA.
-
-Concerning LSA+TRM, it was found that on a per-document level this approach outperformed simply using TRM with the sentence keywords rather than LSA by almost 30\%. It was thus concluded that LSA helps get a better semantic understanding of a text.
-
-Comparing the two approaches highlighted in the paper, it is mentioned that performance is similar, although LSA+TRM is easier to implement than MCBA in single-document level as it requires no preprocessing, and in some optimal cases performs up to 20\% better. Although the former approach is more computationally expensive, it is more adept at understanding the semantics of a text because it does not rely on the genre of the corpus that was used for training. In both cases though, performance improves as CR increases.
-
-\mbox{}
-
-From the first approach, what is interesting is that it uses a certain number of important features to identify the most pertinent sentences of a passage.
-
-From the second approach, the main takeaways are the storage mechanisms in use such as the \textit{semantic matrix} and \textit{text relationship map}.
+There are a number of existing approaches to text summarization, two of which we have chosen to discuss in this section.
 
 \subsection{Lexical Chains}
 
@@ -145,14 +94,90 @@ In order to construct the summary, a single ``important" sentence is extracted f
 
 \mbox{}
 
-Although the proposed solution is very interesting in that it tries to link important words, it does not do anything whatsoever to learn any of the actions which are described in a passage. This means it has no knowledge of chronology (problematic when we have an action causing a change of state, such as a someone acquiring a good), nor does it try to link subjects with objects or verbs (for instance in the phrase ``Mary has a pencil", it does not link Mary to the pencil).
+Although the proposed solution is very interesting in that it tries to link important words, it does not do anything whatsoever to learn about the actions which are described in a passage. This means it has no knowledge of chronology (problematic when we have an action causing a change of state, such as a someone acquiring a good), nor does it try to link subjects with objects or verbs (for instance in the phrase ``Mary has a pencil", it does not link Mary to the pencil).
 
-Furthermore, the algorithm outputs a singe unchanged sentence from the original text; this is suboptimal when equally important information is conveyed across multiple sentences. In a solution to the problem of text summarization, we would hope that important facts or actions are given as a summary. For the approach discussed here, this would mean picking out \textit{chunks} of text from the original passage, and combining them in a suitable manner.
+Furthermore, the algorithm outputs a singe unchanged sentence from the original text, which is suboptimal when equally important information is conveyed across multiple sentences. In our approach, we are able to form single sentences using information from different sentences in the story, making \textsc{SumASG*} a much a more \textit{abstractive} summarization framework.
+
+\subsection{Corpus-Based Approach / Latent Semantic Analysis}
+\label{subsec:mcba_lsa_trm}
+
+In a paper by Yeh et al. \cite{yeh_text_2005}, two different methods are put forward for text summarization. The first is the modified corpus-based approach (MCBA), which uses a score function as well as the \textit{genetic algorithm}, while the second (LSA+TRM) utilizes \textit{latent semantic analysis} (LSA) with the aid of a \textit{text relationship map} (TSA).
+
+\mbox{}
+
+In order to understand MCBA, we must first mention corpus-based approaches, which rely on machine learning applied to a corpus of texts and their (known) summaries. In the \textit{training phase} important features (such as sentence length, position of a sentence in a paragraph, uppercase word...) are extracted from the \textit{training corpus} and used to generate rules. In the \textit{test phase} the learned rules are applied on the \textit{training corpus} to generate corresponding summaries. Most approaches rely on computing a weight for each unit of text, this is based on a combination of a unit's% features.
+
+The MCBA builds on the basic corpus-based approach (CBA) by ranking sentence positions and using the genetic algorithm (GA) to train the score function. In the first case, the idea is that the important sentences of a paragraph are likely to have the same position in different texts, such as the first sentence (introduction) and the last one (summary). Depending on a sentence's position, a \textit{rank} (from $1$ to some $R$) is assigned, and used to compute a score for this feature. The paper also discusses other features, whose corresponding scores, along with the aforementioned \textit{rank}, are used to compute a weighted sum of all scores. Only the highest scoring sentences are retained in order to form the summary.
+
+Moreover, the \textit{genetic algorithm} (GA) is used to obtain suitable weights, where a \textit{chromosome} is defined by a set of values for all the features weights. Using the notions of \textit{precision} (proportion of predicted positive cases that are actually real positives) and \textit{recall} (proportion of real positive cases that are correctly predicted positive) \cite{powers_evaluation_2011}, a so-called \textit{F-score} is computed to define the fitness for each chromosome. By combing two \textit{chromosomes} to generate children, where the fittest parents are most likely to mate, we end up (after some number of generations) with a set of feature weights suitable for the corpus in question.
+
+\mbox{}
+
+On the other hand, the LSA+TRM approach comprises four major steps, which are illustrated in Figure \ref{fig:lsa_trm_diagrams}:
+
+\begin{enumerate}
+\item \textbf{Preprocessing:} Sentences are decomposed according to their punctuation, as well as divided into keywords.
+\item \textbf{Semantic model analysis:} A \textit{word-by-sentence matrix} is computed on the scale of the entire document (or corpus). This  gets factorized and reduced to leave out words which do not occur often, then turned into a \textit{semantic matrix} linking words to their according relevance with each sentence.
+\item \textbf{Text relationship map construction:} The \textit{semantic matrix} is converted to a \textit{text relationship map}. A \textit{text relationship map} is a graph comprised of nodes, each one represents a sentence or paragraph. A link exists between any two which have high semantic similarity, and the idea is that nodes with many links are likely to cover the main topics of the text.
+\item \textbf{Sentence selection:} Finally, we use the \textit{text relationship map} to pick out the most important sentences for the summary.
+\end{enumerate}
+
+\begin{figure}[H]
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=\textwidth]{lsa_trm_diagram.eps}
+\caption{\cite{yeh_text_2005} Overall process}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=\textwidth]{text_relationship_map_diagram.eps}
+\caption{\cite{yeh_text_2005} Example of a text relationship map}
+\end{subfigure}
+\caption{LSA+TRM approach, diagrammatically}
+\label{fig:lsa_trm_diagrams}
+\end{figure}
+
+\noindent
+\textit{Compression rate} (CR) is a proportion describing the size of the summary with respect to the size of the original text.
+
+After evaluating both approaches on a news article corpus, it was found that MCBA outperforms the basic CBA by around 3\%, confirming the hypothesis that the position of a sentence plays a role in its importance. Furthermore, MCBA+GA performs around 10\% better than MCBA.
+
+Concerning LSA+TRM, it was found that on a per-document level this approach outperformed simply using TRM with the sentence keywords rather than LSA by almost 30\%. It was thus concluded that LSA helps get a better semantic understanding of a text.
+
+Comparing the two approaches highlighted in the paper, it is mentioned that performance is similar, although LSA+TRM is easier to implement than MCBA in single-document level as it requires no preprocessing, and in some optimal cases performs up to 20\% better. Although the former approach is more computationally expensive, it is more adept at understanding the semantics of a text because it does not rely on the genre of the corpus that was used for training. In both cases though, performance improves as CR increases.
+
+\mbox{}
+
+From the first approach, what is interesting is that it uses a certain number of important features to identify the most pertinent sentences of a passage. However this would not have been useful in our case, as we focus on very short stories.
+
+From the second approach, the main takeaways are the storage mechanisms in use such as the \textit{semantic matrix} and \textit{text relationship map}, the latter of which we have implemented in the \textsc{Preprocessor} in order to filter out irrelevant sentences.
 
 \section{Approach Categories}
 \label{sec:approach_categories}
 
 Broadly speaking, there exist three categories in which we can place text summarization approaches: statistical, frame and symbolic (which is what our system uses).
+
+\subsection{Frame}
+
+In the frame approach, the idea is that we try and keep track of how the plot in a story progresses, recording each action as well as the links which connect them. From this understanding, we should then have enough information to build an accurate summary.
+
+\mbox{}
+
+In one of the original papers describing this approach \cite{lehnert_1980_nodate}, sentences are decomposed into different \textit{affect states} and \textit{affect links}. An \textit{affect state} can either be a \textit{mental state}, or a \textit{positive} or \textit{negative event} which may cause a change to a \textit{mental state}. \textit{Affect links} are then the transitions that explain the sequence of \textit{affect states}.
+
+We are given the example of John and Mary who both want to buy the same house, but it ends up being sold to Mary. At the start, both characters have the same \textit{mental state} (desire to buy the house). However the \textit{actualization} (a type of \textit{affect link} which denotes realization of an action) of Mary's desire is recognized as a \textit{positive event} for Mary and a \textit{negative event} for John.
+
+By combining sequences of \textit{affect links} (transitions) between \textit{affect states} for different characters in a story, it is easy to see how one can build the narrative of the entire text. Such an example is shown in Figure \ref{fig:frame_example}, where \textit{m} denotes the \textit{motivation affect link} (connecting an action with a \textit{mental state} which it motivates), and \textit{e} denotes the \textit{equivalence affect link} (i.e., when a character has the same \textit{mental state} before and after the transition).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{frame_example.eps}
+\caption{\cite{lehnert_1980_nodate} Example of a narrative in the frame approach}
+\label{fig:frame_example}
+\end{figure}
+
+\noindent
+While this approach is interesting from a semantic point of view, it can easily become very complicated when many sentences are involved. In addition, it would not be suitable for purely descriptive texts, involving only continuous actions without any direct link (``It was October. Leaves were falling from the trees.").
+
+Despite these drawbacks, the approach described here is much better than \textsc{SumASG*} at understanding a narrative. In fact, our system has no notion whatsoever of cause and effect, making it highly unsuitable for summarizing any kind of discourse.
 
 \subsection{Statistical}
 
@@ -223,27 +248,7 @@ If the user wants a shorter or longer summary, the system can simply return the 
 \noindent
 In their testing it was found that their algorithm has a conservative nature, promoting correctness over brevity, which sometimes has the consequence of not trimming any words away. We learn from this approach the notion of a \textit{shared-forest} structure, as well as the use of Bayesian probability theory.
 
-\subsection{Frame}
-
-In the frame approach, the idea is that we try and keep track of how the plot in a story progresses, recording each action as well as the links which connect them. From this understanding, we should then have enough information to build an accurate summary.
-
-\mbox{}
-
-In one of the original papers describing this approach \cite{lehnert_1980_nodate}, sentences are decomposed into different \textit{affect states} and \textit{affect links}. An \textit{affect state} can either be a \textit{mental state}, or a \textit{positive} or \textit{negative event} which may cause a change to a \textit{mental state}. \textit{Affect links} are then the transitions that explain the sequence of \textit{affect states}.
-
-We are given the example of John and Mary who both want to buy the same house, but it ends up being sold to Mary. At the start, both characters have the same \textit{mental state} (desire to buy the house). However the \textit{actualization} (a type of \textit{affect link} which denotes realization of an action) of Mary's desire is recognized as a \textit{positive event} for Mary and a \textit{negative event} for John.
-
-By combining sequences of \textit{affect links} (transitions) between \textit{affect states} for different characters in a story, it is easy to see how one can build the narrative of the entire text. Such an example is shown in Figure \ref{fig:frame_example}, where \textit{m} denotes the \textit{motivation affect link} (connecting an action with a \textit{mental state} which it motivates), and \textit{e} denotes the \textit{equivalence affect link} (i.e., when a character has the same \textit{mental state} before and after the transition).
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{frame_example.eps}
-\caption{\cite{lehnert_1980_nodate} Example of a narrative in the frame approach}
-\label{fig:frame_example}
-\end{figure}
-
-\noindent
-While this approach is interesting from a semantic point of view, it can easily become very complicated when many sentences are involved. In addition, it would not be suitable for purely descriptive texts, involving only continuous actions without any direct link (``It was October. Leaves were falling from the trees.").
+Comparing this approach with \textsc{SumASG*}, we can see that the \textit{shared-forest} structure shares a resemblance with the different ways in which we combine the \textit{summary sentences} output by \textsc{SumASG}. Moreover, our final output corresponds to maximising the summary score, in the same way that the approach described here uses probabilities to minimise information loss.
 
 \subsection{Symbolic}
 
@@ -263,4 +268,4 @@ As we have seen above, these rules allow us to compose tokens together, and in t
 
 \mbox{}
 
-One of the criticisms with this type of approach \cite{clark_combining_nodate} is that it is domain-specific and not easily scalable. However more recent work (as with CCG) has shown that the latter issue is not necessarily the case any more, as we now have more powerful parsers.
+One of the criticisms with this type of approach \cite{clark_combining_nodate} is that it is domain-specific and not easily scalable. However more recent work (as with CCG) has shown that the latter issue is not necessarily the case any more, as we now have more powerful parsers. The same could be said with a more complete implementation of \textsc{SumASG*}, one which would be able to parse a much wider diversity of sentence structures, and could be run on a supercomputer for performance reasons.
