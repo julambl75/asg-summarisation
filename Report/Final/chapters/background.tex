@@ -84,6 +84,12 @@ Finally at a \textit{discourse level} we go beyond the contents of a text, explo
 \item The \textit{rhetorical structure} can tell us whether the document is argumentative or narrative in nature. In the latter case a more concise description of the text's contents would suffice, while the former would involve recounting the key points and conclusions made by the author.
 \end{itemize}
 
+\subsection{Evaluating Summaries}
+
+In order to evaluate a \textit{hypothesis} summary with respect an expected reference, there exist a number of metrics, one of which is called the BLEU score. Its value lies in the range $[0,1]$, $1$ denoting a perfectly matching \textit{hypothesis}.
+
+By looking at sequences of up to 4 \textit{tokens} in length (see Section \ref{sec:syntactic_parsing}), this metric aims to calculate the fraction of such sequences in the \textit{hypothesis} which also appear in the reference. Furthermore, the BLEU score penalises \textit{hypothesis} summaries which are too short, thereby prioritising summaries with less information loss \cite{ehling_minimum_2007}.
+
 \section{Syntactic Parsing}
 \label{sec:syntactic_parsing}
 
