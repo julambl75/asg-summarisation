@@ -23,7 +23,7 @@ Given a brief paragraph of text, for example a short story aimed at young childr
 \end{objective}
 
 \begin{objective}[Evaluate The Approach]
-Once we have implemented the basic approach, we should run our system on a suite of examples to verify that it can produce summaries that closely resemble the corresponding human-generated ones. On a larger scale, it is important to also run it against a popular summarization approach to ensure the sanity of our logic-based mechanism.
+Once we have implemented the basic approach, we should run our system on a suite of examples to verify that it can produce summaries that closely resemble the corresponding human-generated ones. On a larger scale, it is important to also run it against a popular summarization approach to ensure that our logic-based mechanism is sound.
 \end{objective}
 
 \section{Approach Overview}
@@ -122,8 +122,8 @@ In this paper, we begin by discussing some essential background knowledge in Cha
 
 In Chapters \ref{chapter:preprocessor}, \ref{chapter:asg} and \ref{chapter:postprocessing}, we dive into the various steps involved in the pipeline of \textsc{SumASG*}, as outlined in Section \ref{sec:approach_overview}. In addition, we discuss possible technical improvements for each step of the pipeline in Chapter \ref{chapter:improvements}.
 
-After this, we show in Chapter \ref{chapter:evaluation} that our system is capable of producing a more consistent output and is more easily expandable than an \textit{encoder-decoder} trained for text summarization.
+After this, we validate our approach by training an \textit{encoder-decoder} for the task of summarization in Chapter \ref{chapter:evaluation}, then show that our system is capable of producing a more consistent output and can detect invalid input out-of-the-box.
 
 In Chapter \ref{chapter:related_work} we explore some of the existing state-of-the-art implementations and differentiate between statistical, frame and symbolic approaches. Where relevant, we discuss which ideas from these approaches we have borrowed for \textsc{SumASG*}, as well as how our approach differs from these implementations.
 
-Finally, we conclude the paper in Chapter \ref{chapter:conclusion} by listing the main achievements of this project, as well as giving a high-level overview of future work which may be done to build on \textsc{SumASG*}.
+Finally, we conclude the paper in Chapter \ref{chapter:conclusion} by listing the main achievements of this project, as well as giving a high-level overview of future work which may be done to build on top of \textsc{SumASG*}.

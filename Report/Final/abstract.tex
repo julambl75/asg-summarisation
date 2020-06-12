@@ -6,5 +6,7 @@ In this project, we aim to resolve the problem for short texts about a paragraph
 
 The approach chosen for this project relies on a central context-free grammar as its internal representation for a simplified version of the English language. Using Answer Set Programming, the system is able to perform logic-based learning to understand the input text after having pre-processed it, the result of which then goes through a number of summarization logic rules, producing a set of possible summaries.
 
-To verify the soundness of our system and ensure that it behaved as expected, we ran it on a suite of targeted examples during the development phase. When the implementation was complete, we trained a neural network to learn the summarization rules used by our framework. Although neural networks are much more general in terms of what tasks they are capable of, this final evaluation step showed that our approach was both more robust to perturbations in the input, as well as better at detecting the validity of a text.
+Throughout the development phase, we ran our system on a suite of targeted examples. When the implementation was complete, we successfully trained a neural network to learn the summarization rules used by our framework, thereby validating our approach. We then performed two experiments to evaluate our system, and to establish some of the key differences compared to a neural network.
+
+From this we conclude that although our approach is less general than a neural network, it is able to produce more consistent results and can detect grammatically-incorrect text. Moreover, it does not rely on noisy annotated data, and can be expanded on without the need to be retrained.
 }

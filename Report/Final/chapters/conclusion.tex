@@ -1,5 +1,7 @@
 \label{chapter:conclusion}
 
+We have engineered a logic-based text summarization system, which solves the task in different way than the commonly-used Machine Learning approaches these days.
+
 \section{Achievements}
 
 \textsc{SumASG*} is a symbolic system which is able to generate \textit{generic}, \textit{informative} and partially-\textit{abstractive} summaries given a simple story about a paragraph in length.
@@ -15,7 +17,8 @@ The core accomplishments of this project are the following:
 \item Wrote an ASG learning task capable of taking English text and turning it into a set of chronologically-ordered \textit{actions}.
 \item Developed a set of rules which, given \textit{actions} from a story, allow ASG to generate both \textit{extractive} and \textit{abstractive} summary sentences.
 \item Implemented a scoring mechanism prioritizing information density, while taking into account words which may appear frequently in English and are considered the \textit{topic} of the original text.
-\item Created a framework to automatically generate topical short stories to evaluate \textsc{SumASG*}, based on a dataset of words and particular sentence structures.
+\item Created a framework to automatically generate topical short stories for training a \textit{neural network} in the aim of evaluate the soundness of \textsc{SumASG*}, based on a dataset of words and particular sentence structures.
+\item Used the trained \textit{encoder-decoder} to show that our approach is able to produce more consistent results than a neural network, and can detect invalid input out-of-the-box.
 \end{itemize}
 
 \section{Future Work}
@@ -46,6 +49,7 @@ Unless is rains, Mary is going running and then buying a pastry on Tuesday. Howe
 \label{fig:complex_summary}
 \end{figure}
 
+\noindent
 With the way things are currently set up, the \textsc{Preprocessor} might remove the second sentence, getting rid of all useful temporal information from the story. It could also remove the last sentence, which is crucial in the narrative. Finally, it would definitely delete the first two clauses from the third sentence, missing out on an important \textit{nuance}.
 
 Even if all this information had been preserved and passed through to \textsc{SumASG}, it would be unable to understand it in a contextually-aware enough manner. More to the point, the following facts are relevant to create a good summary:
@@ -57,6 +61,7 @@ Even if all this information had been preserved and passed through to \textsc{Su
 \item The bakery where she was planning on getting her pastry not be selling any that day (inference is necessary here).
 \end{itemize}
 
+\noindent
 Even though they are essential to comprehend the story, there is also a set of facts that should not appear in the summary:
 
 \begin{itemize}
@@ -66,6 +71,7 @@ Even though they are essential to comprehend the story, there is also a set of f
 \item She is interested specifically in a brioche feuilletée aux pralines roses.
 \end{itemize}
 
+\noindent
 In order to understand such a story, we would therefore need to strengthen \textsc{SumASG*} at each step in the pipeline. As well as much better parsing, this would require creating a more complex set of predicates to better capture the meaning in a story. Finally, we would also have the change the \textit{scoring} mechanism, so that it looks for summaries which lose as little meaning as possible from the original story.
 
 \subsection{Longer Stories}
