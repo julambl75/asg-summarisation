@@ -1,13 +1,13 @@
 \label{chapter:evaluation}
 
-We present in this chapter the validation and evaluation of our approach, which involve comparing \textsc{SumASG*} to an \textit{encoder-decoder}. After explaining the reasoning behind this comparison (Section \ref{sec:evaluation_general_idea}), we present the training data that are used for validation (Section \ref{sec:story_generation}) and how our neural network performs on them (Section \ref{sec:validation}). We then carry out two evaluation experiments (Section \ref{sec:evaluation_experiments}) and finish by giving an overview of what we have learned (Section \ref{sec:evaluation_takeaways}).
+In this chapter we present the validation and evaluation of our approach, which involves comparing \textsc{SumASG*} to an \textit{encoder-decoder}. After explaining the reasoning behind this comparison (Section \ref{sec:evaluation_general_idea}), we present the training data that are used for validation (Section \ref{sec:story_generation}) and how our neural network performs on them (Section \ref{sec:validation}). We then carry out two evaluation experiments (Section \ref{sec:evaluation_experiments}) and finish by giving an overview of what we have learned (Section \ref{sec:evaluation_takeaways}).
 
 \section{General Idea}
 \label{sec:evaluation_general_idea}
 
 As the vast majority of modern text summarization frameworks are based on Machine Learning, it makes sense to evaluate \textsc{SumASG*} against a neural network. There exist a number of text summarization corpora, such as the \textbf{CNN / Daily Mail dataset}\footnote{The CNN / Daily Mail dataset consists of around 300,000 news articles and their corresponding multi-sentence summaries; these have been used to train state-of-the-art text summarization models, which were evaluated using metrics such as ROUGE and METEOR: \url{http://nlpprogress.com/english/summarization.html}}. However, we cannot use one of these datasets with \textsc{SumASG*} as it is unfortunately not general enough to be able to parse such complicated text.
 
-In order to validate our approach, we have built a generative model which creates stories that our system is capable of summarizing. Using \textsc{SumASG*}, we generate summaries corresponding to these stories, and use this as training data for an \textit{encoder-decoder}. If the neural network is able to learn how to generate these summaries, then we can consider our framework and the summarization rules it uses to be sound.
+In order to validate our approach, we have built a generative model which creates stories that our system is capable of summarizing. Using \textsc{SumASG*}, we generate summaries corresponding to these stories, and use this as training data for an \textit{encoder-decoder}.
 
 To evaluate our approach, we then use this generated dataset as a starting point to check both the \textit{encoder-decoder} and \textsc{SumASG*} for robustness to small perturbations in the input, as well as their ability to detect invalid input.
 
@@ -63,7 +63,7 @@ A professional football pitched a place.
 \end{figure}
 
 \noindent
-As has already been mentioned, generating a coherent and meaningful text is a very difficult problem for computers. This explains why the \textit{main sentences} shown in Figure \ref{fig:main_sentences_example} do not make much sense from a human perspective. However, they are both grammatically-correct, as well as highly suitable for the task of summarization, which is what we are looking for in this experiment.
+As has already been mentioned, generating a coherent and meaningful text is a very difficult problem for computers. This explains why the \textit{main sentences} shown in Figure \ref{fig:main_sentences_example} do not make much sense from a human perspective. However, they are both grammatically correct, as well as highly suitable for the task of summarization, which is what we are looking for in this experiment.
 
 \subsection{Conjunctive Summaries}
 
@@ -130,13 +130,13 @@ Our \textit{encoder} and \textit{decoder} share embeddings for a vocabulary of s
 
 The neural network was trained using an Adam optimizer with a \textit{learning rate} of 0.001 and \textit{batch size} of 25. In order to preserve the GloVe word embeddings across training, we fix them at the start and use them in both the \textit{encoder} and \textit{decoder}.
 
-Training was done over a period of 10,000 steps (i.e., 200 epochs), validating every 10 epochs. Using \textbf{Google Colaboratory}\footnote{Google Colaboratory is an online tool for creating Python notebooks, providing free access to GPUs: \url{https://colab.research.google.com/}} this took a total of 5 minutes and 30 seconds. The final training and validation accuracies are respectively 99.83\% and 92.07\%, as shown in Table \ref{table:training_metrics}.
+Training was done over a period of 10,000 steps (i.e., 400 epochs), validating every 20 epochs. Using \textbf{Google Colaboratory}\footnote{Google Colaboratory is an online tool for creating Python notebooks, providing free access to GPUs: \url{https://colab.research.google.com/}} this took a total of 5 minutes and 30 seconds. The final training and validation accuracies are respectively 99.83\% and 92.07\%, as shown in Table \ref{table:training_metrics}.
 
 \begin{table}[H]
 \centering
 \begin{tabular}{@{}llllll@{}}
 \toprule
-Epochs                & 100 & 500 & 1000 & 1500 & 2000 \\ \midrule
+Epochs                & 20 & 100 & 200 & 300 & 400 \\ \midrule
 Training accuracy (\%)     & 60.68   & 98.73   & 99.45    & 99.82    & 99.83    \\
 Validation accuracy (\%)   & 61.54   & 90.24   & 91.38    & 91.38    & 92.07    \\
 Training perplexity   & 12.45   & 1.06   & 1.03    & 1.01    & 1.01    \\
@@ -153,7 +153,7 @@ Unsurprisingly, our \textit{encoder-decoder} was able to mostly learn this hard-
 
 However, it appears that it was not able to fully learn the rules used by \textsc{SumASG}, as the final validation and test perplexities are a little high ($> 2$).
 
-Part of this discrepancy is due to the use of slightly different words in the predicted summaries. Upon further inspection, the words that differ have very close meanings; this is because we have used pre-trained embeddings and fixed their representation. It is not too problematic though, as it would be much worse to have a semantically-unrelated word in one of our predicted summaries.
+Part of this discrepancy is due to the use of slightly different words in the predicted summaries. Upon further inspection, the words that differ have very close meanings; this is because we have used pre-trained embeddings and fixed their representation. It is not too problematic though, as it would be much worse to get a semantically-unrelated word in one of our predicted summaries.
 
 Another reason for this discrepancy is the fact that multiple \textit{conjunctive summaries} can be generated from the same story, depending on which words are chosen to be put together.
 
@@ -192,7 +192,7 @@ In order to evaluate our approach and highlight some of the major differences be
 \subsection{Experiment 1: Robustness To Perturbations}
 \label{subsec:experiment_1}
 
-For the first experiment, we take the test data from Section \ref{sec:validation}, which we know works well with our \textit{encoder-decoder} (see Table \ref{table:training_metrics}), and apply a few small perturbations to the stories, while keeping them grammatically-correct. With these changes, we now run both text summarization systems to see how they perform.
+For the first experiment, we take the test data from Section \ref{sec:validation}, which we know works well with our \textit{encoder-decoder} (see Table \ref{table:training_metrics}), and apply a few small perturbations to the stories, while keeping them grammatically correct. With these changes, we now run both text summarization systems to see how they perform.
 
 To avoid giving \textsc{SumASG*} an advantage, let us choose a story whose predicted summary is exactly the expected summary. Also, to prevent sentences in the modified stories from being pruned, we bypass the \textsc{Preprocessor}.
 
@@ -245,9 +245,9 @@ From this experiment we conclude that \textsc{SumASG*} is more robust to small c
 \subsection{Experiment 2: Input Validity Awareness}
 \label{subsec:experiment_2}
 
-The goal of the second experiment is to how both systems deal with invalid input (i.e., stories that are not grammatically correct). To avoid giving \textsc{SumASG*} too much of an advantage, we use only words from the vocabulary known by our \textit{encoder-decoder}, and create sequences of similar length compared to the training data used in Section \ref{sec:validation}.
+The goal of the second experiment is to highlight how both systems deal with invalid input (i.e., stories that are not grammatically correct). To avoid giving \textsc{SumASG*} too much of an advantage, we use only words from the vocabulary known by our \textit{encoder-decoder}, and create sequences of similar length compared to the training data used in Section \ref{sec:validation}.
 
-For invalid input \textbf{A} we take the original story from Figure \ref{fig:experiment_1} and make a few small changes to render it grammatically-incorrect, while for invalid input \textbf{B} we create a story of length 3 from scratch using randomly selected words from the vocabulary.
+For invalid input \textbf{A} we take the original story from Figure \ref{fig:experiment_1} and make a few small changes to render it grammatically incorrect, while for invalid input \textbf{B} we create a story of length 3 from scratch using randomly selected words from the vocabulary.
 
 While \textsc{SumASG*} is able the recognise that these stories are not grammatically correct, our \textit{encoder-decoder} produces an output, as is shown in Figure \ref{fig:experiment_2}.
 
@@ -267,7 +267,7 @@ While \textsc{SumASG*} is able the recognise that these stories are not grammati
 \end{displayquote}
 \caption{Summaries predicted by the trained \textit{encoder-decoder}}
 \end{subfigure}
-\caption{Results of experiment 2: summaries generated by the \textit{encoder-decoder} on invalid input stories (\textsc{SumASG*} recognises these as invalid)}
+\caption{Results of experiment 2: summaries generated by the \textit{encoder-decoder} on invalid input stories (\textsc{SumASG*} recognises these as invalid, producing no output)}
 \label{fig:experiment_2}
 \end{figure}
 
@@ -276,9 +276,9 @@ Since \textsc{SumASG*} is built around a grammar that models the structure of En
 
 By looking at the neural network's prediction for invalid story \textbf{A}, we see that only one of the three nouns in the output summary appear in the story. Moreover, even if we were to correct story \textbf{A}, its meaning would have nothing in common with the predicted summary.
 
-In contrast, the prediction for invalid story \textbf{B} is not grammatically correct, and its only word does not even appear in the story. Of course, such a result is expected as this story is incredibly different from any of the training pairs, and does make any sense whatsoever.
+In contrast, the prediction for invalid story \textbf{B} is not grammatically correct, and its only word does not even appear in the story. Of course, such a result is expected as this story is incredibly different from any of the training pairs, and does not make any sense whatsoever.
 
-From this experiment, we can conclude that a neural network trained for text summarization cannot detect when the input invalid, unless it has been specifically trained to do so. However, \textsc{SumASG*} is by construction unable to summarize grammatically-incorrect stories.
+From this experiment, we can conclude that a neural network trained for text summarization cannot detect when the input is invalid, unless it has been specifically trained to do so. However, \textsc{SumASG*} is by construction unable to summarize grammatically-incorrect stories.
 
 \section{Takeaways}
 \label{sec:evaluation_takeaways}

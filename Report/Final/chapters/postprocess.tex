@@ -42,7 +42,7 @@ Once we have obtained potential sentences from ASG to be used in a summary, we n
 \draw [->] (summary_2) -- (score_2);
 \draw [->] (summary_4) -- (score_4);
 \end{tikzpicture}
-\caption{Post-Processing / Scoring Steps}
+\caption{\textit{Post-processing} and \textit{scoring} steps}
 \label{fig:postprocess_pipeline}
 \end{figure}
 }
@@ -50,13 +50,13 @@ Once we have obtained potential sentences from ASG to be used in a summary, we n
 \section{Summary Creation}
 \label{sec:summary_creation}
 
-The output of \textsc{SumASG} is a list of sentences, each of which could potentially appear in the final summary. However before we start concatenating them together to form summaries, we should first post-process them to undo some of the simplifications made by the \textsc{Preprocessor} and ensure that they are grammatically-correct.
+The output of \textsc{SumASG} is a list of sentences, each of which could potentially appear in the final summary. However before we start concatenating them together to form summaries, we should first post-process them to undo some of the simplifications made by the \textsc{Preprocessor} and ensure that they are grammatically correct.
 
 \subsection{Post-Processing}
 
 Because \textsc{SumASG} uses the same capitalisation for a given word regardless of its position in the sentence, it means that the first word of each sentence will not be capitalised unless it is a proper noun. We therefore need to fix this, as well as remove the space before each full stop.
 
-Compound nouns, whose hyphen was replaced with an underscore for the internal representation of \textsc{SumASG}, also need to be restored to their grammatically-correct form.
+Compound nouns, whose hyphen was replaced with an underscore for the internal representation of \textsc{SumASG}, also need to be restored to their grammatically correct form.
 
 In addition, the task of summarization might have created a sentence where an incorrect verb form is used, or possibly the wrong determiner. To amend this we use a tool called \textbf{language-check}\footnote{language-check is Python package that is able to find grammatical errors: \url{https://pypi.org/project/language-check/}}, which is able to correct phrases like ``they has an dog" to ``they have a dog".
 

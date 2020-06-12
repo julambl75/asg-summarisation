@@ -1,6 +1,6 @@
 \label{chapter:asg}
 
-We present in this chapter the core module of our pipeline: \textsc{SumASG}. After giving an overview of the module (Section \ref{sec:asg_overview}), we introduce a general grammar which we have created specifically for the purpose of representing English sentences in ASG (Section \ref{sec:internal_representation}). We then go further into the details of \textsc{SumASG}'s two-part implementation (Sections \ref{sec:learn_actions} and \ref{sec:gen_summary_sentences}), and finish by showing the results of running \textsc{SumASG} on a pre-processed story (Section \ref{sec:asg_example}).
+In this chapter we present the core module of our pipeline: \textsc{SumASG}. After giving an overview of the module (Section \ref{sec:asg_overview}), we introduce a general grammar which we have created specifically for the purpose of representing English sentences in ASG (Section \ref{sec:internal_representation}). We then go further into the details of \textsc{SumASG}'s two-part implementation (Sections \ref{sec:learn_actions} and \ref{sec:gen_summary_sentences}), and finish by showing the results of running \textsc{SumASG} on a pre-processed story (Section \ref{sec:asg_example}).
 
 \section{Overview}
 \label{sec:asg_overview}
@@ -36,7 +36,7 @@ Our use of ASG is two-fold. Firstly, we pass in each sentence from the story to 
 \draw [->] (gen_summaries) -- (summary_sentence_2);
 \draw [->] (gen_summaries) -- (summary_sentence_4);
 \end{tikzpicture}
-\caption{ASG Steps}
+\caption{ASG steps}
 \label{fig:asg_pipeline}
 \end{figure}
 }
@@ -44,7 +44,7 @@ Our use of ASG is two-fold. Firstly, we pass in each sentence from the story to 
 \section{Internal Representation}
 \label{sec:internal_representation}
 
-In order to model the structure of sentences in English, we have created a CFG that has a similar hierarchy to that of an NLP parse tree. The ASG code for this general structure can be seen in Appendix \ref{appendix:asg}. Throughout this description of \textsc{SumASG}, please refer to Chapter \ref{chapter:background} for information on how to interpret an ASG program. Also, a table listing the possible POS tags is available in Appendix \ref{appendix:pos}.
+In order to model the structure of sentences in English, we have created a CFG that has a similar hierarchy to that of a \textit{constituency parse tree}. The ASG code for this general structure can be seen in Appendix \ref{appendix:asg}. Throughout this description of \textsc{SumASG}, please refer to Chapter \ref{chapter:background} for information on how to interpret an ASG program. Also, a table listing the possible POS tags is available in Appendix \ref{appendix:pos}.
 
 \subsection{Leaf Nodes}
 
@@ -336,7 +336,7 @@ We formalise the task of generating a \textit{summary sentence} as \textsc{SumAS
 
 \subsection{Implementation}
 
-In practice, this involves gathering all of the story-specific leaf nodes and learned \textit{actions} from \textsc{SumASG\textsubscript{1}}, adding these to our general grammar, and then using a set of summary generation rules to create summary sentences.
+In practice, this task involves gathering all of the story-specific leaf nodes and learned \textit{actions} from \textsc{SumASG\textsubscript{1}}, adding these to our general grammar, and then using a set of summary generation rules to create \textit{summary sentences}.
 
 \subsubsection*{Learned Actions}
 
@@ -396,7 +396,7 @@ From these \textit{actions} we apply \textsc{SumASG\textsubscript{2}}, generatin
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
 \begin{displayquote}
-\begin{lstlisting}
+\begin{lstlisting}[language=]
 action(0, verb(be, past), subject(there, 0, 0), object(boy, a, conjunct(curious, little))).
 action(1, verb(comp(be, name), comp(past, past_part)), subject(boy, the, conjunct(curious, little)), object(peterlittle, 0, 0)).
 action(2, verb(be, past), subject(peterlittle, 0, 0), object(astronomy, in, curious)).

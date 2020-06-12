@@ -6,9 +6,9 @@ In general, the task of summarization in Natural Language Processing (NLP) is to
 
 In recent years, state-of-the-art systems that accomplish text summarization have relied largely on Machine Learning. These include Bayesian classifiers, hidden Markov models, neural networks and fuzzy logic, among others \cite{kiyani_survey_2017}. Given a training corpus, along with some careful pre-processing as well as fine-tuning of hyper-parameters and feature extraction functions, such systems are able to produce effective summaries \cite{kiyani_survey_2017}.
 
-Among these approaches, one of the most prominent types of neural networks is the \textit{encoder-decoder}. These are commonly used for sequence-to-sequence translation due to their promising performance in NLP tasks \cite{yao_dual_2018}. \textit{encoder-decoders} use a fixed-dimension internal representation which can be trained to act as an intermediate between variable-length inputs and outputs, making this approach highly suitable for text summarization. However to learn what is a summary, these systems require tremendous amounts of data and take a long time to train.
+Among these approaches, one of the most prominent types of neural networks is the \textit{encoder-decoder}. These are commonly used for sequence-to-sequence translation due to their promising performance in NLP tasks \cite{yao_dual_2018}. \textit{Encoder-decoders} use a fixed-dimension internal representation which can be trained to act as an intermediate between variable-length inputs and outputs, making this approach highly suitable for text summarization. However to learn what is a summary, these systems require tremendous amounts of data and take a long time to train.
 
-In our case, using logic means that we can hard-code the definition of a summary directly into the program, avoiding the problem of randomness and uncertainty that often comes with neural networks. By carefully constructing the structure of our system, we can get results with just a short list of rules, and know that it will always produce a complete and valid output with respect to the background knowledge we encode into it.
+In our case, using logic for the semantics means that we can hard-code the definition of a summary directly into the program, avoiding the problem of randomness and uncertainty that often comes with neural networks. By carefully constructing the structure of our system, we can get results with just a short list of rules. In addition, using a grammar that models the syntax of English sentences helps ensure that our output is always grammatically correct. From both of these aspects, we know that our system will always produce a complete and valid output with respect to the background knowledge we encode into it.
 
 \section{Objectives}
 
@@ -55,7 +55,7 @@ The approach described in this paper, known as \textsc{SumASG*}, can be diagramm
 \noindent
 As the first step in the pipeline, the \textsc{Preprocessor} plays an essential role. Given an input story, its goal is to simplify the story's sentences into a simpler and more consistent structure, one that will then be easier to parse by ASG. Additionally, the \textsc{Preprocessor} removes irrelevant sentences from the story and reduces it lexical diversity, which helps increase the chances of generating a high-quality summary.
 
-Once the story has been pre-processed, it then goes through a procedure we call \textsc{SumASG}. This revolves around a purpose-built internal representation of English sentences, represented as a tree. The first of two steps, \textsc{SumASG\textsubscript{1}}, involves translating sentences from the input story into our internal representation using ASG's learning abilities. From this, \textsc{SumASG\textsubscript{2}} then exploits a number of logic-based rules to generate sentences which may be used to form a summary.
+Once the story has been pre-processed, it then goes through a procedure we call \textsc{SumASG}. This revolves around a purpose-built representation of English sentences, represented as a tree. The first of two steps, \textsc{SumASG\textsubscript{1}}, involves translating sentences from the input story into our internal representation using ASG's learning abilities. From this, \textsc{SumASG\textsubscript{2}} then exploits a number of logic-based rules to generate sentences which may be used to form a summary.
 
 The third and final step in the pipeline serves to turn the output of \textsc{SumASG} into usable summaries. To begin, we post-process the summary sentences given to us as output, and combine them in different ways so as to form potential summaries. Afterwards we assign to each one a score, and only those with the highest scores are returned.
 
@@ -96,7 +96,7 @@ After researching existing state-of-the-art text summarization systems, identifi
 Implemented an algorithm that dramatically reduces the complexity in the structure of certain English sentences, without losing too much information (e.g., co-referencing).
 \end{contribution}
 
-\begin{contribution}[Removal Of Irrelevant Sentences And Homogenization]
+\begin{contribution}[Removal Of Irrelevant Sentences And Homogenisation]
 Implemented an algorithm which uses \textit{similarity} to remove irrelevant sentences from a short story, and replaces synonyms with a single representative in each set of synonyms.
 \end{contribution}
 

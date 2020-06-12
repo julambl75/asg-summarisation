@@ -1,11 +1,11 @@
 \label{chapter:related_work}
 
-We present in this chapter related work which will help in highlighting how our framework fits into the larger field of automated text summarization systems. After introducing a logic-based semantic analysis method (Section \ref{sec:semantic_analysis_methods}), we discuss a few existing approaches to solve the task of text summarization (Section \ref{sec:summarization_approaches}), and finish by differentiating between three main categories of such systems (Section \ref{sec:approach_categories}).
+In this chapter we introduce related work which will help in highlighting how our framework fits into the larger field of automated text summarization systems. After introducing a logic-based semantic analysis method (Section \ref{sec:semantic_analysis_methods}), we discuss a few existing approaches to solve the task of text summarization (Section \ref{sec:summarization_approaches}), and finish by differentiating between three main categories of such systems (Section \ref{sec:approach_categories}).
 
 \section{Semantic Analysis Methods}
 \label{sec:semantic_analysis_methods}
 
-Semantic analysis methods have been widely used to provide machines with a way of understanding the semantics of human language. In what follows we present a logic-based approach to semantic analysis.
+Semantic analysis methods have been widely used to provide machines with a way of understanding the semantics of human language. In what follows, we present a logic-based approach to semantic analysis.
 
 \subsection{Combinatory Categorial Grammar}
 \label{ssec:ccg}
@@ -153,7 +153,7 @@ From the second approach, the main takeaways are the storage mechanisms in use s
 \section{Approach Categories}
 \label{sec:approach_categories}
 
-Broadly speaking, there exist three categories in which we can place text summarization approaches: statistical, frame and symbolic (which is what our system uses).
+Broadly speaking, there exist three categories in which we can place text summarization approaches: frame, statistical and symbolic (which is what our system uses).
 
 \subsection{Frame}
 
@@ -268,4 +268,4 @@ As we have seen above, these rules allow us to compose tokens together, and in t
 
 \mbox{}
 
-One of the criticisms with this type of approach \cite{clark_combining_nodate} is that it is domain-specific and not easily scalable. However more recent work (as with CCG) has shown that the latter issue is not necessarily the case any more, as we now have more powerful parsers. The same could be said with a more complete implementation of \textsc{SumASG*}, one which would be able to parse a much wider diversity of sentence structures, and could be run on a supercomputer for performance reasons.
+One of the criticisms with this type of approach \cite{clark_combining_nodate} is that it is domain-specific and not easily scalable. However more recent work (as with CCG) has shown that the latter issue is not necessarily the case anymore, as we now have more powerful parsers. The same could be said with a more complete implementation of \textsc{SumASG*}, one which would be able to parse a much wider diversity of sentence structures, and could be run on a supercomputer for performance reasons.
