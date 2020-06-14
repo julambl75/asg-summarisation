@@ -195,9 +195,9 @@ The authors of the paper \cite{knight_statistics-based_2000} envision what they 
 \noindent
 In practice, the implementation discussed in the paper uses \textit{parse trees} rather than whole strings. Also, they use machine learning techniques in order to train their summarizer.
 
-To this end, they created what was referred to in the paper as a \textit{shared-forest} structure, allowing them to represent all compressions given an original text $t$; an example is shown in Figure \ref{fig:statistics_example}. Their system picks out high-scoring trees from the forest, and based on this score we can choose the best compression $s$ for $t$ (i.e., the summary $s$ which has the highest $P(s) \cdot P(t \vert s)$).
+To this end, they created what was referred to in the paper as a \textit{shared-forest} structure, allowing them to represent all compressions given an original text $t$; an example is shown in Figure \ref{fig:statistics_example}. Their system picks out high-scoring trees from the \textit{forest}, and based on this score we can choose the best compression $s$ for $t$ (i.e., the summary $s$ which has the highest $P(s) \cdot P(t \vert s)$).
 
-If the user wants a shorter or longer summary, the system can simply return the highest-scoring tree for a given length. In reality though their solution is a bit more complex, but the important points of the approach are here.
+If the user wants a shorter or longer summary, the system can simply return the highest-scoring tree for a given length. In reality though their solution is a bit more complex, but the important points of the approach are described here.
 
 \begin{figure}[H]
 \begin{subfigure}{0.3\textwidth}

@@ -68,7 +68,7 @@ rb -> ``fast " { adj_or_adv(fast). }
 
 As part of the input to \textsc{SumASG}, we receive some leaf nodes corresponding to words in the story, where the \textit{lemmas} and \textit{roles} have been assigned by the \textsc{Preprocessor}.
 
-In Figure \ref{fig:leaf_nodes}, you can see which POS tags fall under which \textit{roles}, keeping in mind that this categorization is only an optimization and was not intended to strictly adhere to English grammar.
+In Figure \ref{fig:leaf_nodes}, you can see which POS tags fall under which \textit{roles}, keeping in mind that this categorisation is only an optimisation and was not intended to strictly adhere to English grammar.
 
 \begin{figure}[H]
 \begin{subfigure}{\textwidth}
@@ -283,11 +283,11 @@ The set of rules that a task in ILASP is able to learn, as defined by the \texti
 
 With this in mind, it is preferable to feed in each sentence separately to \textsc{SumASG\textsubscript{1}}. Although it might seem easier at first to learn them all in one go, doing so individually limits the number of leaf nodes we need to add to the program.
 
-Using this optimization, learning the \textit{actions} from the \textit{simplified} and \textit{homogenized} story of Peter Little takes just a few minutes, rather than many hours.
+Using this optimisation, learning the \textit{actions} from the \textit{simplified} and \textit{homogenized} story of Peter Little takes just a few minutes, rather than many hours.
 
 \subsubsection*{Cutting Out Rules}
 
-We have also created a number of \textit{mode bias} rules which eliminate impossible or extremely improbable sentences. With this optimization, we have been able to take the search space size for a simple sentence down from 396 to 16, and from 9477 to 1044 for a more complicated one (i.e., one with more leaf nodes).
+We have also created a number of \textit{mode bias} rules which eliminate impossible or extremely improbable sentences. With this optimisation, we have been able to take the search space size for a simple sentence down from 396 to 16, and from 9477 to 1044 for a more complicated one (i.e., one with more leaf nodes).
 
 For example, the following rule says that we cannot have an \textit{action} where the object of sentence is a conjunction of two words which both have the same \textit{lemma}.
 
@@ -314,7 +314,7 @@ For instance, the phrase ``are eating" would require the following \textit{const
 \end{displayquote}
 
 \noindent
-Without the optimization, we would end up with a \textit{search space} size of 176 for the sentence ``they are eating apples". We are able to reduce this number to 20 thanks to a \textit{mode bias} that enforces learned continuous verbs to be exactly as they appear in the \textit{simplified} and \textit{homogenized} story:
+Without the optimisation, we would end up with a \textit{search space} size of 176 for the sentence ``they are eating apples". We are able to reduce this number to 20 thanks to a \textit{mode bias} that enforces learned continuous verbs to be exactly as they appear in the \textit{simplified} and \textit{homogenized} story:
 
 \begin{displayquote}
 \begin{lstlisting}[numbers=none]

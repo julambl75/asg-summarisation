@@ -440,4 +440,5 @@ s_{ti} &= a(d_{t-1},h_i)
 \end{aligned}
 \end{equation}
 
+\noindent
 Here the idea is that $\alpha_{ti}$ tells us how important each $h_i$ is with respect to the current timestep $t$, influencing the value of $d_t$ and hence the decision of the generated output \textit{token} $y_t$. Essentially, this is a way of telling the \textit{decoder} which parts of the input sequence to pay attention to. Thanks to this mechanism, the \textit{encoder} is no longer forced to compress all the useful information from an input sequence into a fixed-length vector, thus improving performance for longer sequences of \textit{tokens} \cite{bahdanau_neural_2016}.

@@ -180,7 +180,7 @@ A new approach attacked the \underline{lesson} \textbf{and} the \underline{leagu
 \end{displayquote}
 \caption{Predicted summary}
 \end{subfigure}
-\caption{Example of a story whose predicted summary is different from the expected summary, but with very close semantics}
+\caption{Example of a story whose predicted summary is different from the expected summary, but with very close semantics: here, the order of the \textit{objects} is slightly different, and the word ``counseling" has been replaced by ``patient"}
 \label{fig:discrepancy_example}
 \end{figure}
 
@@ -240,7 +240,7 @@ Unsurprisingly, \textsc{SumASG*} is able to produce a grammatically-correct summ
 
 However, our neural network has created a \textit{conjunctive summary} for perturbation \textbf{A} that changes the first two \textit{objects} to words with a slight semantic link, and makes too much of a generalisation of the third sentence of the modified story by omitting the \textit{object} noun. For perturbation \textbf{B}, the summary is even more different from the modified story: \textit{subjects} and \textit{objects} from different sentences have been put together, conveying a completely different meaning. Of course, this is extremely tied to the data we have used to train our \textit{encoder-decoder}, so such results were expected.
 
-From this experiment we conclude that \textsc{SumASG*} is more robust to small changes in the input than a neural network (with respect to training corpus), as well as much more consistent when it comes to producing a summary that is coherent with the original text.
+From this experiment we conclude that \textsc{SumASG*} is more robust to small changes in the input than a neural network (with respect to its training corpus), as well as much more consistent when it comes to producing a summary that is coherent with the original text.
 
 \subsection{Experiment 2: Input Validity Awareness}
 \label{subsec:experiment_2}

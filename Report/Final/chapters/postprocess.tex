@@ -60,7 +60,7 @@ Compound nouns, whose hyphen was replaced with an underscore for the internal re
 
 In addition, the task of summarization might have created a sentence where an incorrect verb form is used, or possibly the wrong determiner. To amend this we use a tool called \textbf{language-check}\footnote{language-check is Python package that is able to find grammatical errors: \url{https://pypi.org/project/language-check/}}, which is able to correct phrases like ``they has an dog" to ``they have a dog".
 
-Moreover, one of the optimizations done by the \textsc{Preprocessor} was to combine complex nouns such as ``Peter Little" into their camel-case form ``PeterLittle", so that they would be recognized as a single \textit{token} by \textsc{SumASG}. We now need to expand them back to their original form, which is how they should appear in English.
+Moreover, one of the optimisations done by the \textsc{Preprocessor} was to combine complex nouns such as ``Peter Little" into their camel-case form ``PeterLittle", so that they would be recognized as a single \textit{token} by \textsc{SumASG}. We now need to expand them back to their original form, which is how they should appear in English.
 
 \subsection{Combining}
 
