@@ -21,10 +21,10 @@ Once we have obtained potential sentences from ASG to be used in a summary, we n
 \node (post_process_3) [below =of post_process_2] {...};
 \node (post_process_4) [block, below =of post_process_3] {Post-Process};
 \node (combine) [block, right =of post_process_2] {Combine};
-\node (summary_1) [block, above right =of combine] {Summary 1};
-\node (summary_2) [block, below =of summary_1] {Summary 2};
+\node (summary_1) [inter, above right =of combine] {Summary 1};
+\node (summary_2) [inter, below =of summary_1] {Summary 2};
 \node (summary_3) [below =of summary_2] {...};
-\node (summary_4) [block, below =of summary_3] {Summary m};
+\node (summary_4) [inter, below =of summary_3] {Summary m};
 \node (score_1) [right =of summary_1] {Score};
 \node (score_2) [below =of score_1, right =of summary_2] {Score};
 \node (score_3) [below =of score_2] {...};
