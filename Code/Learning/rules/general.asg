@@ -16,26 +16,6 @@ s_group -> s_group s ". " {
   :- sentence(X1,V,O,S), sentence(X2,V,O,S), X1 != X2.
 }
 
-
-
-
-
-
-
-start -> np vp { }
-
-# TODO pick 1 rule for summarization to show simplified version for illustrating ASG
-# created more general/complex grammar
-
-
-
-
-
-
-
-
-
-
 s -> np vp {
   :- not action(verb(V_N,V_T),subject(S_N,S_D,S_A),object(O_N,O_D,O_A)), verb(V_N,V_T)@2, subject(S_N,S_D,S_A)@1, object(O_N,O_D,O_A)@2.
 
