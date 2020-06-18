@@ -41,7 +41,7 @@ if __name__ == '__main__':
     story, pos_summaries = process_args(args)
 
     print('Preprocessing text...')
-    preprocessor = Preprocessor(story, print_results=False)
+    preprocessor = Preprocessor(story, print_results=True)
     homogenized_story, proper_nouns = preprocessor.preprocess()
 
     text_to_summary = TextToSummary(homogenized_story, proper_nouns, pos_summaries)
