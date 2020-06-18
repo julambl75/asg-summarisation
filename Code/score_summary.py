@@ -8,7 +8,7 @@ from helper import Helper
 from parse_concept_net import ParseConceptNet
 
 
-TTR_IGNORE = {'a', 'the', 'be', 'being', 'is', 'am', 'are', 'is', 'was', 'were'}
+TTR_IGNORE = {'a', 'the', 'be', 'being', 'is', 'am', 'are', 'was', 'were'}
 TTR_IGNORE_MIN_FREQU_RATIO = 0.4
 
 SIMILAR_BLEU = 0.65

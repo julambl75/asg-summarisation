@@ -29,8 +29,8 @@ COMMON_NOUN_POS_PL = 'NNS'
 PROPER_NOUN_POS = 'NNP'
 PROPER_NOUN_POS_PL = 'NNPS'
 
+PAST_TENSE_VERB_POS = 'VBD'
 COMPLEX_CLAUSE_AUX_VERB_POS = 'VBN'
-COMPLEX_CLAUSE_SPLIT_VERBS = [('was', 'VBD'), ('is', 'VBZ')]
 COMPLEX_CLAUSE_SUBSTITUTIONS = {'a': 'the'}
 EOS_TOKENIZED = ('.', '.')
 
@@ -60,6 +60,7 @@ class TextSimplifier:
         self._remove_subordinating_conjunctions()
 
         tokenized = self.helper.tokenize_text(self.text)
+        tokenized = self._change_single_vbn_to_vbd(tokenized)
         tokenized = self._remove_punctuated_acronyms(tokenized)
         tokenized = self._combine_complex_nouns(tokenized)
         tokenized = self._move_adverbs_to_end(tokenized)
@@ -123,6 +124,17 @@ class TextSimplifier:
     #  -> She never walks alone. sunset. she is afraid of the dark.
     def _remove_subordinating_conjunctions(self):
         self.text = re.sub(SUBORDINATING_CONJUNCTIONS_REGEX, EOS, self.text)
+
+    # Ex: The system processed (VBN) a ticket. -> The system processed (VBD) a ticket.
+    def _change_single_vbn_to_vbd(self, tokenized):
+        for sentence in tokenized:
+            sentence_verbs = self._tokens_to_pos(sentence, VERB_POS)
+            if len(sentence_verbs) == 1:
+                verb_lemma, verb_pos = sentence_verbs[0]
+                if verb_pos == COMPLEX_CLAUSE_AUX_VERB_POS:
+                    verb_idx = sentence.index((verb_lemma, verb_pos))
+                    sentence[verb_idx] = (verb_lemma, PAST_TENSE_VERB_POS)
+        return tokenized
 
     # Ex: Mrs.   -> Mrs
     # Ex: U.S.A. -> USA

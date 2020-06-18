@@ -455,7 +455,6 @@ s -> np vp {
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(conjunct(V,V),_,_)),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(conjunct(_,0),_,_)),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(conjunct(0,_),_,_)),var__(1))).").
-
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(_,_,conjunct(V,V))),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(_,_,conjunct(_,0))),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,_),object(_,_,conjunct(0,_))),var__(1))).").
@@ -463,7 +462,6 @@ s -> np vp {
 #bias(":- head(holds_at_node(action(verb(_,_),subject(conjunct(V,V),_,_),object(_,_,_)),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(conjunct(_,0),_,_),object(_,_,_)),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(conjunct(0,_),_,_),object(_,_,_)),var__(1))).").
-
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(V,V)),object(_,_,_)),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(_,0)),object(_,_,_)),var__(1))).").
 #bias(":- head(holds_at_node(action(verb(_,_),subject(_,_,conjunct(0,_)),object(_,_,_)),var__(1))).").
@@ -494,18 +492,19 @@ s -> np vp {
   ...
 
   summary(0, V, S, O) :- action(_, V, S, O).
-
+  
   summary(1, verb(V,T), S, object(N2,D,A)) :- action(_, verb(V,T), S, object(N2,D,_)), action(_, verb(be,T), subject(it,_,_), object(_,_,A)).
   summary(2, verb(be,T), S, object(N,D1,conjunct(A2,A3))) :- action(_, verb(be,T), S, object(N,D1,_)), action(_, verb(be,T), subject(N,D2,A1), object(_,_,conjunct(A2,A3))).
   summary(3, V, subject(N1,0,0), object(N3,D,conjunct(A1,A2))) :- action(_, V, subject(conjunct(N1,N2),_,_), object(N3,D,A1)), action(_, V, subject(N1,_,_), object(N3,D,A2)).
-  summary(4, V, S, object(N,D1,conjunct(A1,A2))) :- action(I1, V, S, object(N,D1,A1)), action(I2, V, S, object(N,D2,A2)), A1 != A2, A1 != 0, A2 != 0, I1 < I2.
-  summary(5, V, S, object(N,D2,conjunct(A1,A2))) :- action(I1, V, S, object(N,D1,A1)), action(I2, V, S, object(N,D2,A2)), A1 != A2, A1 != 0, A2 != 0, I1 < I2.
-  summary(6, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,0,_)), action(I2, V, S, object(N2,D,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
-  summary(7, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,D,_)), action(I2, V, S, object(N2,0,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
-  summary(8, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,D,_)), action(I2, V, S, object(N2,D,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
-  summary(9, V1, subject(N, D1, conjunct(A1, A2)), object(0, 0, A3)) :- action(_, V1, subject(N, D1, A2), object(0, 0, A3)), action(_, V2, subject(_, 0, 0), object(N, D2, A1)), A1 != A3.
-  summary(10, V1, subject(N, D1, conjunct(A1, A2)), object(0, 0, A3)) :- action(_, V1, subject(N, D1, A2), object(0, 0, A3)), action(_, V2, subject(_, 0, 0), object(N, D2, conjunct(A1, _))), A1 != A3.
-  summary(11, V1, subject(N, D1, conjunct(A1, A2)), object(0, 0, A3)) :- action(_, V1, subject(N, D1, A2), object(0, 0, conjunct(A3,_))), action(_, V2, subject(_, 0, 0), object(N, D2, A1)), A1 != A3.
+  summary(4, V, S, object(0,0,conjunct(A1,A2))) :- action(I1, V, S, object(_,_,A1)), action(I2, V, S, object(_,_,A2)), A1 != A2, A1 != 0, A2 != 0, I1 < I2.
+  summary(5, V, S, object(N,D1,conjunct(A1,A2))) :- action(I1, V, S, object(N,D1,A1)), action(I2, V, S, object(N,D2,A2)), A1 != A2, A1 != 0, A2 != 0, I1 < I2.
+  summary(6, V, S, object(N,D2,conjunct(A1,A2))) :- action(I1, V, S, object(N,D1,A1)), action(I2, V, S, object(N,D2,A2)), A1 != A2, A1 != 0, A2 != 0, I1 < I2.
+  summary(7, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,0,_)), action(I2, V, S, object(N2,D,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
+  summary(8, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,D,_)), action(I2, V, S, object(N2,0,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
+  summary(9, V, S, object(conjunct(N1,N2),D,0)) :- action(I1, V, S, object(N1,D,_)), action(I2, V, S, object(N2,D,_)), N1 != N2, N1 != 0, N2 != 0, I1 < I2.
+  summary(10, V1, subject(N, D1, conjunct(A1, A2)), object(0, 0, A3)) :- action(_, V1, subject(N, D1, A2), object(0, 0, A3)), action(_, V2, subject(_, 0, 0), object(N, D2, A1)), A1 != A3.
+  summary(11, V1, subject(N, D1, conjunct(A1, A2)), object(0, 0, A3)) :- action(_, V1, subject(N, D1, A2), object(0, 0, A3)), action(_, V2, subject(_, 0, 0), object(N, D2, conjunct(A1, _))), A1 != A3.
+  summary(12, V1, subject(N, D1, conjunct(A1, A2)), object(0, 0, A3)) :- action(_, V1, subject(N, D1, A2), object(0, 0, conjunct(A3,_))), action(_, V2, subject(_, 0, 0), object(N, D2, A1)), A1 != A3.
 
   summary(I, V, S, object(conjunct(N1,N2),D,A)) :- summary(I, V, S, object(conjunct(conjunct(N1,N2),N3),D,A)).
   summary(I, V, S, object(conjunct(N1,N2),D,A)) :- summary(I, V, S, object(conjunct(N1,conjunct(N2,N3)),D,A)).

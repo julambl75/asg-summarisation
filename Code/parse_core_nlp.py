@@ -83,7 +83,7 @@ class ParseCoreNLP:
                     if tense in MAIN_VERB_FORMS:
                         self.constants.add(('main_verb', lemma))
                         self.constants.add(('main_form', tense))
-                    if tense in AUX_VERB_FORMS:
+                    elif tense in AUX_VERB_FORMS:
                         self.constants.add(('aux_verb', lemma))
                         self.constants.add(('aux_form', tense))
                 else:
